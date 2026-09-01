@@ -6,18 +6,21 @@ const properties = [
     location: "Kyiv, Ukraine",
     price: "$450,000",
     type: "Villa",
+    status: "For Sale",
   },
   {
     title: "Luxury Apartment",
     location: "Lviv, Ukraine",
-    price: "$280,000",
+    price: "$1,200/month",
     type: "Apartment",
+    status: "For Rent",
   },
   {
     title: "Family House",
     location: "Odesa, Ukraine",
     price: "$320,000",
     type: "House",
+    status: "For Sale",
   },
 ];
 
@@ -54,9 +57,15 @@ export default function FeaturedProperties() {
             </div>
 
             <div className="mt-5">
-              <p className="text-sm text-secondary">
-                {property.type}
-              </p>
+              <div className="flex items-center gap-3">
+                <p className="text-sm text-secondary">
+                  {property.type}
+                </p>
+
+                <span className="text-sm font-medium">
+                  {property.status}
+                </span>
+              </div>
 
               <h3 className="mt-1 font-serif text-2xl">
                 {property.title}

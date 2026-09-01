@@ -2,7 +2,7 @@ import Button from "@/components/ui/Button";
 
 export default function Hero() {
   return (
-    <section className="px-6 py-24">
+    <section className="px-6 py-6 ">
       <div className="mx-auto max-w-7xl">
         <div className="max-w-3xl">
           <p className="mb-4 text-sm font-medium uppercase tracking-[0.2em] text-secondary">

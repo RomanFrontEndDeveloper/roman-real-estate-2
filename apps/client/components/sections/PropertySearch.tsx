@@ -13,6 +13,24 @@ export default function PropertySearch() {
           </p>
         </div>
 
+        {/* Property Purpose */}
+        <div className="mb-6 flex gap-3">
+          <button
+            type="button"
+            className="rounded-lg bg-black px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-80"
+          >
+            For Sale
+          </button>
+
+          <button
+            type="button"
+            className="rounded-lg border border-border bg-white px-5 py-2.5 text-sm font-medium transition-opacity hover:opacity-70"
+          >
+            For Rent
+          </button>
+        </div>
+
+        {/* Search Filters */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Input placeholder="Location" />
 
@@ -23,6 +41,7 @@ export default function PropertySearch() {
             <option value="" disabled>
               Property Type
             </option>
+
             <option value="house">House</option>
             <option value="apartment">Apartment</option>
             <option value="villa">Villa</option>

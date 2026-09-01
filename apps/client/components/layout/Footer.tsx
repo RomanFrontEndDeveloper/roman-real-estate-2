@@ -5,9 +5,7 @@ export default function Footer() {
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div>
-            <h2 className="font-serif text-2xl font-bold">
-              Roman Real Estate
-            </h2>
+            <h2 className="font-serif text-2xl font-bold">Roman Real Estate</h2>
 
             <p className="mt-4 max-w-sm text-sm leading-6 text-secondary">
               Discover exceptional properties and find a place that feels like
@@ -50,9 +48,9 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 border-t border-border pt-6 text-sm text-secondary">
-          © 2026 Roman Real Estate. All rights reserved.
+          © {new Date().getFullYear()} Roman Real Estate. All rights reserved.
         </div>
       </div>
     </footer>
   );
-}   
+}

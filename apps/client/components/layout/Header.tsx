@@ -2,6 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Playwrite_DE_LA } from "next/font/google";
+
+const playwrite = Playwrite_DE_LA({
+  display: "swap", // Спочатку показати текст системним шрифтом,
+  //  а коли Playwrite завантажиться — замінити його на Playwrite.
+});
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -10,10 +16,7 @@ export default function Header() {
     <header className="border-b border-border bg-white">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
         {/* Logo */}
-        <Link
-          href="/"
-          className="font-serif text-2xl font-normal tracking-tight"
-        >
+        <Link href="/" className={`${playwrite.className} text-2xl`}>
           Roman Real Estate
         </Link>
 

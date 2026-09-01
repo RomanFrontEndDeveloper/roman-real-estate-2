@@ -8,13 +8,25 @@ import CTA from "@/components/sections/CTA";
 
 export default function Home() {
   return (
-    <div className="space-y-20">
+    <div className="space-y-15">
+      {/* Головний екран: заголовок, опис і основні CTA */}
       <Hero />
+      {/* Пошук нерухомості за параметрами */}
       <PropertySearch />
-      <FeaturedProperties /> fluorlocation
+
+      {/* Добірка рекомендованих об'єктів нерухомості */}
+      <FeaturedProperties />
+
+      {/* Категорії нерухомості: квартири, будинки, вілли, комерція */}
       <PropertyCategories />
+
+      {/* Популярні міста та локації */}
       <PopularLocations />
+
+      {/* Агенти: фото, ім'я, посада та кількість об'єктів */}
       <Agents />
+
+      {/* Фінальний заклик до дії: знайти нерухомість або зв'язатися */}
       <CTA />
     </div>
   );

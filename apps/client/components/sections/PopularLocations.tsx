@@ -1,3 +1,5 @@
+import Button from "../ui/Button";
+
 const locations = [
   {
     name: "Kyiv",
@@ -45,13 +47,13 @@ export default function PopularLocations() {
             <div className="mt-5">
               <h3 className="font-serif text-2xl">{location.name}</h3>
 
-              <p className="mt-2 text-sm text-secondary">
+              <p className="mt-2 text-sm text-secondary pb-4">
                 {location.properties}
               </p>
 
-              <button className="mt-5 text-sm font-medium">
+              <Button variant="outline">
                 Explore Location →
-              </button>
+              </Button>
             </div>
           </div>
         ))}

@@ -1,3 +1,5 @@
+import Button from "../ui/Button";
+
 
 const categories = [
   {
@@ -49,13 +51,13 @@ export default function PropertyCategories() {
               {category.title}
             </h3>
 
-            <p className="mt-3 text-secondary">
+            <p className="mt-3 text-secondary pb-4">
               {category.description}
             </p>
 
-            <button className="mt-6 text-sm font-medium">
+            <Button variant="outline">
               Explore →
-            </button>
+            </Button>
           </div>
         ))}
       </div>

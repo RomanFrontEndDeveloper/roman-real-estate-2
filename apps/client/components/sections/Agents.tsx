@@ -1,3 +1,5 @@
+import Button from "../ui/Button";
+
 const agents = [
   {
     name: "James Wilson",
@@ -54,13 +56,13 @@ export default function Agents() {
                 {agent.role}
               </p>
 
-              <p className="mt-3 text-sm text-secondary">
+              <p className="mt-3 text-sm text-secondary mb-4">
                 {agent.properties}
               </p>
 
-              <button className="mt-5 text-sm font-medium">
+              <Button variant="outline">
                 View Profile →
-              </button>
+              </Button>
             </div>
           </div>
         ))}
