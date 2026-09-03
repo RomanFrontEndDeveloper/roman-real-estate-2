@@ -12,3 +12,7 @@ export const createUser = async (data: {
 }) => {
   return User.create(data);
 };
+
+export const findUserById = async (id: string) => {
+  return User.findById(id);
+};

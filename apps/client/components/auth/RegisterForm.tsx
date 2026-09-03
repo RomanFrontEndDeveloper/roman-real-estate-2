@@ -22,14 +22,14 @@ export default function RegisterForm() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const form = event.currentTarget;
+    const form = event.currentTarget; // Reset message and set loading state
 
     setMessage("");
     setIsLoading(true);
 
-    const formData = new FormData(form);
+    const formData = new FormData(form); // Extract form data
 
-    const name = String(formData.get("name") ?? "");
+    const name = String(formData.get("name") ?? ""); // Extract form data
     const email = String(formData.get("email") ?? "");
     const password = String(formData.get("password") ?? "");
     const confirmPassword = String(formData.get("confirmPassword") ?? "");
