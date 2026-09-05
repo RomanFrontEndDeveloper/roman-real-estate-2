@@ -28,11 +28,11 @@ export const authenticate = (
   }
 
   try {
-    const payload = verifyAccessToken(token);
+    const payload = verifyAccessToken(token); // це дані, які були записані всередину JWT, коли backend його створював.
 
     req.user = {
-      userId: payload.sub,
-      role: payload.role,
+      userId: payload.sub, // це userId, який був записаний всередину JWT, коли backend його створював.
+      role: payload.role, // це роль користувача, яка була записана всередину JWT, коли backend його створював.
     };
 
     next();
@@ -42,3 +42,11 @@ export const authenticate = (
     });
   }
 };
+
+//наприклад:
+// {
+//   sub: "123456",
+//   role: "agent",
+//   iat: 1756900000,
+//   exp: 1756903600
+// }

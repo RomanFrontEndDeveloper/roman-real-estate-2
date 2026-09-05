@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
-
 import type { LoginDto } from "../dto/login.schema.js";
 import type { RegisterDto } from "../dto/register.schema.js";
+import { ApiError } from "../utils/api-error.js";
 
 import {
   createUser,
@@ -24,19 +24,10 @@ export const registerUser = async (data: RegisterDto) => {
   const existingUser = await findUserByEmail(normalizedEmail);
 
   if (existingUser) {
-    const error = new Error(
-      "User with this email already exists",
-    );
-
-    (error as Error & { statusCode?: number }).statusCode = 409;
-
-    throw error;
+    throw new ApiError("User with this email already exists", 409);
   }
 
-  const hashedPassword = await bcrypt.hash(
-    data.password,
-    SALT_ROUNDS,
-  );
+  const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
 
   const user = await createUser({
     name: normalizedName,
@@ -54,28 +45,13 @@ export const loginUser = async (data: LoginDto) => {
   const user = await findUserByEmail(normalizedEmail);
 
   if (!user) {
-    const error = new Error(
-      "Invalid email or password",
-    );
-
-    (error as Error & { statusCode?: number }).statusCode = 401;
-
-    throw error;
+    throw new ApiError("Invalid email or password", 401);
   }
 
-  const isPasswordValid = await bcrypt.compare(
-    data.password,
-    user.password,
-  );
+  const isPasswordValid = await bcrypt.compare(data.password, user.password);
 
   if (!isPasswordValid) {
-    const error = new Error(
-      "Invalid email or password",
-    );
-
-    (error as Error & { statusCode?: number }).statusCode = 401;
-
-    throw error;
+    throw new ApiError("Invalid email or password", 401);
   }
 
   const accessToken = createAccessToken({
@@ -94,22 +70,14 @@ export const loginUser = async (data: LoginDto) => {
   };
 };
 
-export const refreshAccessToken = async (
-  refreshToken: string,
-) => {
+export const refreshAccessToken = async (refreshToken: string) => {
   try {
     const payload = verifyRefreshToken(refreshToken);
 
     const user = await findUserById(payload.sub);
 
     if (!user) {
-      const error = new Error(
-        "Invalid refresh token",
-      );
-
-      (error as Error & { statusCode?: number }).statusCode = 401;
-
-      throw error;
+      throw new ApiError("Invalid refresh token", 401);
     }
 
     const accessToken = createAccessToken({
@@ -119,12 +87,6 @@ export const refreshAccessToken = async (
 
     return accessToken;
   } catch {
-    const error = new Error(
-      "Invalid refresh token",
-    );
-
-    (error as Error & { statusCode?: number }).statusCode = 401;
-
-    throw error;
+    throw new ApiError("Invalid refresh token", 401);
   }
 };

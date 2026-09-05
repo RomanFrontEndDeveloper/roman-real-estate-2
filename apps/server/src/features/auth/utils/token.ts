@@ -1,6 +1,10 @@
 import jwt from "jsonwebtoken";
 
-export type AuthRole = "admin" | "agency" | "agent" | "owner-client";
+export type AuthRole =
+  | "admin"
+  | "agency"
+  | "agent"
+  | "owner-client";
 
 export type AccessTokenPayload = {
   sub: string;
@@ -22,20 +26,29 @@ if (!JWT_REFRESH_SECRET) {
   throw new Error("JWT_REFRESH_SECRET is not defined");
 }
 
-export const createAccessToken = (payload: AccessTokenPayload): string => {
+export const createAccessToken = (
+  payload: AccessTokenPayload,
+): string => {
   return jwt.sign(payload, JWT_ACCESS_SECRET, {
     expiresIn: "15m",
   });
 };
 
-export const createRefreshToken = (payload: RefreshTokenPayload): string => {
+export const createRefreshToken = (
+  payload: RefreshTokenPayload,
+): string => {
   return jwt.sign(payload, JWT_REFRESH_SECRET, {
     expiresIn: "7d",
   });
 };
 
-export const verifyAccessToken = (token: string): AccessTokenPayload => {
-  const decoded = jwt.verify(token, JWT_ACCESS_SECRET);
+export const verifyAccessToken = (
+  token: string,
+): AccessTokenPayload => {
+  const decoded = jwt.verify(
+    token,
+    JWT_ACCESS_SECRET,
+  );
 
   if (
     typeof decoded !== "object" ||
@@ -52,11 +65,18 @@ export const verifyAccessToken = (token: string): AccessTokenPayload => {
   };
 };
 
-export const verifyRefreshToken = (token: string): RefreshTokenPayload => {
-  return jwt.verify(token, JWT_REFRESH_SECRET) as RefreshTokenPayload;
+export const verifyRefreshToken = (
+  token: string,
+): RefreshTokenPayload => {
+  return jwt.verify(
+    token,
+    JWT_REFRESH_SECRET,
+  ) as RefreshTokenPayload;
 };
 
-const isAuthRole = (role: unknown): role is AuthRole => {
+const isAuthRole = (
+  role: unknown,
+): role is AuthRole => {
   return (
     role === "admin" ||
     role === "agency" ||

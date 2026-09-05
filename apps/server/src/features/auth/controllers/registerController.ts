@@ -6,6 +6,8 @@ import {
   refreshAccessToken,
   registerUser,
 } from "../services/auth.service.js";
+import { findUserById } from "../repository/user.repository.js";
+import { formatValidationErrors } from "../utils/validation.js";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -14,10 +16,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     if (!result.success) {
       res.status(400).json({
         message: "Validation failed",
-        errors: result.error.issues.map((issue) => ({
-          field: issue.path.join("."),
-          message: issue.message,
-        })),
+        errors: formatValidationErrors(result.error),
       });
 
       return;
@@ -62,10 +61,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     if (!result.success) {
       res.status(400).json({
         message: "Validation failed",
-        errors: result.error.issues.map((issue) => ({
-          field: issue.path.join("."),
-          message: issue.message,
-        })),
+        errors: formatValidationErrors(result.error),
       });
 
       return;
@@ -131,6 +127,59 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
       accessToken,
     });
   } catch (error) {
-    // ...
+    res.status(401).json({ message: "Invalid or expired refresh token" });
   }
+};
+
+export const getCurrentUser = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({
+        message: "Authentication required",
+      });
+
+      return;
+    }
+
+    const user = await findUserById(req.user.userId);
+
+    if (!user) {
+      res.status(404).json({
+        message: "User not found",
+      });
+
+      return;
+    }
+
+    res.status(200).json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error("Get current user error:", error);
+
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+export const logout = (_req: Request, res: Response): void => {
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    path: "/api/auth",
+  });
+
+  res.status(200).json({
+    message: "Logout successful",
+  });
 };

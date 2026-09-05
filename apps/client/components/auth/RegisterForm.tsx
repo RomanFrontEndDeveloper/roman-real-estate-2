@@ -5,8 +5,14 @@ import { useState } from "react";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
 
+type ValidationError = {
+  field: string;
+  message: string;
+};
+
 type RegisterResponse = {
   message: string;
+  errors?: ValidationError[];
   user?: {
     id: string;
     name: string;
@@ -19,20 +25,24 @@ export default function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
-    const form = event.currentTarget; // Reset message and set loading state
+    const form = event.currentTarget;
 
     setMessage("");
     setIsLoading(true);
 
-    const formData = new FormData(form); // Extract form data
+    const formData = new FormData(form);
 
-    const name = String(formData.get("name") ?? ""); // Extract form data
+    const name = String(formData.get("name") ?? "");
     const email = String(formData.get("email") ?? "");
     const password = String(formData.get("password") ?? "");
-    const confirmPassword = String(formData.get("confirmPassword") ?? "");
+    const confirmPassword = String(
+      formData.get("confirmPassword") ?? "",
+    );
     const role = String(formData.get("role") ?? "");
 
     if (password !== confirmPassword) {
@@ -42,30 +52,44 @@ export default function RegisterForm() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "http://localhost:5000/api/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+            role,
+          }),
         },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-          role,
-        }),
-      });
+      );
 
       const data: RegisterResponse = await response.json();
 
       if (!response.ok) {
-        setMessage(data.message || "Registration failed.");
+        const validationMessage = data.errors
+          ?.map((error) => error.message)
+          .join(" ");
+
+        setMessage(
+          validationMessage ||
+            data.message ||
+            "Registration failed.",
+        );
+
         return;
       }
 
       setMessage("Account created successfully.");
       form.reset();
     } catch {
-      setMessage("Unable to connect to the server. Please try again.");
+      setMessage(
+        "Unable to connect to the server. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -75,7 +99,10 @@ export default function RegisterForm() {
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Account Type */}
       <div>
-        <label htmlFor="role" className="mb-2 block text-sm font-medium">
+        <label
+          htmlFor="role"
+          className="mb-2 block text-sm font-medium"
+        >
           Account Type
         </label>
 
@@ -85,11 +112,17 @@ export default function RegisterForm() {
           defaultValue="owner-client"
           className="h-12 w-full rounded-lg border border-border bg-white px-4 text-sm outline-none transition focus:border-primary"
         >
-          <option value="owner-client">Property Owner</option>
+          <option value="owner-client">
+            Property Owner
+          </option>
 
-          <option value="agent">Real Estate Agent</option>
+          <option value="agent">
+            Real Estate Agent
+          </option>
 
-          <option value="agency">Real Estate Agency</option>
+          <option value="agency">
+            Real Estate Agency
+          </option>
         </select>
       </div>
 
@@ -130,7 +163,11 @@ export default function RegisterForm() {
       />
 
       {/* Response Message */}
-      {message && <p className="text-sm text-secondary">{message}</p>}
+      {message && (
+        <p className="text-sm text-secondary">
+          {message}
+        </p>
+      )}
 
       {/* Submit */}
       <Button type="submit" disabled={isLoading}>

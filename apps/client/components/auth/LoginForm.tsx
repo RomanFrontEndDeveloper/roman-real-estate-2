@@ -5,8 +5,14 @@ import { useState } from "react";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
 
+type ValidationError = {
+  field: string;
+  message: string;
+};
+
 type LoginResponse = {
   message: string;
+  errors?: ValidationError[];
   user?: {
     id: string;
     name: string;
@@ -19,10 +25,12 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
-    const form = event.currentTarget; // Зберігаємо форму, тому що далі буде await.
+    const form = event.currentTarget;
 
     setMessage("");
     setIsLoading(true);
@@ -33,29 +41,43 @@ export default function LoginForm() {
     const password = String(formData.get("password") ?? "");
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "http://localhost:5000/api/auth/login",
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
         },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+      );
 
       const data: LoginResponse = await response.json();
 
       if (!response.ok) {
-        setMessage(data.message || "Login failed.");
+        const validationMessage = data.errors
+          ?.map((error) => error.message)
+          .join(" ");
+
+        setMessage(
+          validationMessage ||
+            data.message ||
+            "Login failed.",
+        );
+
         return;
       }
 
       setMessage("Login successful.");
       form.reset();
     } catch {
-      setMessage("Unable to connect to the server. Please try again.");
+      setMessage(
+        "Unable to connect to the server. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -82,7 +104,11 @@ export default function LoginForm() {
       />
 
       {/* Response Message */}
-      {message && <p className="text-sm text-secondary">{message}</p>}
+      {message && (
+        <p className="text-sm text-secondary">
+          {message}
+        </p>
+      )}
 
       {/* Submit */}
       <Button type="submit" disabled={isLoading}>
