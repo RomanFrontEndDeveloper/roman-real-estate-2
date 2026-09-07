@@ -1,6 +1,5 @@
 import Link from "next/link";
 import EditProfileForm from "@/components/profile/EditProfileForm";
-import UserPreferences from "@/components/profile/UserPreferences";
 import AccountSettings from "@/components/profile/AccountSettings";
 
 export default function EditProfilePage() {
@@ -21,9 +20,7 @@ export default function EditProfilePage() {
 
         <div className="rounded-xl border border-border bg-white p-6">
           <EditProfileForm />
-          <div className="mt-8">
-            <UserPreferences />
-          </div>
+
           <div className="mt-8">
             <AccountSettings />
           </div>

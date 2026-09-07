@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Playwrite_DE_LA } from "next/font/google";
 import router from "next/dist/shared/lib/router/router";
+import Button from "@/components/ui/Button";
 
 const playwrite = Playwrite_DE_LA({
   display: "swap", // Спочатку показати текст системним шрифтом,
@@ -80,13 +81,9 @@ export default function Header() {
         {/* Desktop Actions */}
         <div className="hidden items-center gap-4 md:flex">
           {isLoggedIn ? (
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="text-sm font-medium transition-opacity hover:opacity-70"
-            >
+            <Button type="button" variant="outline" onClick={handleLogout}>
               Logout
-            </button>
+            </Button>
           ) : (
             <>
               <Link
@@ -147,16 +144,16 @@ export default function Header() {
             </Link>
 
             {isLoggedIn ? (
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 onClick={() => {
                   handleLogout();
                   setIsMenuOpen(false);
                 }}
-                className="py-4 text-left text-sm font-medium"
               >
                 Logout
-              </button>
+              </Button>
             ) : (
               <>
                 <Link

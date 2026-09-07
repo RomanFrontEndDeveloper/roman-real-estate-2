@@ -1,41 +1,102 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
+import { useRouter } from "next/navigation";
+
 import { useForm } from "react-hook-form";
+
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import Image from "next/image";
+
 import Button from "../ui/Button";
+
 import Input from "../ui/Input";
 
 import { profileSchema, type ProfileFormValues } from "./profile.schema";
 
 export default function EditProfileForm() {
+  const router = useRouter();
+
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+
   const [message, setMessage] = useState("");
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
+
     defaultValues: {
-      name: "Romario Traveler",
+      name: "",
       phone: "",
       bio: "",
     },
   });
 
+  // Завантажуємо поточні дані профілю
+  useEffect(() => {
+    const loadProfile = async () => {
+      const accessToken = sessionStorage.getItem("accessToken");
+
+      if (!accessToken) {
+        setMessage("Authentication required.");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:5000/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          setMessage(result.message || "Failed to load profile.");
+          return;
+        }
+
+        const user = result.user;
+
+        // Заповнюємо форму даними з бази
+        reset({
+          name: user.name ?? "",
+          phone: user.phone ?? "",
+          bio: user.bio ?? "",
+        });
+
+        // Показуємо поточний avatar
+        if (user.avatar?.url) {
+          setAvatarPreview(user.avatar.url);
+        }
+      } catch {
+        setMessage("Unable to connect to the server.");
+      }
+    };
+
+    loadProfile();
+  }, [reset]);
+
   const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]; //отримали файл (фото) з інпуту, якщо він є. Якщо файлу немає, функція повертає undefined.
+    const file = event.target.files?.[0];
 
     if (!file) {
       return;
     }
 
-    const previewUrl = URL.createObjectURL(file); //створюємо тимчасовий URL для попереднього перегляду зображення, використовуючи метод URL.createObjectURL(). Цей метод створює тимчасовий URL, який можна використовувати для відображення зображення в браузері без необхідності завантажувати його на сервер.
+    setAvatarFile(file);
 
-    setAvatarPreview(previewUrl); //оновлюємо стан avatarPreview, щоб зберегти URL для попереднього перегляду зображення. Це дозволяє відобразити вибране зображення користувачу перед його завантаженням на сервер.
+    const previewUrl = URL.createObjectURL(file);
+
+    setAvatarPreview(previewUrl);
   };
 
   useEffect(() => {
@@ -44,7 +105,7 @@ export default function EditProfileForm() {
         URL.revokeObjectURL(avatarPreview);
       }
     };
-  }, [avatarPreview]); //цей useEffect виконує функцію очищення, яка викликається при розмонтуванні компонента або зміні avatarPreview. Якщо avatarPreview існує, викликається URL.revokeObjectURL(avatarPreview), щоб звільнити ресурси, пов'язані з тимчасовим URL. Це допомагає уникнути витоків пам'яті та забезпечує ефективне управління ресурсами.
+  }, [avatarPreview]);
 
   const onSubmit = async (data: ProfileFormValues) => {
     const accessToken = sessionStorage.getItem("accessToken");
@@ -57,23 +118,55 @@ export default function EditProfileForm() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/profile", {
+      // 1. Оновлюємо текстові дані профілю
+      const profileResponse = await fetch("http://localhost:5000/api/profile", {
         method: "PUT",
+
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
+
         body: JSON.stringify(data),
       });
 
-      const result = await response.json();
+      const profileResult = await profileResponse.json();
 
-      if (!response.ok) {
-        setMessage(result.message || "Failed to update profile.");
+      if (!profileResponse.ok) {
+        setMessage(profileResult.message || "Failed to update profile.");
         return;
       }
 
-      setMessage(result.message);
+      // 2. Якщо вибрали новий аватар — завантажуємо його
+      if (avatarFile) {
+        const formData = new FormData();
+
+        formData.append("avatar", avatarFile);
+
+        const avatarResponse = await fetch(
+          "http://localhost:5000/api/profile/avatar",
+          {
+            method: "POST",
+
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+
+            body: formData,
+          },
+        );
+
+        const avatarResult = await avatarResponse.json();
+
+        if (!avatarResponse.ok) {
+          setMessage(avatarResult.message || "Failed to update avatar.");
+          return;
+        }
+      }
+
+      setMessage("Profile updated successfully");
+
+      setAvatarFile(null);
     } catch {
       setMessage("Unable to connect to the server.");
     }
@@ -103,18 +196,27 @@ export default function EditProfileForm() {
           </div>
 
           <div>
-            <input
-              id="avatar"
-              name="avatar"
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarChange}
-              className="block w-full text-sm"
-            />
+            <div>
+              <label
+                htmlFor="avatar"
+                className="inline-flex cursor-pointer items-center rounded-lg border border-border px-4 py-2 text-sm font-medium transition hover:bg-gray-100"
+              >
+                Choose Photo
+              </label>
 
-            <p className="mt-2 text-xs text-secondary">
-              Choose an image for your profile avatar.
-            </p>
+              <input
+                id="avatar"
+                name="avatar"
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="hidden"
+              />
+
+              <p className="mt-2 text-xs text-secondary">
+                Choose an image for your profile avatar.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -176,8 +278,16 @@ export default function EditProfileForm() {
       </div>
 
       {/* Submit */}
-      <div className="flex items-center justify-between gap-4">
-        {message && <p className="text-sm text-secondary">{message}</p>}
+      <div className="flex items-center justify-end gap-3 mr-6">
+        {message && <p className="mr-auto text-sm text-secondary">{message}</p>}
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.push("/profile")}
+        >
+          Back
+        </Button>
 
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Saving..." : "Save Changes"}

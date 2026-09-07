@@ -2,14 +2,12 @@ import type { Request, Response } from "express";
 import { updateProfileSchema } from "../dto/update-profile.schema.js";
 import { changeEmailSchema } from "../dto/change-email.schema.js";
 import { changePasswordSchema } from "../dto/change-password.schema.js";
-import { updatePreferencesSchema } from "../dto/update-preferences.schema.js";
 
 import {
   changeUserEmail,
   changeUserPassword,
   updateProfile,
   updateProfileAvatar,
-  updateProfilePreferences,
 } from "../services/profile.service.js";
 
 export const updateAvatar = async (
@@ -62,60 +60,6 @@ export const updateAvatar = async (
           : error instanceof Error
             ? error.message
             : "Avatar update failed",
-    });
-  }
-};
-
-export const updatePreferences = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
-    if (!req.user) {
-      res.status(401).json({
-        message: "Authentication required",
-      });
-
-      return;
-    }
-
-    const result = updatePreferencesSchema.safeParse(req.body);
-
-    if (!result.success) {
-      res.status(400).json({
-        message: "Validation failed",
-        errors: result.error.issues.map((issue) => ({
-          field: issue.path.join("."),
-          message: issue.message,
-        })),
-      });
-
-      return;
-    }
-
-    const user = await updateProfilePreferences(req.user.userId, result.data);
-
-    res.status(200).json({
-      message: "Preferences updated successfully",
-      preferences: user.preferences,
-    });
-  } catch (error) {
-    const statusCode =
-      error instanceof Error &&
-      "statusCode" in error &&
-      typeof error.statusCode === "number"
-        ? error.statusCode
-        : 500;
-
-    console.error("Update preferences error:", error);
-
-    res.status(statusCode).json({
-      message:
-        statusCode === 500
-          ? "Internal server error"
-          : error instanceof Error
-            ? error.message
-            : "Preferences update failed",
     });
   }
 };
@@ -265,7 +209,15 @@ export const updateProfileData = async (
 
     res.status(200).json({
       message: "Profile updated successfully",
-      user,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        bio: user.bio,
+        avatar: user.avatar,
+      },
     });
   } catch (error) {
     const statusCode =

@@ -1,10 +1,15 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
+import { useRouter } from "next/navigation";
+
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import Button from "../ui/Button";
+
 import Input from "../ui/Input";
 
 import {
@@ -17,33 +22,36 @@ import {
   type ChangePasswordFormValues,
 } from "./change-password.schema";
 
+type ValidationError = {
+  field: string;
+  message: string;
+};
+
 export default function AccountSettings() {
+  const router = useRouter();
+
+  const [emailMessage, setEmailMessage] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
+
   const {
     register: registerEmail,
     handleSubmit: handleSubmitEmail,
-    formState: {
-      errors: emailErrors,
-      isSubmitting: isEmailSubmitting,
-    },
+    reset: resetEmailForm,
+    formState: { errors: emailErrors, isSubmitting: isEmailSubmitting },
   } = useForm<ChangeEmailFormValues>({
     resolver: zodResolver(changeEmailSchema),
-
     defaultValues: {
-      email: "romariotraveler@gmail.com",
+      email: "",
     },
   });
 
   const {
     register: registerPassword,
     handleSubmit: handleSubmitPassword,
-    formState: {
-      errors: passwordErrors,
-      isSubmitting: isPasswordSubmitting,
-    },
+    formState: { errors: passwordErrors, isSubmitting: isPasswordSubmitting },
     reset: resetPasswordForm,
   } = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(changePasswordSchema),
-
     defaultValues: {
       currentPassword: "",
       newPassword: "",
@@ -51,18 +59,135 @@ export default function AccountSettings() {
     },
   });
 
-  const onEmailSubmit = (
-    data: ChangeEmailFormValues,
-  ) => {
-    console.log("Change email:", data);
+  useEffect(() => {
+    const loadProfile = async () => {
+      const accessToken = sessionStorage.getItem("accessToken");
+
+      if (!accessToken) {
+        setEmailMessage("Authentication required.");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:5000/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          setEmailMessage(result.message || "Failed to load email.");
+          return;
+        }
+
+        const email = result.user.email ?? "";
+
+        resetEmailForm({
+          email,
+        });
+      } catch {
+        setEmailMessage("Unable to connect to the server.");
+      }
+    };
+
+    loadProfile();
+  }, [resetEmailForm]);
+
+  const onEmailSubmit = async (data: ChangeEmailFormValues) => {
+    const accessToken = sessionStorage.getItem("accessToken");
+
+    setEmailMessage("");
+
+    if (!accessToken) {
+      setEmailMessage("Authentication required.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/profile/email", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          email: data.email,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        const validationMessage = result.errors
+          ?.map((error: ValidationError) => error.message)
+          .join(" ");
+
+        setEmailMessage(
+          validationMessage || result.message || "Failed to update email.",
+        );
+
+        return;
+      }
+
+      setEmailMessage(result.message || "Email updated successfully.");
+
+      resetEmailForm({
+        email: data.email,
+      });
+    } catch {
+      setEmailMessage("Unable to connect to the server.");
+    }
   };
 
-  const onPasswordSubmit = (
-    data: ChangePasswordFormValues,
-  ) => {
-    console.log("Change password:", data);
+  const onPasswordSubmit = async (data: ChangePasswordFormValues) => {
+    const accessToken = sessionStorage.getItem("accessToken");
 
-    resetPasswordForm();
+    setPasswordMessage("");
+
+    if (!accessToken) {
+      setPasswordMessage("Authentication required.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/profile/password",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            currentPassword: data.currentPassword,
+            newPassword: data.newPassword,
+            confirmPassword: data.confirmPassword,
+          }),
+        },
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        const validationMessage = result.errors
+          ?.map((error: ValidationError) => error.message)
+          .join(" ");
+
+        setPasswordMessage(
+          validationMessage || result.message || "Failed to update password.",
+        );
+
+        return;
+      }
+
+      setPasswordMessage(result.message || "Password updated successfully.");
+
+      resetPasswordForm();
+    } catch {
+      setPasswordMessage("Unable to connect to the server.");
+    }
   };
 
   return (
@@ -70,24 +195,16 @@ export default function AccountSettings() {
       {/* Email */}
       <div className="rounded-xl border border-border bg-white p-6">
         <div className="mb-6">
-          <h2 className="font-serif text-2xl">
-            Email Address
-          </h2>
+          <h2 className="font-serif text-2xl">Email Address</h2>
 
           <p className="mt-2 text-sm text-secondary">
             Update the email address associated with your account.
           </p>
         </div>
 
-        <form
-          onSubmit={handleSubmitEmail(onEmailSubmit)}
-          className="space-y-5"
-        >
+        <form onSubmit={handleSubmitEmail(onEmailSubmit)} className="space-y-5">
           <div>
-            <label
-              htmlFor="email"
-              className="mb-2 block text-sm font-medium"
-            >
+            <label htmlFor="email" className="mb-2 block text-sm font-medium">
               Email Address
             </label>
 
@@ -103,16 +220,24 @@ export default function AccountSettings() {
                 {emailErrors.email.message}
               </p>
             )}
+
+            {emailMessage && (
+              <p className="mt-2 text-sm text-secondary">{emailMessage}</p>
+            )}
           </div>
 
-          <div className="flex justify-end">
+          {/* Actions */}
+          <div className="flex justify-end gap-3 border-t border-border pt-6">
             <Button
-              type="submit"
-              disabled={isEmailSubmitting}
+              type="button"
+              variant="outline"
+              onClick={() => router.push("/profile")}
             >
-              {isEmailSubmitting
-                ? "Saving..."
-                : "Change Email"}
+              Back
+            </Button>
+
+            <Button type="submit" disabled={isEmailSubmitting}>
+              {isEmailSubmitting ? "Saving..." : "Change Email"}
             </Button>
           </div>
         </form>
@@ -121,9 +246,7 @@ export default function AccountSettings() {
       {/* Password */}
       <div className="rounded-xl border border-border bg-white p-6">
         <div className="mb-6">
-          <h2 className="font-serif text-2xl">
-            Change Password
-          </h2>
+          <h2 className="font-serif text-2xl">Change Password</h2>
 
           <p className="mt-2 text-sm text-secondary">
             Update your account password.
@@ -131,9 +254,7 @@ export default function AccountSettings() {
         </div>
 
         <form
-          onSubmit={handleSubmitPassword(
-            onPasswordSubmit,
-          )}
+          onSubmit={handleSubmitPassword(onPasswordSubmit)}
           className="space-y-5"
         >
           {/* Current Password */}
@@ -149,17 +270,12 @@ export default function AccountSettings() {
               id="currentPassword"
               type="password"
               autoComplete="current-password"
-              {...registerPassword(
-                "currentPassword",
-              )}
+              {...registerPassword("currentPassword")}
             />
 
             {passwordErrors.currentPassword && (
               <p className="mt-2 text-sm text-secondary">
-                {
-                  passwordErrors.currentPassword
-                    .message
-                }
+                {passwordErrors.currentPassword.message}
               </p>
             )}
           </div>
@@ -182,10 +298,7 @@ export default function AccountSettings() {
 
             {passwordErrors.newPassword && (
               <p className="mt-2 text-sm text-secondary">
-                {
-                  passwordErrors.newPassword
-                    .message
-                }
+                {passwordErrors.newPassword.message}
               </p>
             )}
           </div>
@@ -203,29 +316,23 @@ export default function AccountSettings() {
               id="confirmPassword"
               type="password"
               autoComplete="new-password"
-              {...registerPassword(
-                "confirmPassword",
-              )}
+              {...registerPassword("confirmPassword")}
             />
 
             {passwordErrors.confirmPassword && (
               <p className="mt-2 text-sm text-secondary">
-                {
-                  passwordErrors.confirmPassword
-                    .message
-                }
+                {passwordErrors.confirmPassword.message}
               </p>
             )}
           </div>
 
+          {passwordMessage && (
+            <p className="text-sm text-secondary">{passwordMessage}</p>
+          )}
+
           <div className="flex justify-end">
-            <Button
-              type="submit"
-              disabled={isPasswordSubmitting}
-            >
-              {isPasswordSubmitting
-                ? "Saving..."
-                : "Change Password"}
+            <Button type="submit" disabled={isPasswordSubmitting}>
+              {isPasswordSubmitting ? "Saving..." : "Change Password"}
             </Button>
           </div>
         </form>

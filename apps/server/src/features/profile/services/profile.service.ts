@@ -9,7 +9,6 @@ import {
 import {
   updateUserEmail,
   updateUserPassword,
-  updateUserPreferences,
   updateUserAvatar,
   updateUserProfile,
 } from "../repository/user.repository.js";
@@ -47,26 +46,6 @@ export const updateProfileAvatar = async (
   }
 
   return updatedUser;
-};
-
-export const updateProfilePreferences = async (
-  userId: string,
-  preferences: {
-    emailNotifications: boolean;
-    propertyAlerts: boolean;
-  },
-) => {
-  const user = await updateUserPreferences(userId, preferences);
-
-  if (!user) {
-    const error = new Error("User not found");
-
-    (error as Error & { statusCode?: number }).statusCode = 404;
-
-    throw error;
-  }
-
-  return user;
 };
 
 export const changeUserEmail = async (userId: string, email: string) => {

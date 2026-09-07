@@ -24,13 +24,15 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     const user = await registerUser(result.data);
 
-    res.status(201).json({
-      message: "User registered successfully",
+    res.status(200).json({
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
+        phone: user.phone,
+        bio: user.bio,
+        avatar: user.avatar,
       },
     });
   } catch (error) {
@@ -160,6 +162,9 @@ export const getCurrentUser = async (
         name: user.name,
         email: user.email,
         role: user.role,
+        phone: user.phone,
+        bio: user.bio,
+        avatar: user.avatar,
       },
     });
   } catch (error) {

@@ -24,8 +24,6 @@ router.put("/email", authenticate, changeEmail);
 
 router.put("/password", authenticate, changePassword);
 
-router.put("/preferences", authenticate, updatePreferences);
-
 router.put("/", authenticate, updateProfileData);
 
 export default router;
