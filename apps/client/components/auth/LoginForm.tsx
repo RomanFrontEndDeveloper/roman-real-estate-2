@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
+import { useRouter } from "next/navigation";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
 
@@ -13,6 +13,7 @@ type ValidationError = {
 type LoginResponse = {
   message: string;
   errors?: ValidationError[];
+  accessToken?: string;
   user?: {
     id: string;
     name: string;
@@ -22,12 +23,11 @@ type LoginResponse = {
 };
 
 export default function LoginForm() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>,
-  ) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const form = event.currentTarget;
@@ -38,23 +38,21 @@ export default function LoginForm() {
     const formData = new FormData(form);
 
     const email = String(formData.get("email") ?? "");
+
     const password = String(formData.get("password") ?? "");
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/auth/login",
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
       const data: LoginResponse = await response.json();
 
@@ -63,21 +61,24 @@ export default function LoginForm() {
           ?.map((error) => error.message)
           .join(" ");
 
-        setMessage(
-          validationMessage ||
-            data.message ||
-            "Login failed.",
-        );
+        setMessage(validationMessage || data.message || "Login failed.");
 
         return;
       }
 
-      setMessage("Login successful.");
+      if (!data.accessToken) {
+        setMessage("Access token is missing.");
+        return;
+      }
+
+      sessionStorage.setItem("accessToken", data.accessToken);
+      window.dispatchEvent(new Event("auth-change"));
+
       form.reset();
+
+      router.push("/profile");
     } catch {
-      setMessage(
-        "Unable to connect to the server. Please try again.",
-      );
+      setMessage("Unable to connect to the server. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -104,11 +105,7 @@ export default function LoginForm() {
       />
 
       {/* Response Message */}
-      {message && (
-        <p className="text-sm text-secondary">
-          {message}
-        </p>
-      )}
+      {message && <p className="text-sm text-secondary">{message}</p>}
 
       {/* Submit */}
       <Button type="submit" disabled={isLoading}>

@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Playwrite_DE_LA } from "next/font/google";
+import router from "next/dist/shared/lib/router/router";
 
 const playwrite = Playwrite_DE_LA({
   display: "swap", // Спочатку показати текст системним шрифтом,
@@ -10,7 +12,38 @@ const playwrite = Playwrite_DE_LA({
 });
 
 export default function Header() {
+  const router = useRouter();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+    const checkAuth = () => {
+      const accessToken = sessionStorage.getItem("accessToken");
+
+      setIsLoggedIn(Boolean(accessToken));
+    };
+
+    checkAuth();
+
+    window.addEventListener("auth-change", checkAuth);
+
+    return () => {
+      window.removeEventListener("auth-change", checkAuth);
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch("http://localhost:5000/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } finally {
+      sessionStorage.removeItem("accessToken");
+      setIsLoggedIn(false);
+      router.push("/");
+    }
+  };
 
   return (
     <header className="border-b border-border bg-white">
@@ -46,19 +79,31 @@ export default function Header() {
 
         {/* Desktop Actions */}
         <div className="hidden items-center gap-4 md:flex">
-          <Link
-            href="/login"
-            className="text-sm font-medium transition-opacity hover:opacity-70"
-          >
-            Login
-          </Link>
+          {isLoggedIn ? (
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="text-sm font-medium transition-opacity hover:opacity-70"
+            >
+              Logout
+            </button>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="text-sm font-medium transition-opacity hover:opacity-70"
+              >
+                Login
+              </Link>
 
-          <Link
-            href="/signup"
-            className="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-80"
-          >
-            Get Started
-          </Link>
+              <Link
+                href="/register"
+                className="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-80"
+              >
+                Get Started
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -101,21 +146,36 @@ export default function Header() {
               About
             </Link>
 
-            <Link
-              href="/login"
-              onClick={() => setIsMenuOpen(false)}
-              className="py-4 text-sm font-medium"
-            >
-              Login
-            </Link>
+            {isLoggedIn ? (
+              <button
+                type="button"
+                onClick={() => {
+                  handleLogout();
+                  setIsMenuOpen(false);
+                }}
+                className="py-4 text-left text-sm font-medium"
+              >
+                Logout
+              </button>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="py-4 text-sm font-medium"
+                >
+                  Login
+                </Link>
 
-            <Link
-              href="/signup"
-              onClick={() => setIsMenuOpen(false)}
-              className="mt-2 rounded-lg bg-primary px-5 py-3 text-center text-sm font-medium text-white"
-            >
-              Get Started
-            </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="mt-2 rounded-lg bg-primary px-5 py-3 text-center text-sm font-medium text-white"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
           </nav>
         </div>
       )}

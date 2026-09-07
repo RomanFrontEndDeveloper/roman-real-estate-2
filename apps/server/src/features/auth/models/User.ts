@@ -7,6 +7,20 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: UserRole;
+
+  phone?: string;
+
+  bio?: string;
+
+  avatar?: {
+    url: string;
+    publicId: string;
+  };
+
+  preferences?: {
+    emailNotifications: boolean;
+    propertyAlerts: boolean;
+  };
 }
 
 const userSchema = new Schema<IUser>(
@@ -35,6 +49,40 @@ const userSchema = new Schema<IUser>(
       enum: ["admin", "agency", "agent", "owner-client"],
       default: "owner-client",
       required: true,
+    },
+
+    phone: {
+      type: String,
+      trim: true,
+    },
+
+    bio: {
+      type: String,
+      trim: true,
+    },
+
+    avatar: {
+      url: {
+        type: String,
+        trim: true,
+      },
+
+      publicId: {
+        type: String,
+        trim: true,
+      },
+    },
+
+    preferences: {
+      emailNotifications: {
+        type: Boolean,
+        default: true,
+      },
+
+      propertyAlerts: {
+        type: Boolean,
+        default: true,
+      },
     },
   },
   {
