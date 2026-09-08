@@ -13,6 +13,10 @@ export interface IUser extends Document {
     url: string;
     publicId: string;
   };
+
+  isVerified: boolean;
+  verificationTokenHash?: string;
+  verificationTokenExpires?: Date;
 }
 
 const userSchema = new Schema<IUser>(
@@ -62,6 +66,19 @@ const userSchema = new Schema<IUser>(
         type: String,
         trim: true,
       },
+    },
+
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    verificationTokenHash: {
+      type: String,
+    },
+
+    verificationTokenExpires: {
+      type: Date,
     },
   },
   {

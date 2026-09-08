@@ -72,7 +72,7 @@ export default function LoginForm() {
       }
 
       sessionStorage.setItem("accessToken", data.accessToken);
-      window.dispatchEvent(new Event("auth-change"));
+      window.dispatchEvent(new Event("auth-change"));//означає: «повідомити весь браузерний frontend, що стан авторизації змінився».
 
       form.reset();
 

@@ -1,11 +1,14 @@
 import type { Request, Response } from "express";
 import { loginSchema } from "../dto/login.schema.js";
 import { registerSchema } from "../dto/register.schema.js";
+
 import {
   loginUser,
   refreshAccessToken,
   registerUser,
+  verifyEmail,
 } from "../services/auth.service.js";
+
 import { findUserById } from "../repository/user.repository.js";
 import { formatValidationErrors } from "../utils/validation.js";
 
@@ -187,4 +190,44 @@ export const logout = (_req: Request, res: Response): void => {
   res.status(200).json({
     message: "Logout successful",
   });
+};
+
+export const verifyEmailController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { token } = req.query;
+
+    if (typeof token !== "string" || !token) {
+      res.status(400).json({
+        message: "Verification token is required",
+      });
+      return;
+    }
+
+    await verifyEmail(token);
+
+    res.status(200).json({
+      message: "Email verified successfully",
+    });
+  } catch (error) {
+    const statusCode =
+      error instanceof Error &&
+      "statusCode" in error &&
+      typeof error.statusCode === "number"
+        ? error.statusCode
+        : 500;
+
+    console.error("Verify email error:", error);
+
+    res.status(statusCode).json({
+      message:
+        statusCode === 500
+          ? "Internal server error"
+          : error instanceof Error
+            ? error.message
+            : "Email verification failed",
+    });
+  }
 };

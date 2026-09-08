@@ -19,8 +19,6 @@ export const updateUserAvatar = async (
   ).select("-password");
 };
 
-
-
 export const updateUserEmail = async (userId: string, email: string) => {
   return User.findByIdAndUpdate(
     userId,
@@ -59,4 +57,19 @@ export const updateUserProfile = async (
     returnDocument: "after",
     runValidators: true,
   }).select("-password");
+};
+
+export const removeUserAvatar = async (userId: string) => {
+  return User.findByIdAndUpdate(
+    userId,
+    {
+      $unset: {
+        avatar: 1,
+      },
+    },
+    {
+      returnDocument: "after",
+      runValidators: true,
+    },
+  ).select("-password");
 };

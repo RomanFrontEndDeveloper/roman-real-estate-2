@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
@@ -16,12 +16,29 @@ import Input from "../ui/Input";
 
 import { profileSchema, type ProfileFormValues } from "./profile.schema";
 
+type User = {
+  id: string;
+  name: string;
+  email: string;
+  role: "admin" | "agency" | "agent" | "owner-client";
+  phone?: string;
+  bio?: string;
+  avatar?: {
+    url: string;
+    publicId: string;
+  };
+};
+
 export default function EditProfileForm() {
   const router = useRouter();
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+
+  const [removeAvatar, setRemoveAvatar] = useState(false);
 
   const [message, setMessage] = useState("");
 
@@ -64,7 +81,7 @@ export default function EditProfileForm() {
           return;
         }
 
-        const user = result.user;
+        const user: User = result.user;
 
         // Заповнюємо форму даними з бази
         reset({
@@ -76,6 +93,8 @@ export default function EditProfileForm() {
         // Показуємо поточний avatar
         if (user.avatar?.url) {
           setAvatarPreview(user.avatar.url);
+        } else {
+          setAvatarPreview(null);
         }
       } catch {
         setMessage("Unable to connect to the server.");
@@ -85,6 +104,7 @@ export default function EditProfileForm() {
     loadProfile();
   }, [reset]);
 
+  // Вибір нового аватара
   const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
@@ -92,21 +112,43 @@ export default function EditProfileForm() {
       return;
     }
 
+    // Нове фото скасовує операцію видалення
+    setRemoveAvatar(false);
+
+    // Зберігаємо файл для upload
     setAvatarFile(file);
 
+    // Створюємо локальний preview
     const previewUrl = URL.createObjectURL(file);
 
     setAvatarPreview(previewUrl);
   };
 
+  // Очищення тимчасового blob URL
   useEffect(() => {
     return () => {
-      if (avatarPreview) {
+      if (avatarPreview?.startsWith("blob:")) {
         URL.revokeObjectURL(avatarPreview);
       }
     };
   }, [avatarPreview]);
 
+  // Видалення аватара
+  const handleRemoveAvatar = () => {
+    setAvatarPreview(null);
+
+    setAvatarFile(null);
+
+    setRemoveAvatar(true);
+
+    // Очищаємо input type="file"
+    // щоб можна було знову вибрати той самий файл
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  // Відправлення форми
   const onSubmit = async (data: ProfileFormValues) => {
     const accessToken = sessionStorage.getItem("accessToken");
 
@@ -118,7 +160,10 @@ export default function EditProfileForm() {
     }
 
     try {
+      // ==========================================
       // 1. Оновлюємо текстові дані профілю
+      // ==========================================
+
       const profileResponse = await fetch("http://localhost:5000/api/profile", {
         method: "PUT",
 
@@ -127,7 +172,10 @@ export default function EditProfileForm() {
           Authorization: `Bearer ${accessToken}`,
         },
 
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          removeAvatar,
+        }),
       });
 
       const profileResult = await profileResponse.json();
@@ -137,7 +185,14 @@ export default function EditProfileForm() {
         return;
       }
 
-      // 2. Якщо вибрали новий аватар — завантажуємо його
+      // Зберігаємо актуального користувача
+      // після PUT /api/profile
+      let updatedUser: User = profileResult.user;
+
+      // ==========================================
+      // 2. Якщо вибрали новий avatar
+      // ==========================================
+
       if (avatarFile) {
         const formData = new FormData();
 
@@ -162,11 +217,47 @@ export default function EditProfileForm() {
           setMessage(avatarResult.message || "Failed to update avatar.");
           return;
         }
+
+        // Backend повернув user вже з новим avatar
+        updatedUser = {
+          ...updatedUser,
+          ...avatarResult.user,
+        };
+
+        // Після успішного upload
+        // показуємо вже справжній URL Cloudinary,
+        // а не blob URL
+        if (avatarResult.user?.avatar?.url) {
+          setAvatarPreview(avatarResult.user.avatar.url);
+        }
       }
 
-      setMessage("Profile updated successfully");
+      // ==========================================
+      // 3. Повідомляємо Header,
+      //    що профіль змінився
+      // ==========================================
 
+      window.dispatchEvent(
+        new CustomEvent("profile-change", {
+          detail: updatedUser,
+        }),
+      );
+
+      // ==========================================
+      // 4. Все успішно
+      // ==========================================
+
+      setMessage("Profile updated successfully.");
+
+      // Скидаємо локальні стани
       setAvatarFile(null);
+
+      setRemoveAvatar(false);
+
+      // Очищаємо input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     } catch {
       setMessage("Unable to connect to the server.");
     }
@@ -181,6 +272,7 @@ export default function EditProfileForm() {
         </label>
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+          {/* Avatar preview */}
           <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-100 text-2xl font-semibold">
             {avatarPreview ? (
               <Image
@@ -191,12 +283,13 @@ export default function EditProfileForm() {
                 className="h-full w-full object-cover"
               />
             ) : (
-              "RT"
+              "FOTO"
             )}
           </div>
 
           <div>
-            <div>
+            <div className="flex gap-2">
+              {/* Choose Photo */}
               <label
                 htmlFor="avatar"
                 className="inline-flex cursor-pointer items-center rounded-lg border border-border px-4 py-2 text-sm font-medium transition hover:bg-gray-100"
@@ -204,19 +297,31 @@ export default function EditProfileForm() {
                 Choose Photo
               </label>
 
-              <input
-                id="avatar"
-                name="avatar"
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                className="hidden"
-              />
-
-              <p className="mt-2 text-xs text-secondary">
-                Choose an image for your profile avatar.
-              </p>
+              {/* Remove Photo */}
+              {avatarPreview && (
+                <button
+                  type="button"
+                  onClick={handleRemoveAvatar}
+                  className="inline-flex items-center rounded-lg border border-border px-4 py-2 text-sm font-medium transition hover:bg-gray-100"
+                >
+                  Remove Photo
+                </button>
+              )}
             </div>
+
+            <input
+              ref={fileInputRef}
+              id="avatar"
+              name="avatar"
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              className="hidden"
+            />
+
+            <p className="mt-2 text-xs text-secondary">
+              Choose an image for your profile avatar.
+            </p>
           </div>
         </div>
       </div>
@@ -278,7 +383,7 @@ export default function EditProfileForm() {
       </div>
 
       {/* Submit */}
-      <div className="flex items-center justify-end gap-3 mr-6">
+      <div className="mr-6 flex items-center justify-end gap-3">
         {message && <p className="mr-auto text-sm text-secondary">{message}</p>}
 
         <Button

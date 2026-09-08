@@ -1,35 +1,91 @@
 "use client";
 
 import Link from "next/link";
+
 import { useEffect, useState } from "react";
+
 import { useRouter } from "next/navigation";
+
 import { Playwrite_DE_LA } from "next/font/google";
-import router from "next/dist/shared/lib/router/router";
+
+import Image from "next/image";
+
 import Button from "@/components/ui/Button";
 
+import { apiFetch } from "@/lib/apiFetch";
+
 const playwrite = Playwrite_DE_LA({
-  display: "swap", // Спочатку показати текст системним шрифтом,
-  //  а коли Playwrite завантажиться — замінити його на Playwrite.
+  display: "swap",
 });
+
+type User = {
+  id: string;
+  name: string;
+  email: string;
+  role: "admin" | "agency" | "agent" | "owner-client";
+  phone?: string;
+  bio?: string;
+  avatar?: {
+    url: string;
+    publicId: string;
+  };
+};
+
+type MeResponse = {
+  user: User;
+};
 
 export default function Header() {
   const router = useRouter();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const [user, setUser] = useState<User | null>(null);
+
   useEffect(() => {
-    const checkAuth = () => {
+    const loadUser = async () => {
       const accessToken = sessionStorage.getItem("accessToken");
 
-      setIsLoggedIn(Boolean(accessToken));
+      if (!accessToken) {
+        setIsLoggedIn(false);
+        setUser(null);
+        return;
+      }
+
+      try {
+        const response = await apiFetch("/api/auth/me");
+
+        if (!response.ok) {
+          sessionStorage.removeItem("accessToken");
+
+          setIsLoggedIn(false);
+          setUser(null);
+
+          window.dispatchEvent(new Event("auth-change"));
+
+          return;
+        }
+
+        const data: MeResponse = await response.json();
+
+        setIsLoggedIn(true);
+        setUser(data.user);
+      } catch {
+        setIsLoggedIn(false);
+        setUser(null);
+      }
     };
 
-    checkAuth();
+    loadUser();
 
-    window.addEventListener("auth-change", checkAuth);
+    window.addEventListener("auth-change", loadUser);
+    window.addEventListener("profile-change", loadUser);
 
     return () => {
-      window.removeEventListener("auth-change", checkAuth);
+      window.removeEventListener("auth-change", loadUser);
+      window.removeEventListener("profile-change", loadUser);
     };
   }, []);
 
@@ -41,7 +97,12 @@ export default function Header() {
       });
     } finally {
       sessionStorage.removeItem("accessToken");
+
       setIsLoggedIn(false);
+      setUser(null);
+
+      window.dispatchEvent(new Event("auth-change"));
+
       router.push("/");
     }
   };
@@ -62,6 +123,7 @@ export default function Header() {
           >
             Properties
           </Link>
+
           <Link
             href="/profile"
             className="text-sm font-medium transition-opacity hover:opacity-70"
@@ -87,9 +149,38 @@ export default function Header() {
         {/* Desktop Actions */}
         <div className="hidden items-center gap-4 md:flex">
           {isLoggedIn ? (
-            <Button type="button" variant="outline" onClick={handleLogout}>
-              Logout
-            </Button>
+            <>
+              {/* Avatar */}
+              <Link
+                href="/profile"
+                className="flex items-center"
+                aria-label="Profile"
+              >
+                {user?.avatar?.url ? (
+                  <Image
+                    src={user.avatar.url}
+                    alt={user.name}
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold">
+                    {user?.name
+                      ?.split(" ")
+                      .map((word) => word[0])
+                      .join("")
+                      .slice(0, 2)
+                      .toUpperCase()}
+                  </div>
+                )}
+              </Link>
+
+              {/* Logout */}
+              <Button type="button" variant="outline" onClick={handleLogout}>
+                Logout
+              </Button>
+            </>
           ) : (
             <>
               <Link
@@ -132,6 +223,7 @@ export default function Header() {
             >
               Properties
             </Link>
+
             <Link
               href="/profile"
               onClick={() => setIsMenuOpen(false)}
@@ -157,16 +249,47 @@ export default function Header() {
             </Link>
 
             {isLoggedIn ? (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  handleLogout();
-                  setIsMenuOpen(false);
-                }}
-              >
-                Logout
-              </Button>
+              <>
+                {/* Mobile Avatar */}
+                <Link
+                  href="/profile"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center gap-3 border-b border-border py-4"
+                >
+                  {user?.avatar?.url ? (
+                    <Image
+                      src={user.avatar.url}
+                      alt={user.name}
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold">
+                      {user?.name
+                        ?.split(" ")
+                        .map((word) => word[0])
+                        .join("")
+                        .slice(0, 2)
+                        .toUpperCase()}
+                    </div>
+                  )}
+
+                  <span className="text-sm font-medium">{user?.name}</span>
+                </Link>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    handleLogout();
+                    setIsMenuOpen(false);
+                  }}
+                  className="mt-4"
+                >
+                  Logout
+                </Button>
+              </>
             ) : (
               <>
                 <Link

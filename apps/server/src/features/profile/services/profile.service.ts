@@ -1,6 +1,9 @@
 import { uploadAvatar } from "../utils/upload-avatar.js";
+
 import cloudinary from "../utils/cloudinary.js";
+
 import bcrypt from "bcryptjs";
+
 import {
   findUserById,
   findUserByEmail,
@@ -10,6 +13,7 @@ import {
   updateUserEmail,
   updateUserPassword,
   updateUserAvatar,
+  removeUserAvatar,
   updateUserProfile,
 } from "../repository/user.repository.js";
 
@@ -131,15 +135,64 @@ export const updateProfile = async (
     name: string;
     phone?: string;
     bio?: string;
+    removeAvatar?: boolean;
   },
 ) => {
-  const user = await updateUserProfile(userId, data);
+  const user = await findUserById(userId);
 
   if (!user) {
     const error = new Error("User not found");
+
     (error as Error & { statusCode?: number }).statusCode = 404;
+
     throw error;
   }
 
-  return user;
+  const { name, phone, bio, removeAvatar } = data;
+
+  if (removeAvatar && user.avatar?.publicId) {
+    await cloudinary.uploader.destroy(user.avatar.publicId);
+
+    const updatedUser = await removeUserAvatar(userId);
+
+    if (!updatedUser) {
+      const error = new Error("Failed to remove user avatar");
+
+      (error as Error & { statusCode?: number }).statusCode = 500;
+
+      throw error;
+    }
+
+    const finalUser = await updateUserProfile(userId, {
+      name,
+      phone,
+      bio,
+    });
+
+    if (!finalUser) {
+      const error = new Error("Failed to update profile");
+
+      (error as Error & { statusCode?: number }).statusCode = 500;
+
+      throw error;
+    }
+
+    return finalUser;
+  }
+
+  const updatedUser = await updateUserProfile(userId, {
+    name,
+    phone,
+    bio,
+  });
+
+  if (!updatedUser) {
+    const error = new Error("Failed to update profile");
+
+    (error as Error & { statusCode?: number }).statusCode = 500;
+
+    throw error;
+  }
+
+  return updatedUser;
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+
 import Button from "../ui/Button";
 import Input from "../ui/Input";
 
@@ -22,8 +22,8 @@ type RegisterResponse = {
 };
 
 export default function RegisterForm() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(false);
   const [message, setMessage] = useState("");
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -74,17 +74,29 @@ export default function RegisterForm() {
         return;
       }
 
-      setMessage("Account created successfully.");
-
       form.reset();
 
-      router.push("/login");
+      setMessage(
+        "Registration successful! Please check your email and verify your account.",
+      );
+
+      setIsRegistered(true);
     } catch {
       setMessage("Unable to connect to the server. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (isRegistered) {
+    return (
+      <div className="text-center">
+        <h2 className="mb-4 text-2xl font-semibold">Check your email</h2>
+
+        <p className="text-secondary">{message}</p>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
