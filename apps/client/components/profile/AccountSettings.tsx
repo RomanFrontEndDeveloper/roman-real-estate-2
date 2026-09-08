@@ -22,6 +22,8 @@ import {
   type ChangePasswordFormValues,
 } from "./change-password.schema";
 
+import { apiFetch } from "@/lib/apiFetch";
+
 type ValidationError = {
   field: string;
   message: string;
@@ -61,19 +63,15 @@ export default function AccountSettings() {
 
   useEffect(() => {
     const loadProfile = async () => {
-      const accessToken = sessionStorage.getItem("accessToken");
-
-      if (!accessToken) {
-        setEmailMessage("Authentication required.");
-        return;
-      }
-
       try {
-        const response = await fetch("http://localhost:5000/api/auth/me", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
+        const accessToken = sessionStorage.getItem("accessToken");
+
+        if (!accessToken) {
+          setEmailMessage("Authentication required.");
+          return;
+        }
+
+        const response = await apiFetch("/api/auth/me");
 
         const result = await response.json();
 
@@ -96,9 +94,9 @@ export default function AccountSettings() {
   }, [resetEmailForm]);
 
   const onEmailSubmit = async (data: ChangeEmailFormValues) => {
-    const accessToken = sessionStorage.getItem("accessToken");
-
     setEmailMessage("");
+
+    const accessToken = sessionStorage.getItem("accessToken");
 
     if (!accessToken) {
       setEmailMessage("Authentication required.");
@@ -106,11 +104,10 @@ export default function AccountSettings() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/profile/email", {
+      const response = await apiFetch("/api/profile/email", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
           email: data.email,
@@ -142,9 +139,9 @@ export default function AccountSettings() {
   };
 
   const onPasswordSubmit = async (data: ChangePasswordFormValues) => {
-    const accessToken = sessionStorage.getItem("accessToken");
-
     setPasswordMessage("");
+
+    const accessToken = sessionStorage.getItem("accessToken");
 
     if (!accessToken) {
       setPasswordMessage("Authentication required.");
@@ -152,21 +149,17 @@ export default function AccountSettings() {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/profile/password",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({
-            currentPassword: data.currentPassword,
-            newPassword: data.newPassword,
-            confirmPassword: data.confirmPassword,
-          }),
+      const response = await apiFetch("/api/profile/password", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword,
+          confirmPassword: data.confirmPassword,
+        }),
+      });
 
       const result = await response.json();
 

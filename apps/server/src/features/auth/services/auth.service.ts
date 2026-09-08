@@ -3,7 +3,6 @@ import type { LoginDto } from "../dto/login.schema.js";
 import type { RegisterDto } from "../dto/register.schema.js";
 import { ApiError } from "../utils/api-error.js";
 
-
 import {
   createUser,
   findUserByEmail,

@@ -1,11 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import { useRouter } from "next/navigation";
+
 import Link from "next/link";
 
+import Image from "next/image";
+
 import Button from "../ui/Button";
+
 import Card from "../ui/Card";
+
+import { apiFetch } from "@/lib/apiFetch";
 
 type User = {
   id: string;
@@ -26,38 +33,33 @@ type MeResponse = {
 
 export default function ProfileCard() {
   const router = useRouter();
-
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadUser = async () => {
-      const accessToken = sessionStorage.getItem("accessToken");
-
-      if (!accessToken) {
-        router.replace("/login");
-        return;
-      }
-
       try {
-        const response = await fetch("http://localhost:5000/api/auth/me", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
+        const accessToken = sessionStorage.getItem("accessToken");
+
+        if (!accessToken) {
+          router.replace("/login");
+          return;
+        }
+
+        const response = await apiFetch("/api/auth/me");
 
         if (!response.ok) {
           sessionStorage.removeItem("accessToken");
+          window.dispatchEvent(new Event("auth-change"));
           router.replace("/login");
           return;
         }
 
         const data: MeResponse = await response.json();
-
         setUser(data.user);
       } catch {
         sessionStorage.removeItem("accessToken");
+        window.dispatchEvent(new Event("auth-change"));
         router.replace("/login");
       } finally {
         setIsLoading(false);
@@ -66,7 +68,6 @@ export default function ProfileCard() {
 
     loadUser();
   }, [router]);
-
   if (isLoading) {
     return (
       <Card className="mx-auto max-w-2xl">
@@ -93,10 +94,12 @@ export default function ProfileCard() {
       <div className="flex flex-col items-center text-center">
         {/* Avatar */}
         {user.avatar?.url ? (
-          <img
+          <Image
             src={user.avatar.url}
             alt={user.name}
             className="h-24 w-24 rounded-full object-cover"
+            width={96}
+            height={96}
           />
         ) : (
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-100 text-2xl font-semibold">

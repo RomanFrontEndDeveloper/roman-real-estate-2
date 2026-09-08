@@ -57,10 +57,16 @@ export default function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-8 md:flex">
           <Link
-            href="/properties"
+            href="/"
             className="text-sm font-medium transition-opacity hover:opacity-70"
           >
             Properties
+          </Link>
+          <Link
+            href="/profile"
+            className="text-sm font-medium transition-opacity hover:opacity-70"
+          >
+            Profile
           </Link>
 
           <Link
@@ -120,11 +126,18 @@ export default function Header() {
         <div className="border-t border-border md:hidden">
           <nav className="flex flex-col px-6 py-6">
             <Link
-              href="/properties"
+              href="/"
               onClick={() => setIsMenuOpen(false)}
               className="border-b border-border py-4 text-sm font-medium"
             >
               Properties
+            </Link>
+            <Link
+              href="/profile"
+              onClick={() => setIsMenuOpen(false)}
+              className="border-b border-border py-4 text-sm font-medium"
+            >
+              Profile
             </Link>
 
             <Link

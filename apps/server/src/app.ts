@@ -4,7 +4,6 @@ import express from "express";
 import authRoutes from "./features/auth/routes/auth.routes.js";
 import profileRoutes from "./features/profile/routes/profile.routes.js";
 
-
 const app = express();
 
 app.use(
@@ -14,13 +13,13 @@ app.use(
   }),
 );
 
-app.use(express.json());//Це дозволяє працювати з JSON у запитах.
+app.use(express.json()); //Це дозволяє працювати з JSON у запитах.
 
-app.use(cookieParser());//Це дозволяє працювати з cookies у запитах.
+app.use(cookieParser()); //Це дозволяє працювати з cookies у запитах.
 
-app.use("/api/auth", authRoutes);//Це дозволяє працювати з роутами для авторизації.
+app.use("/api/auth", authRoutes); //Це дозволяє працювати з роутами для авторизації.
 
-app.use("/api/profile", profileRoutes);//Це дозволяє працювати з роутами для профілю.
+app.use("/api/profile", profileRoutes); //Це дозволяє працювати з роутами для профілю.
 
 app.get("/", (_req, res) => {
   res.json({

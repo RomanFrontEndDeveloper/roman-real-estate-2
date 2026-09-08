@@ -2,7 +2,6 @@ import { Router } from "express";
 
 import {
   updateAvatar,
-  updatePreferences,
   updateProfileData,
   changeEmail,
   changePassword,
