@@ -1,11 +1,15 @@
 import type { Request, Response } from "express";
 import { loginSchema } from "../dto/login.schema.js";
 import { registerSchema } from "../dto/register.schema.js";
+import { forgotPasswordSchema } from "../dto/forgot-password.schema.js";
+import { resetPasswordSchema } from "../dto/reset-password.schema.js";
 
 import {
+  forgotPassword,
   loginUser,
   refreshAccessToken,
   registerUser,
+  resetPassword,
   verifyEmail,
 } from "../services/auth.service.js";
 
@@ -228,6 +232,77 @@ export const verifyEmailController = async (
           : error instanceof Error
             ? error.message
             : "Email verification failed",
+    });
+  }
+};
+
+export const forgotPasswordController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const result = forgotPasswordSchema.safeParse(req.body);
+
+    if (!result.success) {
+      res.status(400).json({
+        message: "Validation failed",
+        errors: formatValidationErrors(result.error),
+      });
+      return;
+    }
+
+    await forgotPassword(result.data);
+
+    res.status(200).json({
+      message:
+        "If an account with this email exists, a password reset link has been sent.",
+    });
+  } catch (error) {
+    console.error("Forgot password error:", error);
+
+    res.status(500).json({
+      message: "Unable to send password reset email",
+    });
+  }
+};
+
+export const resetPasswordController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const result = resetPasswordSchema.safeParse(req.body);
+
+    if (!result.success) {
+      res.status(400).json({
+        message: "Validation failed",
+        errors: formatValidationErrors(result.error),
+      });
+      return;
+    }
+
+    await resetPassword(result.data);
+
+    res.status(200).json({
+      message: "Password has been reset successfully",
+    });
+  } catch (error) {
+    const statusCode =
+      error instanceof Error &&
+      "statusCode" in error &&
+      typeof error.statusCode === "number"
+        ? error.statusCode
+        : 500;
+
+    console.error("Reset password error:", error);
+
+    res.status(statusCode).json({
+      message:
+        statusCode === 500
+          ? "Unable to reset password"
+          : error instanceof Error
+            ? error.message
+            : "Unable to reset password",
     });
   }
 };

@@ -72,7 +72,7 @@ export default function LoginForm() {
       }
 
       sessionStorage.setItem("accessToken", data.accessToken);
-      window.dispatchEvent(new Event("auth-change"));//означає: «повідомити весь браузерний frontend, що стан авторизації змінився».
+      window.dispatchEvent(new Event("auth-change")); //означає: «повідомити весь браузерний frontend, що стан авторизації змінився».
 
       form.reset();
 
@@ -103,6 +103,17 @@ export default function LoginForm() {
         autoComplete="current-password"
         required
       />
+
+      {/* Forgot Password */}
+      <div className="text-right">
+        <button
+          type="button"
+          onClick={() => router.push("/forgot-password")}
+          className="text-sm text-secondary underline transition hover:opacity-80"
+        >
+          Forgot password?
+        </button>
+      </div>
 
       {/* Response Message */}
       {message && <p className="text-sm text-secondary">{message}</p>}

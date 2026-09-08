@@ -43,3 +43,47 @@ export const sendVerificationEmail = async (
     `,
   });
 };
+
+export const sendResetPasswordEmail = async (
+  email: string,
+  resetPasswordUrl: string,
+) => {
+  await transporter.sendMail({
+    from: process.env.MAIL_FROM,
+    to: email,
+    subject: "Reset your password",
+    html: `
+      <h2>Reset your Roman Real Estate password</h2>
+
+      <p>
+        We received a request to reset your password.
+      </p>
+
+      <p>
+        Click the button below to choose a new password:
+      </p>
+
+      <p>
+        <a
+          href="${resetPasswordUrl}"
+          style="
+            display: inline-block;
+            padding: 12px 20px;
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+          "
+        >
+          Reset your password
+        </a>
+      </p>
+
+      <p>This link will expire in 1 hour.</p>
+
+      <p>
+        If you did not request a password reset, you can safely ignore this email.
+      </p>
+    `,
+  });
+};

@@ -45,3 +45,48 @@ export const verifyUser = async (userId: string) => {
     },
   );
 };
+
+export const findUserByResetPasswordTokenHash = async (
+  resetPasswordTokenHash: string,
+) => {
+  return User.findOne({
+    resetPasswordTokenHash,
+  });
+};
+
+export const setResetPasswordToken = async (
+  userId: string,
+  resetPasswordTokenHash: string,
+  resetPasswordTokenExpires: Date,
+) => {
+  return User.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        resetPasswordTokenHash,
+        resetPasswordTokenExpires,
+      },
+    },
+    {
+      new: true,
+    },
+  );
+};
+
+export const resetUserPassword = async (userId: string, password: string) => {
+  return User.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        password,
+      },
+      $unset: {
+        resetPasswordTokenHash: 1,
+        resetPasswordTokenExpires: 1,
+      },
+    },
+    {
+      new: true,
+    },
+  );
+};

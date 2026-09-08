@@ -54,6 +54,7 @@ export default function AccountSettings() {
     reset: resetPasswordForm,
   } = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(changePasswordSchema),
+    mode: "onChange",
     defaultValues: {
       currentPassword: "",
       newPassword: "",

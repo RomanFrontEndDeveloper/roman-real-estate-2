@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 
 import type { LoginDto } from "../dto/login.schema.js";
 import type { RegisterDto } from "../dto/register.schema.js";
+import type { ForgotPasswordDto } from "../dto/forgot-password.schema.js";
 
 import { ApiError } from "../utils/api-error.js";
 
@@ -10,7 +11,10 @@ import {
   createUser,
   findUserByEmail,
   findUserById,
+  findUserByResetPasswordTokenHash,
   findUserByVerificationTokenHash,
+  resetUserPassword,
+  setResetPasswordToken,
   verifyUser,
 } from "../repository/user.repository.js";
 
@@ -20,11 +24,17 @@ import {
   verifyRefreshToken,
 } from "../utils/token.js";
 
-import { sendVerificationEmail } from "./mail.service.js";
+import {
+  sendResetPasswordEmail,
+  sendVerificationEmail,
+} from "./mail.service.js";
+
+import type { ResetPasswordDto } from "../dto/reset-password.schema.js";
 
 const SALT_ROUNDS = 12;
 
 const VERIFICATION_TOKEN_EXPIRES_IN = 60 * 60 * 1000; // 1 hour
+const RESET_PASSWORD_TOKEN_EXPIRES_IN = 60 * 60 * 1000; // 1 hour
 
 export const registerUser = async (data: RegisterDto) => {
   const normalizedEmail = data.email.trim().toLowerCase();
@@ -128,9 +138,7 @@ export const verifyEmail = async (token: string) => {
     .update(token)
     .digest("hex");
 
-  const user = await findUserByVerificationTokenHash(
-    verificationTokenHash,
-  );
+  const user = await findUserByVerificationTokenHash(verificationTokenHash);
 
   if (!user) {
     throw new ApiError("Invalid verification token", 400);
@@ -154,4 +162,68 @@ export const verifyEmail = async (token: string) => {
   }
 
   return verifiedUser;
+};
+
+export const forgotPassword = async (data: ForgotPasswordDto) => {
+  const normalizedEmail = data.email.trim().toLowerCase();
+
+  const user = await findUserByEmail(normalizedEmail);
+
+  if (!user) {
+    return;
+  }
+
+  const resetPasswordToken = crypto.randomBytes(32).toString("hex");
+
+  const resetPasswordTokenHash = crypto
+    .createHash("sha256")
+    .update(resetPasswordToken)
+    .digest("hex");
+
+  const resetPasswordTokenExpires = new Date(
+    Date.now() + RESET_PASSWORD_TOKEN_EXPIRES_IN,
+  );
+
+  await setResetPasswordToken(
+    user._id.toString(),
+    resetPasswordTokenHash,
+    resetPasswordTokenExpires,
+  );
+
+  const resetPasswordUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetPasswordToken}`;
+
+  await sendResetPasswordEmail(normalizedEmail, resetPasswordUrl);
+};
+
+export const resetPassword = async (data: ResetPasswordDto) => {
+  const resetPasswordTokenHash = crypto
+    .createHash("sha256")
+    .update(data.token)
+    .digest("hex");
+
+  const user = await findUserByResetPasswordTokenHash(resetPasswordTokenHash);
+
+  if (!user) {
+    throw new ApiError("Invalid reset password token", 400);
+  }
+
+  if (
+    !user.resetPasswordTokenExpires ||
+    user.resetPasswordTokenExpires.getTime() < Date.now()
+  ) {
+    throw new ApiError("Reset password token has expired", 400);
+  }
+
+  const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
+
+  const updatedUser = await resetUserPassword(
+    user._id.toString(),
+    hashedPassword,
+  );
+
+  if (!updatedUser) {
+    throw new ApiError("Unable to reset password", 500);
+  }
+
+  return updatedUser;
 };
