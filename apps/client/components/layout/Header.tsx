@@ -1,17 +1,12 @@
 "use client";
 
 import Link from "next/link";
-
+import Image from "next/image";
 import { useEffect, useState } from "react";
-
 import { useRouter } from "next/navigation";
-
 import { Playwrite_DE_LA } from "next/font/google";
 
-import Image from "next/image";
-
 import Button from "@/components/ui/Button";
-
 import { apiFetch } from "@/lib/apiFetch";
 
 const playwrite = Playwrite_DE_LA({
@@ -39,9 +34,7 @@ export default function Header() {
   const router = useRouter();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -59,7 +52,6 @@ export default function Header() {
 
         if (!response.ok) {
           sessionStorage.removeItem("accessToken");
-
           setIsLoggedIn(false);
           setUser(null);
 
@@ -100,6 +92,7 @@ export default function Header() {
 
       setIsLoggedIn(false);
       setUser(null);
+      setIsMenuOpen(false);
 
       window.dispatchEvent(new Event("auth-change"));
 
@@ -107,18 +100,32 @@ export default function Header() {
     }
   };
 
+  const userInitials = user?.name
+    ?.split(" ")
+    .map((word) => word[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
   return (
-    <header className="border-b border-border bg-white">
+    <header className="sticky top-0 z-50 border-b border-border bg-white">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
         {/* Logo */}
-        <Link href="/" className={`${playwrite.className} text-2xl`}>
+        <Link href="/" className={`${playwrite.className} mr-8 text-2xl`}>
           Roman Real Estate
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-4 min-[950px]:flex">
           <Link
             href="/"
+            className="text-sm font-medium transition-opacity hover:opacity-70"
+          >
+            Home
+          </Link>
+
+          <Link
+            href="/property"
             className="text-sm font-medium transition-opacity hover:opacity-70"
           >
             Properties
@@ -147,9 +154,19 @@ export default function Header() {
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden items-center gap-4 md:flex">
+        <div className="hidden items-center gap-4 min-[950px]:flex">
           {isLoggedIn ? (
             <>
+              {/* Create Property */}
+              <Link href="/property/create">
+                <Button type="button">Create Property</Button>
+              </Link>
+
+              {/* Logout */}
+              <Button type="button" variant="outline" onClick={handleLogout}>
+                Logout
+              </Button>
+
               {/* Avatar */}
               <Link
                 href="/profile"
@@ -166,23 +183,14 @@ export default function Header() {
                   />
                 ) : (
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold">
-                    {user?.name
-                      ?.split(" ")
-                      .map((word) => word[0])
-                      .join("")
-                      .slice(0, 2)
-                      .toUpperCase()}
+                    {userInitials}
                   </div>
                 )}
               </Link>
-
-              {/* Logout */}
-              <Button type="button" variant="outline" onClick={handleLogout}>
-                Logout
-              </Button>
             </>
           ) : (
             <>
+              {/* Login */}
               <Link
                 href="/login"
                 className="text-sm font-medium transition-opacity hover:opacity-70"
@@ -190,6 +198,7 @@ export default function Header() {
                 Login
               </Link>
 
+              {/* Get Started */}
               <Link
                 href="/register"
                 className="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-80"
@@ -200,11 +209,34 @@ export default function Header() {
           )}
         </div>
 
+        {/* Mobile Avatar */}
+        {isLoggedIn && (
+          <Link
+            href="/profile"
+            className="ml-auto mr-8 flex items-center min-[950px]:hidden"
+            aria-label="Profile"
+          >
+            {user?.avatar?.url ? (
+              <Image
+                src={user.avatar.url}
+                alt={user.name}
+                width={40}
+                height={40}
+                className="h-10 w-10 rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold">
+                {userInitials}
+              </div>
+            )}
+          </Link>
+        )}
+
         {/* Mobile Menu Button */}
         <button
           type="button"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="text-2xl md:hidden"
+          onClick={() => setIsMenuOpen((prev) => !prev)}
+          className="text-2xl min-[950px]:hidden"
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           aria-expanded={isMenuOpen}
         >
@@ -214,10 +246,19 @@ export default function Header() {
 
       {/* Mobile Navigation */}
       {isMenuOpen && (
-        <div className="border-t border-border md:hidden">
+        <div className="border-t border-border min-[950px]:hidden">
           <nav className="flex flex-col px-6 py-6">
+            {/* Navigation Links */}
             <Link
               href="/"
+              onClick={() => setIsMenuOpen(false)}
+              className="border-b border-border py-4 text-sm font-medium"
+            >
+              Home
+            </Link>
+
+            <Link
+              href="/property"
               onClick={() => setIsMenuOpen(false)}
               className="border-b border-border py-4 text-sm font-medium"
             >
@@ -248,43 +289,24 @@ export default function Header() {
               About
             </Link>
 
+            {/* Logged In */}
             {isLoggedIn ? (
               <>
-                {/* Mobile Avatar */}
-                <Link
-                  href="/profile"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="flex items-center gap-3 border-b border-border py-4"
-                >
-                  {user?.avatar?.url ? (
-                    <Image
-                      src={user.avatar.url}
-                      alt={user.name}
-                      width={40}
-                      height={40}
-                      className="h-10 w-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold">
-                      {user?.name
-                        ?.split(" ")
-                        .map((word) => word[0])
-                        .join("")
-                        .slice(0, 2)
-                        .toUpperCase()}
-                    </div>
-                  )}
+                {/* Create Property */}
+                <div className="flex justify-center pt-4">
+                  <Link
+                    href="/property/create"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Button type="button">Create Property</Button>
+                  </Link>
+                </div>
 
-                  <span className="text-sm font-medium">{user?.name}</span>
-                </Link>
-
+                {/* Logout */}
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => {
-                    handleLogout();
-                    setIsMenuOpen(false);
-                  }}
+                  onClick={handleLogout}
                   className="mt-4"
                 >
                   Logout
@@ -292,6 +314,7 @@ export default function Header() {
               </>
             ) : (
               <>
+                {/* Login */}
                 <Link
                   href="/login"
                   onClick={() => setIsMenuOpen(false)}
@@ -300,6 +323,7 @@ export default function Header() {
                   Login
                 </Link>
 
+                {/* Get Started */}
                 <Link
                   href="/register"
                   onClick={() => setIsMenuOpen(false)}

@@ -4,18 +4,18 @@ import LoginForm from "@/components/auth/LoginForm";
 
 export default function LoginPage() {
   return (
-    <section className="mx-auto max-w-2xl px-6 py-20">
-      <div className="mx-auto max-w-lg">
-        <div className="mb-10 text-center">
-          <p className="text-sm uppercase tracking-[0.25em] text-secondary">
+    <main className="flex min-h-[calc(100vh-5rem)] items-center justify-center px-6 py-16">
+      <div className="w-full max-w-md">
+        <div className="mb-8 text-center">
+          <p className="text-sm uppercase tracking-[0.2em] text-secondary">
             Welcome Back
           </p>
 
-          <h1 className="mt-4 font-serif text-4xl">
+          <h1 className="mt-3 font-serif text-4xl">
             Login to Roman Real Estate
           </h1>
 
-          <p className="mt-4 text-secondary">
+          <p className="mt-3 text-secondary">
             Sign in to manage your account and properties.
           </p>
         </div>
@@ -32,6 +32,6 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
-    </section>
+    </main>
   );
 }

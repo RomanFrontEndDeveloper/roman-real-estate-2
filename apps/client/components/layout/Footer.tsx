@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <footer className="border-t border-border bg-white">
@@ -18,9 +20,43 @@ export default function Footer() {
             <h3 className="text-sm font-semibold">Navigation</h3>
 
             <ul className="mt-4 space-y-3 text-sm text-secondary">
-              <li>Properties</li>
-              <li>Agents</li>
-              <li>About</li>
+              <li>
+                <Link
+                  href="/"
+                  className="transition-colors hover:text-foreground"
+                >
+                  Home
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/property"
+                  className="transition-colors hover:text-foreground"
+                >
+                  Property
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/profile"
+                  className="transition-colors hover:text-foreground"
+                >
+                  Profile
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/agents"
+                  className="transition-colors hover:text-foreground"
+                >
+                  Agents
+                </Link>
+              </li>
+
+              
             </ul>
           </div>
 
@@ -42,7 +78,6 @@ export default function Footer() {
             <ul className="mt-4 space-y-3 text-sm text-secondary">
               <li>Kyiv, Ukraine</li>
               <li>hello@romanrealestate.com</li>
-              <li>+380 00 000 00 00</li>
             </ul>
           </div>
         </div>

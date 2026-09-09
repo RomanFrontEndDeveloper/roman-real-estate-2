@@ -72,7 +72,7 @@ export default function ProfileCard() {
     return (
       <Card className="mx-auto max-w-2xl">
         <div className="py-12 text-center">
-          <p className="text-secondary">Loading profile...</p>
+          <p className="font-serif text-2xl text-secondary">Loading profile...</p>
         </div>
       </Card>
     );
