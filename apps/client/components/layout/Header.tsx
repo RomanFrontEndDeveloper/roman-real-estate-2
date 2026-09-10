@@ -124,19 +124,21 @@ export default function Header() {
             Home
           </Link>
 
-          <Link
+          {/* <Link
             href="/property"
             className="text-sm font-medium transition-opacity hover:opacity-70"
           >
             Properties
-          </Link>
+          </Link> */}
 
-          <Link
-            href="/profile"
-            className="text-sm font-medium transition-opacity hover:opacity-70"
-          >
-            Profile
-          </Link>
+          {isLoggedIn && (
+            <Link
+              href="/profile"
+              className="text-sm font-medium transition-opacity hover:opacity-70"
+            >
+              Profile
+            </Link>
+          )}
 
           <Link
             href="/agents"
@@ -257,21 +259,23 @@ export default function Header() {
               Home
             </Link>
 
-            <Link
+            {/* <Link
               href="/property"
               onClick={() => setIsMenuOpen(false)}
               className="border-b border-border py-4 text-sm font-medium"
             >
               Properties
-            </Link>
+            </Link> */}
 
-            <Link
-              href="/profile"
-              onClick={() => setIsMenuOpen(false)}
-              className="border-b border-border py-4 text-sm font-medium"
-            >
-              Profile
-            </Link>
+            {isLoggedIn && (
+              <Link
+                href="/profile"
+                onClick={() => setIsMenuOpen(false)}
+                className="border-b border-border py-4 text-sm font-medium"
+              >
+                Profile
+              </Link>
+            )}
 
             <Link
               href="/agents"

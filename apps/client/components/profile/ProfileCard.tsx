@@ -72,7 +72,9 @@ export default function ProfileCard() {
     return (
       <Card className="mx-auto max-w-2xl">
         <div className="py-12 text-center">
-          <p className="font-serif text-2xl text-secondary">Loading profile...</p>
+          <p className="font-serif text-2xl text-secondary">
+            Loading profile...
+          </p>
         </div>
       </Card>
     );
@@ -164,7 +166,13 @@ export default function ProfileCard() {
       </div>
 
       {/* Actions */}
-      <div className="mt-8 flex justify-end">
+      <div className="mt-8 flex justify-end gap-3">
+        <Link
+          href="/property"
+          className="text-sm font-medium transition-opacity hover:opacity-70"
+        >
+          <Button variant="outline">My Properties</Button>
+        </Link>
         <Link href="/profile/edit">
           <Button>Edit Profile</Button>
         </Link>

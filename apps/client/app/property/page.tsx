@@ -67,6 +67,7 @@ export default function PropertyPage() {
         {properties.map((property) => (
           <PropertyCard
             key={property._id}
+            id={property._id}
             title={property.title}
             description={property.description}
             price={property.price}
