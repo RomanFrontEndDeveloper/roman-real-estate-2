@@ -12,6 +12,8 @@ export interface IProperty extends Document {
   kitchenArea: number;
   area: number;
   owner: mongoose.Types.ObjectId;
+  mainImage: string;
+  images: string[];
 }
 
 const propertySchema = new Schema<IProperty>(
@@ -76,6 +78,16 @@ const propertySchema = new Schema<IProperty>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+
+    mainImage: {
+      type: String,
+      default: "",
+    },
+
+    images: {
+      type: [String],
+      default: [],
     },
   },
   {

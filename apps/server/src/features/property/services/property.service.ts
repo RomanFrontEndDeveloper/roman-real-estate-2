@@ -13,8 +13,18 @@ export const getProperties = async () => {
   return propertyRepository.findProperties();
 };
 
+export const getMyProperties = async (userId: string) => {
+  return propertyRepository.findPropertiesByOwner(userId);
+};
+
 export const getPropertyById = async (id: string) => {
-  return propertyRepository.findPropertyById(id);
+  const property = await propertyRepository.findPropertyById(id);
+
+  if (!property) {
+    throw new Error("Property not found");
+  }
+
+  return property;
 };
 
 export const updateProperty = async (id: string, data: any) => {

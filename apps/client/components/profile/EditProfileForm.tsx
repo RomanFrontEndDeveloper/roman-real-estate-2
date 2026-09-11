@@ -1,19 +1,15 @@
 "use client";
 
+"use no memo";
+
 import { useEffect, useRef, useState } from "react";
-
 import { useRouter } from "next/navigation";
-
 import { useForm } from "react-hook-form";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import Image from "next/image";
 
 import Button from "../ui/Button";
-
 import Input from "../ui/Input";
-
 import { profileSchema, type ProfileFormValues } from "./profile.schema";
 
 type User = {
@@ -35,11 +31,8 @@ export default function EditProfileForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-
   const [removeAvatar, setRemoveAvatar] = useState(false);
-
   const [message, setMessage] = useState("");
 
   const {
@@ -136,12 +129,10 @@ export default function EditProfileForm() {
   // Видалення аватара
   const handleRemoveAvatar = () => {
     setAvatarPreview(null);
-
     setAvatarFile(null);
-
     setRemoveAvatar(true);
 
-    // Очищаємо input type="file"
+    // Очищаємо input type="file",
     // щоб можна було знову вибрати той самий файл
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -186,7 +177,6 @@ export default function EditProfileForm() {
       }
 
       // Зберігаємо актуального користувача
-      // після PUT /api/profile
       let updatedUser: User = profileResult.user;
 
       // ==========================================
@@ -225,8 +215,7 @@ export default function EditProfileForm() {
         };
 
         // Після успішного upload
-        // показуємо вже справжній URL Cloudinary,
-        // а не blob URL
+        // показуємо справжній URL Cloudinary
         if (avatarResult.user?.avatar?.url) {
           setAvatarPreview(avatarResult.user.avatar.url);
         }
@@ -251,7 +240,6 @@ export default function EditProfileForm() {
 
       // Скидаємо локальні стани
       setAvatarFile(null);
-
       setRemoveAvatar(false);
 
       // Очищаємо input
@@ -264,6 +252,9 @@ export default function EditProfileForm() {
   };
 
   return (
+    // React Compiler incorrectly flags react-hook-form's
+    // handleSubmit because the library internally uses refs.
+    // eslint-disable-next-line react-hooks/refs
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Avatar */}
       <div>
@@ -383,7 +374,7 @@ export default function EditProfileForm() {
       </div>
 
       {/* Submit */}
-      <div className="mr-6 flex items-center justify-end gap-3">
+      <div className="flex items-center justify-end gap-3">
         {message && <p className="mr-auto text-sm text-secondary">{message}</p>}
 
         <Button

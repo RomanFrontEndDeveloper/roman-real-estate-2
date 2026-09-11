@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import Button from "../ui/Button";
 import Input from "../ui/Input";
 
 export default function CreatePropertyForm() {
+  const router = useRouter();
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -20,24 +23,83 @@ export default function CreatePropertyForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  const [mainImage, setMainImage] = useState<File | null>(null);
+  const [images, setImages] = useState<File[]>([]);
+
+  const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
+
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
+  // ==========================================
+  // Main Image Preview
+  // ==========================================
+
+  useEffect(() => {
+    if (!mainImage) {
+      setMainImagePreview(null);
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(mainImage);
+
+    setMainImagePreview(previewUrl);
+
+    return () => {
+      URL.revokeObjectURL(previewUrl);
+    };
+  }, [mainImage]);
+
+  // ==========================================
+  // Additional Images Preview
+  // ==========================================
+
+  useEffect(() => {
+    if (images.length === 0) {
+      setImagePreviews([]);
+      return;
+    }
+
+    const previewUrls = images.map((image) => URL.createObjectURL(image));
+
+    setImagePreviews(previewUrls);
+
+    return () => {
+      previewUrls.forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
+    };
+  }, [images]);
+
+  // ==========================================
+  // Submit
+  // ==========================================
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setMessage("");
     setIsLoading(true);
 
-    const propertyData = {
-      title,
-      description,
-      price: Number(price),
-      currency,
-      listingType,
-      location,
-      propertyType,
-      bedrooms: Number(bedrooms),
-      kitchenArea: Number(kitchenArea),
-      area: Number(area),
-    };
+    const formData = new FormData();
+
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("price", String(Number(price)));
+    formData.append("currency", currency);
+    formData.append("listingType", listingType);
+    formData.append("location", location);
+    formData.append("propertyType", propertyType);
+    formData.append("bedrooms", String(Number(bedrooms)));
+    formData.append("kitchenArea", String(Number(kitchenArea)));
+    formData.append("area", String(Number(area)));
+
+    if (mainImage) {
+      formData.append("mainImage", mainImage);
+    }
+
+    images.forEach((image) => {
+      formData.append("images", image);
+    });
 
     try {
       const token = sessionStorage.getItem("accessToken");
@@ -49,11 +111,12 @@ export default function CreatePropertyForm() {
 
       const response = await fetch("http://localhost:5000/api/properties", {
         method: "POST",
+
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(propertyData),
+
+        body: formData,
       });
 
       const data = await response.json();
@@ -66,6 +129,8 @@ export default function CreatePropertyForm() {
       setMessage("Property created successfully!");
 
       console.log(data);
+
+      router.push(`/property/${data.data._id}`);
     } catch {
       setMessage("Unable to connect to the server. Please try again.");
     } finally {
@@ -110,7 +175,7 @@ export default function CreatePropertyForm() {
       </div>
 
       {/* Price + Currency */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="price" className="mb-2 block text-sm font-medium">
             Price
@@ -214,7 +279,7 @@ export default function CreatePropertyForm() {
         <Input
           name="bedrooms"
           type="number"
-          placeholder="1..   2..   3.."
+          placeholder="1..  2..  3.."
           min="1"
           step="1"
           required
@@ -224,7 +289,7 @@ export default function CreatePropertyForm() {
       </div>
 
       {/* Kitchen Area + Total Area */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label
             htmlFor="kitchenArea"
@@ -263,11 +328,112 @@ export default function CreatePropertyForm() {
         </div>
       </div>
 
-      {/* Submit */}
+      {/* ========================================== */}
+      {/* Main Image */}
+      {/* ========================================== */}
+
+      <div>
+        <label htmlFor="mainImage" className="mb-2 block text-sm font-medium">
+          Main Image
+        </label>
+
+        <label
+          htmlFor="mainImage"
+          className="inline-flex cursor-pointer items-center rounded-lg border border-border px-4 py-2 text-sm font-medium transition hover:bg-gray-100"
+        >
+          Choose Photo
+        </label>
+
+        <input
+          id="mainImage"
+          name="mainImage"
+          type="file"
+          accept="image/*"
+          required
+          onChange={(e) => {
+            setMainImage(e.target.files?.[0] || null);
+          }}
+          className="hidden"
+        />
+
+        {/* Main Image Preview */}
+        {mainImagePreview && (
+          <div className="mt-4">
+            <div className="relative h-32 w-48 overflow-hidden rounded-lg border border-border">
+              <img
+                src={mainImagePreview}
+                alt="Main property preview"
+                className="h-full w-full object-cover"
+              />
+            </div>
+
+            <p className="mt-2 text-xs text-secondary">{mainImage?.name}</p>
+          </div>
+        )}
+      </div>
+
+      {/* ========================================== */}
+      {/* Additional Images */}
+      {/* ========================================== */}
+
+      <div>
+        <label htmlFor="images" className="mb-2 block text-sm font-medium">
+          Additional Images
+        </label>
+
+        <label
+          htmlFor="images"
+          className="inline-flex cursor-pointer items-center rounded-lg border border-border px-4 py-2 text-sm font-medium transition hover:bg-gray-100"
+        >
+          Choose Photos
+        </label>
+
+        <input
+          id="images"
+          name="images"
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={(e) => {
+            setImages(Array.from(e.target.files || []));
+          }}
+          className="hidden"
+        />
+
+        {/* Additional Images Preview */}
+        {imagePreviews.length > 0 && (
+          <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
+            {imagePreviews.map((preview, index) => (
+              <div
+                key={`${preview}-${index}`}
+                className="relative h-24 overflow-hidden rounded-lg border border-border"
+              >
+                <img
+                  src={preview}
+                  alt={`Additional property image ${index + 1}`}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {images.length > 0 && (
+          <p className="mt-2 text-xs text-secondary">
+            {images.length} {images.length === 1 ? "photo" : "photos"} selected
+          </p>
+        )}
+      </div>
+
+      {/* Message */}
       {message && <p className="text-sm text-secondary">{message}</p>}
-      <Button type="submit" disabled={isLoading}>
-        {isLoading ? "Creating Property..." : "Create Property"}
-      </Button>
+
+      {/* Submit */}
+      <div className="flex flex-wrap items-center gap-3">
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? "Creating Property..." : "Create Property"}
+        </Button>
+      </div>
     </form>
   );
 }

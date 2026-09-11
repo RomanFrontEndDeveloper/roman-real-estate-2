@@ -1,6 +1,6 @@
 import { uploadAvatar } from "../utils/upload-avatar.js";
 
-import cloudinary from "../utils/cloudinary.js";
+import cloudinary from "../../../shared/utils/cloudinary.js";
 
 import bcrypt from "bcryptjs";
 

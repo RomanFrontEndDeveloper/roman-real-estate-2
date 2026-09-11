@@ -13,6 +13,10 @@ export const findProperties = async () => {
   return Property.find();
 };
 
+export const findPropertiesByOwner = async (owner: string) => {
+  return Property.find({ owner });
+};
+
 export const findPropertyById = async (id: string) => {
   return Property.findById(id);
 };

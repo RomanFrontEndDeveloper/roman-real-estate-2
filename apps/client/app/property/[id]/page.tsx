@@ -1,3 +1,24 @@
+import PropertyGallery from "@/components/property/PropertyGallery";
+import Link from "next/link";
+import Button from "@/components/ui/Button";
+import PropertyFeatures from "@/components/property/PropertyFeatures";
+
+type Property = {
+  _id: string;
+  title: string;
+  description: string;
+  price: number;
+  currency: "UAH" | "USD";
+  listingType: "sale" | "rent";
+  location: string;
+  propertyType: string;
+  bedrooms: number;
+  kitchenArea: number;
+  area: number;
+  mainImage: string;
+  images: string[];
+};
+
 type PropertyDetailsPageProps = {
   params: Promise<{
     id: string;
@@ -9,67 +30,85 @@ export default async function PropertyDetailsPage({
 }: PropertyDetailsPageProps) {
   const { id } = await params;
 
+  const response = await fetch(`http://localhost:5000/api/properties/${id}`);
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to load property.");
+  }
+
+  const property: Property = data.data;
+
   return (
-    <main className="mx-auto max-w-7xl px-6 pb-16">
+    <main className="mx-4 my-6 w-auto max-w-7xl rounded-2xl border border-border bg-white p-5 shadow-lg sm:mx-6 sm:my-8 sm:p-8 lg:mx-auto lg:my-10 lg:p-10">
       <div className="mb-10">
         <p className="text-sm uppercase tracking-[0.2em] text-secondary">
           Property Details
         </p>
 
-        <h1 className="mt-3 font-serif text-4xl">Property</h1>
+        <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="font-serif text-3xl sm:text-4xl">Property</h1>
 
-        <p className="mt-3 text-secondary">Property ID: {id}</p>
+          <Link
+            href="/property"
+            className="self-start text-sm font-medium transition-opacity hover:opacity-70 sm:self-auto"
+          >
+            <Button>My Properties</Button>
+          </Link>
+        </div>
+
+        <p className="mt-3 text-secondary">Property ID: {property._id}</p>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
         {/* Main Photo */}
-        <div className="flex h-[450px] items-center justify-center rounded-xl bg-gray-100">
-          <span className="text-sm text-secondary">Property Image</span>
-        </div>
+        <PropertyGallery
+          mainImage={property.mainImage}
+          images={property.images}
+        />
 
         {/* Property Information */}
         <div>
+          {/* Type + Listing */}
           <div className="flex items-center gap-3">
-            <p className="text-sm text-secondary">Property Type</p>
+            <p className="text-sm uppercase tracking-wide text-secondary">
+              {property.propertyType}
+            </p>
 
-            <span className="text-sm font-medium">For Sale</span>
+            <span className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-white">
+              {property.listingType === "sale" ? "For Sale" : "For Rent"}
+            </span>
           </div>
 
-          <h2 className="mt-2 font-serif text-4xl">Property Title</h2>
+          {/* Title */}
+          <h2 className="mt-3 font-serif text-4xl">{property.title}</h2>
 
-          <p className="mt-3 text-secondary">Property Location</p>
+          {/* Location */}
+          <p className="mt-2 text-secondary">{property.location}</p>
 
-          <p className="mt-6 text-2xl font-semibold">$000,000</p>
+          {/* Price */}
+          <p className="mt-6 text-2xl font-semibold">
+            {property.price.toLocaleString()} {property.currency}
+          </p>
 
-          <div className="mt-6 border-t border-border pt-6">
-            <p className="leading-7 text-secondary">
-              Property description will appear here.
+          {/* Description */}
+          <div className="mt-8 border-t border-border pt-6">
+            <h3 className="font-serif text-2xl">Property Description</h3>
+
+            <p className="mt-3 leading-7 text-secondary">
+              {property.description}
             </p>
           </div>
 
-          <div className="mt-6 border-t border-border pt-6">
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-secondary">Bedrooms</p>
-                <p className="mt-1 font-medium">0</p>
-              </div>
-
-              <div>
-                <p className="text-secondary">Total Area</p>
-                <p className="mt-1 font-medium">0 m²</p>
-              </div>
-
-              <div>
-                <p className="text-secondary">Kitchen Area</p>
-                <p className="mt-1 font-medium">0 m²</p>
-              </div>
-
-              <div>
-                <p className="text-secondary">Location</p>
-                <p className="mt-1 font-medium">Property Location</p>
-              </div>
-            </div>
-          </div>
+          {/* Features */}
+          <PropertyFeatures
+            propertyType={property.propertyType}
+            listingType={property.listingType}
+            bedrooms={property.bedrooms}
+            kitchenArea={property.kitchenArea}
+            area={property.area}
+          />
         </div>
       </div>
     </main>

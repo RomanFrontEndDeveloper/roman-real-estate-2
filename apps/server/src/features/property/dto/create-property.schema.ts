@@ -6,7 +6,7 @@ export const createPropertySchema = z
 
     description: z.string().trim().min(1, "Description is required"),
 
-    price: z.number().positive("Price must be greater than 0"),
+    price: z.coerce.number().positive("Price must be greater than 0"),
 
     currency: z.enum(["UAH", "USD"]),
 
@@ -16,14 +16,16 @@ export const createPropertySchema = z
 
     propertyType: z.string().trim().min(1, "Property type is required"),
 
-    bedrooms: z
+    bedrooms: z.coerce
       .number()
       .int("Bedrooms must be an integer")
       .min(1, "Bedrooms must be at least 1"),
 
-    kitchenArea: z.number().positive("Kitchen area must be greater than 0"),
+    kitchenArea: z.coerce
+      .number()
+      .positive("Kitchen area must be greater than 0"),
 
-    area: z.number().positive("Area must be greater than 0"),
+    area: z.coerce.number().positive("Area must be greater than 0"),
   })
   .refine((data) => data.area > data.kitchenArea, {
     message: "Area must be greater than kitchen area",

@@ -1,4 +1,5 @@
 import Card from "../ui/Card";
+import Image from "next/image";
 import Link from "next/link";
 
 type PropertyCardProps = {
@@ -12,6 +13,8 @@ type PropertyCardProps = {
   listingType: "sale" | "rent";
   bedrooms: number;
   area: number;
+  mainImage: string;
+  images: string[];
 };
 
 export default function PropertyCard({
@@ -25,14 +28,31 @@ export default function PropertyCard({
   listingType,
   bedrooms,
   area,
+  mainImage,
+  images,
 }: PropertyCardProps) {
+  const image = mainImage || images?.[0];
+
   return (
     <Link href={`/property/${id}`}>
-      {" "}
       <Card>
         {/* Main Photo */}
-        <div className="flex h-52 items-center justify-center rounded-xl bg-gray-100">
-          <span className="text-sm text-secondary">Property Image</span>
+        <div className="relative h-52 overflow-hidden rounded-xl bg-gray-100">
+          {image ? (
+            <Image
+              src={image}
+              alt={title}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover transition-transform duration-300 hover:scale-[1.02]"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              <span className="text-sm text-secondary">
+                Property Image
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="mt-5">

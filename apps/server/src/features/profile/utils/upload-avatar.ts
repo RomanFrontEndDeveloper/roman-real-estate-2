@@ -1,6 +1,6 @@
 import { Readable } from "node:stream";
 
-import cloudinary from "./cloudinary.js";
+import cloudinary from "../../../shared/utils/cloudinary.js";
 
 type UploadAvatarResult = {
   url: string;
@@ -11,8 +11,8 @@ export const uploadAvatar = (buffer: Buffer): Promise<UploadAvatarResult> => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
-        folder: "roman-real-estate/avatars",//Це вказує, що завантажені аватари будуть зберігатися в папці "roman-real-estate/avatars" на Cloudinary.
-        resource_type: "image",//Це вказує, що завантажений файл є зображенням.
+        folder: "roman-real-estate/avatars", //Це вказує, що завантажені аватари будуть зберігатися в папці "roman-real-estate/avatars" на Cloudinary.
+        resource_type: "image", //Це вказує, що завантажений файл є зображенням.
       },
       (error, result) => {
         if (error || !result) {
