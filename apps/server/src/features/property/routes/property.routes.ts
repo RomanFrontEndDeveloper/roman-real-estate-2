@@ -5,6 +5,8 @@ import {
   getProperties,
   getMyProperties,
   getPropertyById,
+  updateProperty,
+  deleteProperty,
 } from "../controllers/property.controller.js";
 
 import { authenticate } from "../../auth/middleware/auth.middleware.js";
@@ -26,5 +28,9 @@ router.post(
   validateCreateProperty,
   createProperty,
 );
+
+router.put("/:id", authenticate, uploadPropertyImages, updateProperty);
+
+router.delete("/:id", authenticate, deleteProperty);
 
 export default router;

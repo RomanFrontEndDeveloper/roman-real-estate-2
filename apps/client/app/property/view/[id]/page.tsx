@@ -1,4 +1,4 @@
-import PropertyDetails from "@/components/property/PropertyDetails";
+import PropertyDetailsAll from "@/components/property/PropertyDetailsAll";
 
 type Property = {
   _id: string;
@@ -14,6 +14,17 @@ type Property = {
   area: number;
   mainImage: string;
   images: string[];
+  owner: PropertyOwner;
+};
+
+type PropertyOwner = {
+  _id: string;
+  name: string;
+  phone?: string;
+  avatar?: {
+    url: string;
+    publicId: string;
+  };
 };
 
 type PropertyDetailsPageProps = {
@@ -27,7 +38,9 @@ export default async function PropertyDetailsPage({
 }: PropertyDetailsPageProps) {
   const { id } = await params;
 
-  const response = await fetch(`http://localhost:5000/api/properties/${id}`);
+  const response = await fetch(`http://localhost:5000/api/properties/${id}`, {
+    cache: "no-store",
+  });
 
   const data = await response.json();
 
@@ -37,5 +50,5 @@ export default async function PropertyDetailsPage({
 
   const property: Property = data.data;
 
-  return <PropertyDetails property={property} showActions />;
+  return <PropertyDetailsAll property={property} />;
 }

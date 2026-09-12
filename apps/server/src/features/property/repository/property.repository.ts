@@ -18,15 +18,29 @@ export const findPropertiesByOwner = async (owner: string) => {
 };
 
 export const findPropertyById = async (id: string) => {
+  return Property.findById(id).populate("owner", "name phone avatar");
+};
+
+export const findPropertyByIdWithoutOwner = async (id: string) => {
   return Property.findById(id);
 };
 
-export const updateProperty = async (id: string, data: any) => {
-  return Property.findByIdAndUpdate(id, data, {
-    new: true,
-  });
+export const updateProperty = async (id: string, owner: string, data: any) => {
+  return Property.findOneAndUpdate(
+    {
+      _id: id,
+      owner,
+    },
+    data,
+    {
+      returnDocument: "after",
+    },
+  );
 };
 
-export const deleteProperty = async (id: string) => {
-  return Property.findByIdAndDelete(id);
+export const deleteProperty = async (id: string, owner: string) => {
+  return Property.findOneAndDelete({
+    _id: id,
+    owner,
+  });
 };

@@ -63,8 +63,8 @@ export default function PropertyPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <p className="font-serif text-2xl text-secondary">
+      <div className="flex min-h-[40vh] items-center justify-center px-4">
+        <p className="text-center font-serif text-xl text-secondary sm:text-2xl">
           Loading properties...
         </p>
       </div>
@@ -73,22 +73,28 @@ export default function PropertyPage() {
 
   if (message) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <p className="font-serif text-2xl text-secondary">{message}</p>
+      <div className="flex min-h-[40vh] items-center justify-center px-4">
+        <p className="text-center font-serif text-xl text-secondary sm:text-2xl">
+          {message}
+        </p>
       </div>
     );
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-6 pb-16">
-      <h1 className="my-14 text-center font-serif text-4xl">My Properties</h1>
+    <main className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 sm:pb-16">
+      <h1 className="my-8 text-center font-serif text-3xl sm:my-12 sm:text-4xl lg:my-14">
+        My Properties
+      </h1>
 
       {properties.length === 0 ? (
-        <div className="flex min-h-[30vh] items-center justify-center">
-          <p className="text-secondary">You have no properties yet.</p>
+        <div className="flex min-h-[30vh] items-center justify-center px-4">
+          <p className="text-center text-secondary">
+            You have no properties yet.
+          </p>
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid min-w-0 grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
           {properties.map((property) => (
             <PropertyCard
               key={property._id}

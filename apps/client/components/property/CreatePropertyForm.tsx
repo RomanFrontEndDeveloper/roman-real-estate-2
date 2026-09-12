@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-
+import Image from "next/image";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
-
+import BackButton from "../ui/BackButton";
 export default function CreatePropertyForm() {
   const router = useRouter();
 
@@ -30,45 +30,16 @@ export default function CreatePropertyForm() {
 
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
+  const mainImagePreviewRef = useRef<string | null>(null);
+  const imagePreviewsRef = useRef<string[]>([]);
+
   // ==========================================
   // Main Image Preview
   // ==========================================
 
-  useEffect(() => {
-    if (!mainImage) {
-      setMainImagePreview(null);
-      return;
-    }
-
-    const previewUrl = URL.createObjectURL(mainImage);
-
-    setMainImagePreview(previewUrl);
-
-    return () => {
-      URL.revokeObjectURL(previewUrl);
-    };
-  }, [mainImage]);
-
   // ==========================================
   // Additional Images Preview
   // ==========================================
-
-  useEffect(() => {
-    if (images.length === 0) {
-      setImagePreviews([]);
-      return;
-    }
-
-    const previewUrls = images.map((image) => URL.createObjectURL(image));
-
-    setImagePreviews(previewUrls);
-
-    return () => {
-      previewUrls.forEach((url) => {
-        URL.revokeObjectURL(url);
-      });
-    };
-  }, [images]);
 
   // ==========================================
   // Submit
@@ -166,12 +137,16 @@ export default function CreatePropertyForm() {
           id="description"
           name="description"
           placeholder="Describe the property"
+          maxLength={350}
           required
           rows={5}
           className="w-full resize-none rounded-lg border border-border bg-white px-4 py-3 text-sm outline-none transition focus:border-primary"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
+        <p className="mt-1 text-right text-xs text-secondary">
+          {description.length}/350
+        </p>
       </div>
 
       {/* Price + Currency */}
@@ -185,8 +160,8 @@ export default function CreatePropertyForm() {
             name="price"
             type="number"
             placeholder="price the Property"
-            min="100"
-            step="100"
+            min="50"
+            step="5"
             required
             value={price}
             onChange={(e) => setPrice(e.target.value)}
@@ -351,7 +326,23 @@ export default function CreatePropertyForm() {
           accept="image/*"
           required
           onChange={(e) => {
-            setMainImage(e.target.files?.[0] || null);
+            const file = e.target.files?.[0] || null;
+
+            if (mainImagePreviewRef.current) {
+              URL.revokeObjectURL(mainImagePreviewRef.current);
+            }
+
+            if (file) {
+              const previewUrl = URL.createObjectURL(file);
+
+              mainImagePreviewRef.current = previewUrl;
+              setMainImagePreview(previewUrl);
+            } else {
+              mainImagePreviewRef.current = null;
+              setMainImagePreview(null);
+            }
+
+            setMainImage(file);
           }}
           className="hidden"
         />
@@ -360,10 +351,12 @@ export default function CreatePropertyForm() {
         {mainImagePreview && (
           <div className="mt-4">
             <div className="relative h-32 w-48 overflow-hidden rounded-lg border border-border">
-              <img
+              <Image
                 src={mainImagePreview}
                 alt="Main property preview"
-                className="h-full w-full object-cover"
+                fill
+                sizes="192px"
+                className="object-cover"
               />
             </div>
 
@@ -395,7 +388,18 @@ export default function CreatePropertyForm() {
           accept="image/*"
           multiple
           onChange={(e) => {
-            setImages(Array.from(e.target.files || []));
+            const files = Array.from(e.target.files || []);
+
+            imagePreviewsRef.current.forEach((url) => {
+              URL.revokeObjectURL(url);
+            });
+
+            const previewUrls = files.map((file) => URL.createObjectURL(file));
+
+            imagePreviewsRef.current = previewUrls;
+
+            setImages(files);
+            setImagePreviews(previewUrls);
           }}
           className="hidden"
         />
@@ -408,10 +412,12 @@ export default function CreatePropertyForm() {
                 key={`${preview}-${index}`}
                 className="relative h-24 overflow-hidden rounded-lg border border-border"
               >
-                <img
+                <Image
                   src={preview}
                   alt={`Additional property image ${index + 1}`}
-                  className="h-full w-full object-cover"
+                  fill
+                  sizes="(max-width: 640px) 33vw, 180px"
+                  className="object-cover"
                 />
               </div>
             ))}
@@ -429,7 +435,9 @@ export default function CreatePropertyForm() {
       {message && <p className="text-sm text-secondary">{message}</p>}
 
       {/* Submit */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap justify-end gap-3">
+        <BackButton />
+
         <Button type="submit" disabled={isLoading}>
           {isLoading ? "Creating Property..." : "Create Property"}
         </Button>

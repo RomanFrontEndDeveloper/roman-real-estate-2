@@ -1,6 +1,5 @@
 import Button from "../ui/Button";
 
-
 const categories = [
   {
     title: "Apartments",
@@ -28,9 +27,7 @@ export default function PropertyCategories() {
           Categories
         </p>
 
-        <h2 className="mt-2 font-serif text-4xl">
-          Property Categories
-        </h2>
+        <h2 className="mt-2 font-serif text-4xl">Property Categories</h2>
 
         <p className="mt-3 text-secondary">
           Find the right property for your needs.
@@ -47,17 +44,11 @@ export default function PropertyCategories() {
               <span className="text-lg">⌂</span>
             </div>
 
-            <h3 className="font-serif text-2xl">
-              {category.title}
-            </h3>
+            <h3 className="font-serif text-2xl">{category.title}</h3>
 
-            <p className="mt-3 text-secondary pb-4">
-              {category.description}
-            </p>
+            <p className="mt-3 text-secondary pb-4">{category.description}</p>
 
-            <Button variant="outline">
-              Explore →
-            </Button>
+            <Button variant="outline">Explore →</Button>
           </div>
         ))}
       </div>

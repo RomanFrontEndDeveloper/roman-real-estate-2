@@ -27,10 +27,20 @@ export const getPropertyById = async (id: string) => {
   return property;
 };
 
-export const updateProperty = async (id: string, data: any) => {
-  return propertyRepository.updateProperty(id, data);
+export const updateProperty = async (id: string, owner: string, data: any) => {
+  return propertyRepository.updateProperty(id, owner, data);
 };
 
-export const deleteProperty = async (id: string) => {
-  return propertyRepository.deleteProperty(id);
+export const deleteProperty = async (id: string, owner: string) => {
+  return propertyRepository.deleteProperty(id, owner);
+};
+
+export const getPropertyByIdWithoutOwner = async (id: string) => {
+  const property = await propertyRepository.findPropertyByIdWithoutOwner(id);
+
+  if (!property) {
+    throw new Error("Property not found");
+  }
+
+  return property;
 };
