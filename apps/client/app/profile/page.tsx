@@ -2,7 +2,7 @@ import ProfileCard from "@/components/profile/ProfileCard";
 
 export default function ProfilePage() {
   return (
-    <section className="mx-auto max-w-7xl px-6 py-20">
+    <section className="mx-auto max-w-7xl px-6 py-10">
       <div className="mx-auto max-w-3xl">
         <div className="mb-10 text-center">
           <p className="text-sm uppercase tracking-[0.25em] text-secondary">

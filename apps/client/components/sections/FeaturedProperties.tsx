@@ -1,75 +1,98 @@
-import PropertyCardAll from "@/components/property/PropertyCardAll";
+// import PropertyCardAll from "@/components/property/PropertyCardAll";
 
-type Property = {
-  _id: string;
-  title: string;
-  description: string;
-  price: number;
-  currency: "UAH" | "USD";
-  listingType: "sale" | "rent";
-  location: string;
-  propertyType: string;
-  bedrooms: number;
-  kitchenArea: number;
-  area: number;
-  mainImage: string;
-  images: string[];
-};
+// type Property = {
+//   _id: string;
+//   title: string;
+//   description: string;
+//   price: number;
+//   currency: "UAH" | "USD";
+//   listingType: "sale" | "rent";
+//   location: string;
+//   propertyType: string;
+//   bedrooms: number;
+//   kitchenArea: number;
+//   area: number;
+//   mainImage: string;
+//   images: string[];
+// };
 
-export default async function PropertyCategories() {
-  const response = await fetch("http://localhost:5000/api/properties", {
-    cache: "no-store",
-  });
+// type PropertyCategoriesProps = {
+//   searchParams: Record<string, string | string[] | undefined>;
+// };
 
-  if (!response.ok) {
-    return null;
-  }
+// export default async function PropertyCategories({
+//   searchParams,
+// }: PropertyCategoriesProps) {
+//   const params = new URLSearchParams();
 
-  const data = await response.json();
+//   Object.entries(searchParams).forEach(([key, value]) => {
+//     if (typeof value === "string" && value) {
+//       params.set(key, value);
+//     }
+//   });
 
-  const properties: Property[] = data.data;
+//   const queryString = params.toString();
 
-  return (
-    <section className="mx-auto max-w-7xl px-4 sm:px-6">
-      <div className="mb-8">
-        <p className="text-sm uppercase tracking-[0.2em] text-secondary">
-          Properties
-        </p>
+//   const response = await fetch(
+//     `http://localhost:5000/api/properties${
+//       queryString ? `?${queryString}` : ""
+//     }`,
+//     {
+//       cache: "no-store",
+//     },
+//   );
 
-        <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
-          Explore Properties
-        </h2>
+//   if (!response.ok) {
+//     return null;
+//   }
 
-        <p className="mt-3 text-secondary">
-          Discover properties from all users.
-        </p>
-      </div>
+//   const data = await response.json();
 
-      {properties.length === 0 ? (
-        <div className="flex min-h-[20vh] items-center justify-center">
-          <p className="text-secondary">No properties available yet.</p>
-        </div>
-      ) : (
-        <div className="grid min-w-0 grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {properties.map((property) => (
-            <PropertyCardAll
-              key={property._id}
-              id={property._id}
-              title={property.title}
-              description={property.description}
-              price={property.price}
-              currency={property.currency}
-              location={property.location}
-              propertyType={property.propertyType}
-              listingType={property.listingType}
-              bedrooms={property.bedrooms}
-              area={property.area}
-              mainImage={property.mainImage}
-              images={property.images}
-            />
-          ))}
-        </div>
-      )}
-    </section>
-  );
-}
+//   const properties: Property[] = data.data;
+
+//   return (
+//     <section className="mx-auto max-w-7xl px-4 sm:px-6">
+//       <div className="mb-8">
+//         <p className="text-sm uppercase tracking-[0.2em] text-secondary">
+//           Properties
+//         </p>
+
+//         <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
+//           Explore Properties
+//         </h2>
+
+//         <p className="mt-3 text-secondary">
+//           Discover properties from all users.
+//         </p>
+//       </div>
+
+//       {properties.length === 0 ? (
+//         <div className="flex min-h-[20vh] items-center justify-center">
+//           <p className="text-secondary">
+//             No properties available yet.
+//           </p>
+//         </div>
+//       ) : (
+//         <div className="grid min-w-0 grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+//           {properties.map((property) => (
+//             <PropertyCardAll
+//               key={property._id}
+//               id={property._id}
+//               title={property.title}
+//               description={property.description}
+//               price={property.price}
+//               currency={property.currency}
+//               location={property.location}
+//               propertyType={property.propertyType}
+//               listingType={property.listingType}
+//               bedrooms={property.bedrooms}
+//               area={property.area}
+//               mainImage={property.mainImage}
+//               images={property.images}
+//             />
+//           ))}
+//         </div>
+//       )}
+//     </section>
+//   );
+// }

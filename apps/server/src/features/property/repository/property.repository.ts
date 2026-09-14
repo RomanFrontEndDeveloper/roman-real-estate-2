@@ -9,8 +9,17 @@ export const createProperty = async (
   return Property.create(data);
 };
 
-export const findProperties = async () => {
-  return Property.find();
+export const findProperties = async (
+  filters: Record<string, unknown>,
+  sort: Record<string, 1 | -1> = {},
+  skip = 0,
+  limit = 6,
+) => {
+  return Property.find(filters).sort(sort).skip(skip).limit(limit).lean();
+};
+
+export const countProperties = async (filters: Record<string, unknown>) => {
+  return Property.countDocuments(filters);
 };
 
 export const findPropertiesByOwner = async (owner: string) => {

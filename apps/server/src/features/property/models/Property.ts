@@ -95,6 +95,26 @@ const propertySchema = new Schema<IProperty>(
   },
 );
 
+// Search indexes
+propertySchema.index({
+  listingType: 1,
+  propertyType: 1,
+  price: 1,
+});
+
+propertySchema.index({
+  listingType: 1,
+  area: 1,
+});
+
+propertySchema.index({
+  bedrooms: 1,
+});
+
+propertySchema.index({
+  createdAt: -1,
+});
+
 const Property = mongoose.model<IProperty>("Property", propertySchema);
 
 export default Property;

@@ -1,57 +1,177 @@
-import Button from "../ui/Button";
+import Link from "next/link";
 
-const categories = [
-  {
-    title: "Apartments",
-    description: "Modern apartments in prime locations.",
-  },
-  {
-    title: "Houses",
-    description: "Comfortable homes for families.",
-  },
-  {
-    title: "Villas",
-    description: "Luxury villas with exceptional spaces.",
-  },
-  {
-    title: "Commercial",
-    description: "Properties for business and investment.",
-  },
-];
+import PropertyCardAll from "@/components/property/PropertyCardAll";
 
-export default function PropertyCategories() {
+type Property = {
+  _id: string;
+  title: string;
+  description: string;
+  price: number;
+  currency: "UAH" | "USD";
+  listingType: "sale" | "rent";
+  location: string;
+  propertyType: string;
+  bedrooms: number;
+  kitchenArea: number;
+  area: number;
+  mainImage: string;
+  images: string[];
+};
+
+type Pagination = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+};
+
+type PropertyCategoriesProps = {
+  searchParams: Record<string, string | string[] | undefined>;
+};
+
+export default async function PropertyCategories({
+  searchParams,
+}: PropertyCategoriesProps) {
+  const params = new URLSearchParams();
+
+  Object.entries(searchParams).forEach(([key, value]) => {
+    if (typeof value === "string" && value) {
+      params.set(key, value);
+    }
+  });
+
+  const queryString = params.toString();
+
+  const response = await fetch(
+    `http://localhost:5000/api/properties${
+      queryString ? `?${queryString}` : ""
+    }`,
+    {
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const data = await response.json();
+
+  const properties: Property[] = data.data;
+
+  const pagination: Pagination = data.pagination;
+
+  const createPageUrl = (page: number) => {
+    const pageParams = new URLSearchParams(params);
+
+    pageParams.set("page", String(page));
+
+    return `/?${pageParams.toString()}`;
+  };
+
   return (
-    <section className="mx-auto max-w-7xl px-6">
+    <section className="mx-auto mb-6 max-w-7xl px-4 sm:px-6">
       <div className="mb-8">
         <p className="text-sm uppercase tracking-[0.2em] text-secondary">
-          Categories
+          Properties
         </p>
 
-        <h2 className="mt-2 font-serif text-4xl">Property Categories</h2>
+        <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
+          Explore Properties
+        </h2>
 
         <p className="mt-3 text-secondary">
-          Find the right property for your needs.
+          Discover properties from all users.
         </p>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {categories.map((category) => (
-          <div
-            key={category.title}
-            className="rounded-2xl border border-border bg-white p-6 transition-shadow hover:shadow-md"
-          >
-            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-              <span className="text-lg">⌂</span>
-            </div>
+      {properties.length === 0 ? (
+        <div className="mb-25 flex min-h-[20vh] items-center justify-center">
+          <div className="text-center">
+            <p className="font-serif text-3xl font-medium text-primary sm:text-4xl">
+              No properties found
+            </p>
 
-            <h3 className="font-serif text-2xl">{category.title}</h3>
-
-            <p className="mt-3 text-secondary pb-4">{category.description}</p>
-
-            <Button variant="outline">Explore →</Button>
+            <p className="mt-3 text-base text-secondary sm:text-lg">
+              Try changing your search filters.
+            </p>
           </div>
-        ))}
-      </div>
+        </div>
+      ) : (
+        <>
+          <div className="grid min-w-0 grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {properties.map((property) => (
+              <PropertyCardAll
+                key={property._id}
+                id={property._id}
+                title={property.title}
+                description={property.description}
+                price={property.price}
+                currency={property.currency}
+                location={property.location}
+                propertyType={property.propertyType}
+                listingType={property.listingType}
+                bedrooms={property.bedrooms}
+                area={property.area}
+                mainImage={property.mainImage}
+                images={property.images}
+              />
+            ))}
+          </div>
+
+          {pagination.totalPages > 1 && (
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-2">
+              {pagination.page > 1 ? (
+                <Link
+                  href={createPageUrl(pagination.page - 1)}
+                  className="rounded-lg border border-border bg-white px-4 py-2 text-sm transition-opacity hover:opacity-70"
+                >
+                  Previous
+                </Link>
+              ) : (
+                <span className="cursor-not-allowed rounded-lg border border-border bg-gray-100 px-4 py-2 text-sm text-secondary">
+                  Previous
+                </span>
+              )}
+
+              {Array.from(
+                { length: pagination.totalPages },
+                (_, index) => index + 1,
+              ).map((page) =>
+                page === pagination.page ? (
+                  <span
+                    key={page}
+                    className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white"
+                  >
+                    {page}
+                  </span>
+                ) : (
+                  <Link
+                    key={page}
+                    href={createPageUrl(page)}
+                    className="rounded-lg border border-border bg-white px-4 py-2 text-sm transition-opacity hover:opacity-70"
+                  >
+                    {page}
+                  </Link>
+                ),
+              )}
+
+              {pagination.page < pagination.totalPages ? (
+                <Link
+                  href={createPageUrl(pagination.page + 1)}
+                  className="rounded-lg border border-border bg-white px-4 py-2 text-sm transition-opacity hover:opacity-70"
+                >
+                  Next
+                </Link>
+              ) : (
+                <span className="cursor-not-allowed rounded-lg border border-border bg-gray-100 px-4 py-2 text-sm text-secondary">
+                  Next
+                </span>
+              )}
+            </div>
+          )}
+        </>
+      )}
     </section>
   );
 }

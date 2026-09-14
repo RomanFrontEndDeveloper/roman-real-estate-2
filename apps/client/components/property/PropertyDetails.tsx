@@ -50,6 +50,12 @@ export default function PropertyDetails({
               >
                 <Button variant="outline">Edit</Button>
               </Link>
+              <Link
+                href={`/property`}
+                className="text-sm font-medium transition-opacity hover:opacity-70"
+              >
+                <Button >All Property</Button>
+              </Link>
 
               <DeletePropertyButton propertyId={property._id} />
               <BackButton />
