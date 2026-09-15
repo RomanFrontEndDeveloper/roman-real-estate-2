@@ -1,124 +1,98 @@
-import crypto from "node:crypto";
-import bcrypt from "bcryptjs";
+  import crypto from "node:crypto";
+  import bcrypt from "bcryptjs";
 
-import type { LoginDto } from "../dto/login.schema.js";
-import type { RegisterDto } from "../dto/register.schema.js";
-import type { ForgotPasswordDto } from "../dto/forgot-password.schema.js";
+  import type { LoginDto } from "../dto/login.schema.js";
+  import type { RegisterDto } from "../dto/register.schema.js";
+  import type { ForgotPasswordDto } from "../dto/forgot-password.schema.js";
 
-import { ApiError } from "../utils/api-error.js";
+  import { ApiError } from "../utils/api-error.js";
 
-import {
-  createUser,
-  findUserByEmail,
-  findUserById,
-  findUserByResetPasswordTokenHash,
-  findUserByVerificationTokenHash,
-  resetUserPassword,
-  setResetPasswordToken,
-  verifyUser,
-} from "../repository/user.repository.js";
+  import {
+    createUser,
+    findUserByEmail,
+    findUserById,
+    findUserByResetPasswordTokenHash,
+    findUserByVerificationTokenHash,
+    resetUserPassword,
+    setResetPasswordToken,
+    verifyUser,
+  } from "../repository/user.repository.js";
 
-import {
-  createAccessToken,
-  createRefreshToken,
-  verifyRefreshToken,
-} from "../utils/token.js";
+  import {
+    createAccessToken,
+    createRefreshToken,
+    verifyRefreshToken,
+  } from "../utils/token.js";
 
-import {
-  sendResetPasswordEmail,
-  sendVerificationEmail,
-} from "./mail.service.js";
+  import {
+    sendResetPasswordEmail,
+    sendVerificationEmail,
+  } from "./mail.service.js";
 
-import type { ResetPasswordDto } from "../dto/reset-password.schema.js";
+  import type { ResetPasswordDto } from "../dto/reset-password.schema.js";
 
-const SALT_ROUNDS = 12;
+  const SALT_ROUNDS = 12;
 
-const VERIFICATION_TOKEN_EXPIRES_IN = 60 * 60 * 1000; // 1 hour
-const RESET_PASSWORD_TOKEN_EXPIRES_IN = 60 * 60 * 1000; // 1 hour
+  const VERIFICATION_TOKEN_EXPIRES_IN = 60 * 60 * 1000; // 1 hour
+  const RESET_PASSWORD_TOKEN_EXPIRES_IN = 60 * 60 * 1000; // 1 hour
 
-export const registerUser = async (data: RegisterDto) => {
-  const normalizedEmail = data.email.trim().toLowerCase();
-  const normalizedName = data.name.trim();
+  export const registerUser = async (data: RegisterDto) => {
+    const normalizedEmail = data.email.trim().toLowerCase();
+    const normalizedName = data.name.trim();
 
-  const existingUser = await findUserByEmail(normalizedEmail);
+    const existingUser = await findUserByEmail(normalizedEmail);
 
-  if (existingUser) {
-    throw new ApiError("User with this email already exists", 409);
-  }
+    if (existingUser) {
+      throw new ApiError("User with this email already exists", 409);
+    }
 
-  const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
 
-  const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationToken = crypto.randomBytes(32).toString("hex");
 
-  const verificationTokenHash = crypto
-    .createHash("sha256")
-    .update(verificationToken)
-    .digest("hex");
+    const verificationTokenHash = crypto
+      .createHash("sha256")
+      .update(verificationToken)
+      .digest("hex");
 
-  const verificationTokenExpires = new Date(
-    Date.now() + VERIFICATION_TOKEN_EXPIRES_IN,
-  );
+    const verificationTokenExpires = new Date(
+      Date.now() + VERIFICATION_TOKEN_EXPIRES_IN,
+    );
 
-  const user = await createUser({
-    name: normalizedName,
-    email: normalizedEmail,
-    password: hashedPassword,
-    role: data.role,
-    isVerified: false,
-    verificationTokenHash,
-    verificationTokenExpires,
-  });
+    const user = await createUser({
+      name: normalizedName,
+      email: normalizedEmail,
+      password: hashedPassword,
+      role: data.role,
+      isVerified: false,
+      verificationTokenHash,
+      verificationTokenExpires,
+    });
 
-  const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
-  await sendVerificationEmail(normalizedEmail, verificationUrl);
+    await sendVerificationEmail(normalizedEmail, verificationUrl);
 
-  return user;
-};
-
-export const loginUser = async (data: LoginDto) => {
-  const normalizedEmail = data.email.trim().toLowerCase();
-
-  const user = await findUserByEmail(normalizedEmail);
-
-  if (!user) {
-    throw new ApiError("Invalid email or password", 401);
-  }
-
-  const isPasswordValid = await bcrypt.compare(data.password, user.password);
-
-  if (!isPasswordValid) {
-    throw new ApiError("Invalid email or password", 401);
-  }
-
-  if (!user.isVerified) {
-    throw new ApiError("Please verify your email before logging in", 403);
-  }
-
-  const accessToken = createAccessToken({
-    sub: user._id.toString(),
-    role: user.role,
-  });
-
-  const refreshToken = createRefreshToken({
-    sub: user._id.toString(),
-  });
-
-  return {
-    user,
-    accessToken,
-    refreshToken,
+    return user;
   };
-};
 
-export const refreshAccessToken = async (refreshToken: string) => {
-  try {
-    const payload = verifyRefreshToken(refreshToken);
+  export const loginUser = async (data: LoginDto) => {
+    const normalizedEmail = data.email.trim().toLowerCase();
 
-    const user = await findUserById(payload.sub);
+    const user = await findUserByEmail(normalizedEmail);
 
     if (!user) {
-      throw new ApiError("Invalid refresh token", 401);
+      throw new ApiError("Invalid email or password", 401);
+    }
+
+    const isPasswordValid = await bcrypt.compare(data.password, user.password);
+
+    if (!isPasswordValid) {
+      throw new ApiError("Invalid email or password", 401);
+    }
+
+    if (!user.isVerified) {
+      throw new ApiError("Please verify your email before logging in", 403);
     }
 
     const accessToken = createAccessToken({
@@ -126,104 +100,130 @@ export const refreshAccessToken = async (refreshToken: string) => {
       role: user.role,
     });
 
-    return accessToken;
-  } catch {
-    throw new ApiError("Invalid refresh token", 401);
-  }
-};
+    const refreshToken = createRefreshToken({
+      sub: user._id.toString(),
+    });
 
-export const verifyEmail = async (token: string) => {
-  const verificationTokenHash = crypto
-    .createHash("sha256")
-    .update(token)
-    .digest("hex");
+    return {
+      user,
+      accessToken,
+      refreshToken,
+    };
+  };
 
-  const user = await findUserByVerificationTokenHash(verificationTokenHash);
+  export const refreshAccessToken = async (refreshToken: string) => {
+    try {
+      const payload = verifyRefreshToken(refreshToken);
 
-  if (!user) {
-    throw new ApiError("Invalid verification token", 400);
-  }
+      const user = await findUserById(payload.sub);
 
-  if (
-    !user.verificationTokenExpires ||
-    user.verificationTokenExpires.getTime() < Date.now()
-  ) {
-    throw new ApiError("Verification token has expired", 400);
-  }
+      if (!user) {
+        throw new ApiError("Invalid refresh token", 401);
+      }
 
-  if (user.isVerified) {
-    throw new ApiError("Email is already verified", 400);
-  }
+      const accessToken = createAccessToken({
+        sub: user._id.toString(),
+        role: user.role,
+      });
 
-  const verifiedUser = await verifyUser(user._id.toString());
+      return accessToken;
+    } catch {
+      throw new ApiError("Invalid refresh token", 401);
+    }
+  };
 
-  if (!verifiedUser) {
-    throw new ApiError("Unable to verify email", 500);
-  }
+  export const verifyEmail = async (token: string) => {
+    const verificationTokenHash = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
 
-  return verifiedUser;
-};
+    const user = await findUserByVerificationTokenHash(verificationTokenHash);
 
-export const forgotPassword = async (data: ForgotPasswordDto) => {
-  const normalizedEmail = data.email.trim().toLowerCase();
+    if (!user) {
+      throw new ApiError("Invalid verification token", 400);
+    }
 
-  const user = await findUserByEmail(normalizedEmail);
+    if (
+      !user.verificationTokenExpires ||
+      user.verificationTokenExpires.getTime() < Date.now()
+    ) {
+      throw new ApiError("Verification token has expired", 400);
+    }
 
-  if (!user) {
-    return;
-  }
+    if (user.isVerified) {
+      throw new ApiError("Email is already verified", 400);
+    }
 
-  const resetPasswordToken = crypto.randomBytes(32).toString("hex");
+    const verifiedUser = await verifyUser(user._id.toString());
 
-  const resetPasswordTokenHash = crypto
-    .createHash("sha256")
-    .update(resetPasswordToken)
-    .digest("hex");
+    if (!verifiedUser) {
+      throw new ApiError("Unable to verify email", 500);
+    }
 
-  const resetPasswordTokenExpires = new Date(
-    Date.now() + RESET_PASSWORD_TOKEN_EXPIRES_IN,
-  );
+    return verifiedUser;
+  };
 
-  await setResetPasswordToken(
-    user._id.toString(),
-    resetPasswordTokenHash,
-    resetPasswordTokenExpires,
-  );
+  export const forgotPassword = async (data: ForgotPasswordDto) => {
+    const normalizedEmail = data.email.trim().toLowerCase();
 
-  const resetPasswordUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetPasswordToken}`;
+    const user = await findUserByEmail(normalizedEmail);
 
-  await sendResetPasswordEmail(normalizedEmail, resetPasswordUrl);
-};
+    if (!user) {
+      return;
+    }
 
-export const resetPassword = async (data: ResetPasswordDto) => {
-  const resetPasswordTokenHash = crypto
-    .createHash("sha256")
-    .update(data.token)
-    .digest("hex");
+    const resetPasswordToken = crypto.randomBytes(32).toString("hex");
 
-  const user = await findUserByResetPasswordTokenHash(resetPasswordTokenHash);
+    const resetPasswordTokenHash = crypto
+      .createHash("sha256")
+      .update(resetPasswordToken)
+      .digest("hex");
 
-  if (!user) {
-    throw new ApiError("Invalid reset password token", 400);
-  }
+    const resetPasswordTokenExpires = new Date(
+      Date.now() + RESET_PASSWORD_TOKEN_EXPIRES_IN,
+    );
 
-  if (
-    !user.resetPasswordTokenExpires ||
-    user.resetPasswordTokenExpires.getTime() < Date.now()
-  ) {
-    throw new ApiError("Reset password token has expired", 400);
-  }
+    await setResetPasswordToken(
+      user._id.toString(),
+      resetPasswordTokenHash,
+      resetPasswordTokenExpires,
+    );
 
-  const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
+    const resetPasswordUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetPasswordToken}`;
 
-  const updatedUser = await resetUserPassword(
-    user._id.toString(),
-    hashedPassword,
-  );
+    await sendResetPasswordEmail(normalizedEmail, resetPasswordUrl);
+  };
 
-  if (!updatedUser) {
-    throw new ApiError("Unable to reset password", 500);
-  }
+  export const resetPassword = async (data: ResetPasswordDto) => {
+    const resetPasswordTokenHash = crypto
+      .createHash("sha256")
+      .update(data.token)
+      .digest("hex");
 
-  return updatedUser;
-};
+    const user = await findUserByResetPasswordTokenHash(resetPasswordTokenHash);
+
+    if (!user) {
+      throw new ApiError("Invalid reset password token", 400);
+    }
+
+    if (
+      !user.resetPasswordTokenExpires ||
+      user.resetPasswordTokenExpires.getTime() < Date.now()
+    ) {
+      throw new ApiError("Reset password token has expired", 400);
+    }
+
+    const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
+
+    const updatedUser = await resetUserPassword(
+      user._id.toString(),
+      hashedPassword,
+    );
+
+    if (!updatedUser) {
+      throw new ApiError("Unable to reset password", 500);
+    }
+
+    return updatedUser;
+  };

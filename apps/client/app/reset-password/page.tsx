@@ -1,5 +1,8 @@
 "use client";
 
+// Suspense — це механізм React для ситуації, коли якийсь компонент тимчасово не може
+//  одразу відрендеритися і треба показати запасний UI.
+
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 

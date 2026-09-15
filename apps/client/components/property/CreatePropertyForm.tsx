@@ -1,76 +1,115 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+
 import Button from "../ui/Button";
 import Input from "../ui/Input";
 import BackButton from "../ui/BackButton";
+
+type PropertyForm = {
+  title: string;
+  description: string;
+  price: string;
+  currency: "UAH" | "USD";
+  listingType: "sale" | "rent";
+  location: string;
+  propertyType: string;
+  bedrooms: string;
+  kitchenArea: string;
+  area: string;
+};
+
 export default function CreatePropertyForm() {
   const router = useRouter();
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [currency, setCurrency] = useState<"UAH" | "USD">("USD");
-  const [listingType, setListingType] = useState<"sale" | "rent">("sale");
-  const [location, setLocation] = useState("");
-  const [propertyType, setPropertyType] = useState("");
-  const [bedrooms, setBedrooms] = useState("");
-  const [kitchenArea, setKitchenArea] = useState("");
-  const [area, setArea] = useState("");
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [form, setForm] = useState<PropertyForm>({
+    title: "",
+    description: "",
+    price: "",
+    currency: "USD",
+    listingType: "sale",
+    location: "",
+    propertyType: "",
+    bedrooms: "",
+    kitchenArea: "",
+    area: "",
+  });
 
   const [mainImage, setMainImage] = useState<File | null>(null);
-  const [images, setImages] = useState<File[]>([]);
-
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
 
+  const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
-  const mainImagePreviewRef = useRef<string | null>(null);
-  const imagePreviewsRef = useRef<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState("");
 
-  // ==========================================
-  // Main Image Preview
-  // ==========================================
+  useEffect(() => {
+    return () => {
+      if (mainImagePreview) {
+        URL.revokeObjectURL(mainImagePreview);
+      }
 
-  // ==========================================
-  // Additional Images Preview
-  // ==========================================
+      imagePreviews.forEach((preview) => {
+        URL.revokeObjectURL(preview);
+      });
+    };
+  }, [mainImagePreview, imagePreviews]);
 
-  // ==========================================
-  // Submit
-  // ==========================================
+  const handleChange = (
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    const { name, value } = event.target;
+
+    setForm((currentForm) => ({
+      ...currentForm,
+      [name]: value,
+    }));
+  };
+
+  const handleMainImageChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0] || null;
+
+    if (mainImagePreview) {
+      URL.revokeObjectURL(mainImagePreview);
+    }
+
+    if (!file) {
+      setMainImage(null);
+      setMainImagePreview(null);
+      return;
+    }
+
+    const preview = URL.createObjectURL(file);
+
+    setMainImage(file);
+    setMainImagePreview(preview);
+  };
+
+  const handleImagesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+
+    imagePreviews.forEach((preview) => {
+      URL.revokeObjectURL(preview);
+    });
+
+    const previews = files.map((file) => URL.createObjectURL(file));
+
+    setImages(files);
+    setImagePreviews(previews);
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setMessage("");
-    setIsLoading(true);
-
-    const formData = new FormData();
-
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("price", String(Number(price)));
-    formData.append("currency", currency);
-    formData.append("listingType", listingType);
-    formData.append("location", location);
-    formData.append("propertyType", propertyType);
-    formData.append("bedrooms", String(Number(bedrooms)));
-    formData.append("kitchenArea", String(Number(kitchenArea)));
-    formData.append("area", String(Number(area)));
-
-    if (mainImage) {
-      formData.append("mainImage", mainImage);
-    }
-
-    images.forEach((image) => {
-      formData.append("images", image);
-    });
+    setIsSubmitting(true);
 
     try {
       const token = sessionStorage.getItem("accessToken");
@@ -80,38 +119,56 @@ export default function CreatePropertyForm() {
         return;
       }
 
+      const data = new FormData();
+
+      data.append("title", form.title);
+      data.append("description", form.description);
+      data.append("price", String(Number(form.price)));
+      data.append("currency", form.currency);
+      data.append("listingType", form.listingType);
+      data.append("location", form.location);
+      data.append("propertyType", form.propertyType);
+      data.append("bedrooms", String(Number(form.bedrooms)));
+      data.append("kitchenArea", String(Number(form.kitchenArea)));
+      data.append("area", String(Number(form.area)));
+
+      if (mainImage) {
+        data.append("mainImage", mainImage);
+      }
+
+      images.forEach((image) => {
+        data.append("images", image);
+      });
+
       const response = await fetch("http://localhost:5000/api/properties", {
         method: "POST",
-
         headers: {
           Authorization: `Bearer ${token}`,
         },
-
-        body: formData,
+        body: data,
       });
 
-      const data = await response.json();
+      const result = await response.json();
 
       if (!response.ok) {
-        setMessage(data.message || "Failed to create property.");
+        setMessage(result.message || "Failed to create property.");
         return;
       }
 
       setMessage("Property created successfully!");
 
-      console.log(data);
-
-      router.push(`/property/${data.data._id}`);
+      router.push(`/property/${result.data._id}`);
     } catch {
       setMessage("Unable to connect to the server. Please try again.");
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Title */}
+
       <div>
         <label htmlFor="title" className="mb-2 block text-sm font-medium">
           Property Title
@@ -121,13 +178,19 @@ export default function CreatePropertyForm() {
           name="title"
           type="text"
           placeholder="Write Title the property"
+          maxLength={15}
           required
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={form.title}
+          onChange={handleChange}
         />
+
+        <p className="mt-1 text-right text-xs text-secondary">
+          {form.title.length}/15
+        </p>
       </div>
 
       {/* Description */}
+
       <div>
         <label htmlFor="description" className="mb-2 block text-sm font-medium">
           Description
@@ -141,15 +204,17 @@ export default function CreatePropertyForm() {
           required
           rows={5}
           className="w-full resize-none rounded-lg border border-border bg-white px-4 py-3 text-sm outline-none transition focus:border-primary"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={form.description}
+          onChange={handleChange}
         />
+
         <p className="mt-1 text-right text-xs text-secondary">
-          {description.length}/350
+          {form.description.length}/350
         </p>
       </div>
 
       {/* Price + Currency */}
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="price" className="mb-2 block text-sm font-medium">
@@ -163,8 +228,8 @@ export default function CreatePropertyForm() {
             min="50"
             step="5"
             required
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            value={form.price}
+            onChange={handleChange}
           />
         </div>
 
@@ -176,8 +241,8 @@ export default function CreatePropertyForm() {
           <select
             id="currency"
             name="currency"
-            value={currency}
-            onChange={(e) => setCurrency(e.target.value as "UAH" | "USD")}
+            value={form.currency}
+            onChange={handleChange}
             className="h-12 w-full rounded-lg border border-border bg-white px-4 text-sm outline-none transition focus:border-primary"
           >
             <option value="USD">USD ($)</option>
@@ -187,6 +252,7 @@ export default function CreatePropertyForm() {
       </div>
 
       {/* Listing Type */}
+
       <div>
         <label htmlFor="listingType" className="mb-2 block text-sm font-medium">
           Listing Type
@@ -195,8 +261,8 @@ export default function CreatePropertyForm() {
         <select
           id="listingType"
           name="listingType"
-          value={listingType}
-          onChange={(e) => setListingType(e.target.value as "sale" | "rent")}
+          value={form.listingType}
+          onChange={handleChange}
           className="h-12 w-full rounded-lg border border-border bg-white px-4 text-sm outline-none transition focus:border-primary"
         >
           <option value="sale">For Sale</option>
@@ -205,6 +271,7 @@ export default function CreatePropertyForm() {
       </div>
 
       {/* Location */}
+
       <div>
         <label htmlFor="location" className="mb-2 block text-sm font-medium">
           Location
@@ -215,12 +282,13 @@ export default function CreatePropertyForm() {
           type="text"
           placeholder="Location"
           required
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
+          value={form.location}
+          onChange={handleChange}
         />
       </div>
 
       {/* Property Type */}
+
       <div>
         <label
           htmlFor="propertyType"
@@ -232,8 +300,8 @@ export default function CreatePropertyForm() {
         <select
           id="propertyType"
           name="propertyType"
-          value={propertyType}
-          onChange={(e) => setPropertyType(e.target.value)}
+          value={form.propertyType}
+          onChange={handleChange}
           className="h-12 w-full rounded-lg border border-border bg-white px-4 text-sm outline-none transition focus:border-primary"
           required
         >
@@ -246,6 +314,7 @@ export default function CreatePropertyForm() {
       </div>
 
       {/* Bedrooms */}
+
       <div>
         <label htmlFor="bedrooms" className="mb-2 block text-sm font-medium">
           Bedrooms
@@ -254,16 +323,17 @@ export default function CreatePropertyForm() {
         <Input
           name="bedrooms"
           type="number"
-          placeholder="1..  2..  3.."
+          placeholder="1.. 2.. 3.."
           min="1"
           step="1"
           required
-          value={bedrooms}
-          onChange={(e) => setBedrooms(e.target.value)}
+          value={form.bedrooms}
+          onChange={handleChange}
         />
       </div>
 
       {/* Kitchen Area + Total Area */}
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label
@@ -280,8 +350,8 @@ export default function CreatePropertyForm() {
             min="4"
             step="1"
             required
-            value={kitchenArea}
-            onChange={(e) => setKitchenArea(e.target.value)}
+            value={form.kitchenArea}
+            onChange={handleChange}
           />
         </div>
 
@@ -297,15 +367,13 @@ export default function CreatePropertyForm() {
             min="10"
             step="1"
             required
-            value={area}
-            onChange={(e) => setArea(e.target.value)}
+            value={form.area}
+            onChange={handleChange}
           />
         </div>
       </div>
 
-      {/* ========================================== */}
       {/* Main Image */}
-      {/* ========================================== */}
 
       <div>
         <label htmlFor="mainImage" className="mb-2 block text-sm font-medium">
@@ -325,29 +393,10 @@ export default function CreatePropertyForm() {
           type="file"
           accept="image/*"
           required
-          onChange={(e) => {
-            const file = e.target.files?.[0] || null;
-
-            if (mainImagePreviewRef.current) {
-              URL.revokeObjectURL(mainImagePreviewRef.current);
-            }
-
-            if (file) {
-              const previewUrl = URL.createObjectURL(file);
-
-              mainImagePreviewRef.current = previewUrl;
-              setMainImagePreview(previewUrl);
-            } else {
-              mainImagePreviewRef.current = null;
-              setMainImagePreview(null);
-            }
-
-            setMainImage(file);
-          }}
+          onChange={handleMainImageChange}
           className="hidden"
         />
 
-        {/* Main Image Preview */}
         {mainImagePreview && (
           <div className="mt-4">
             <div className="relative h-32 w-48 overflow-hidden rounded-lg border border-border">
@@ -365,9 +414,7 @@ export default function CreatePropertyForm() {
         )}
       </div>
 
-      {/* ========================================== */}
       {/* Additional Images */}
-      {/* ========================================== */}
 
       <div>
         <label htmlFor="images" className="mb-2 block text-sm font-medium">
@@ -387,24 +434,10 @@ export default function CreatePropertyForm() {
           type="file"
           accept="image/*"
           multiple
-          onChange={(e) => {
-            const files = Array.from(e.target.files || []);
-
-            imagePreviewsRef.current.forEach((url) => {
-              URL.revokeObjectURL(url);
-            });
-
-            const previewUrls = files.map((file) => URL.createObjectURL(file));
-
-            imagePreviewsRef.current = previewUrls;
-
-            setImages(files);
-            setImagePreviews(previewUrls);
-          }}
+          onChange={handleImagesChange}
           className="hidden"
         />
 
-        {/* Additional Images Preview */}
         {imagePreviews.length > 0 && (
           <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
             {imagePreviews.map((preview, index) => (
@@ -432,14 +465,16 @@ export default function CreatePropertyForm() {
       </div>
 
       {/* Message */}
+
       {message && <p className="text-sm text-secondary">{message}</p>}
 
-      {/* Submit */}
+      {/* Buttons */}
+
       <div className="flex flex-wrap justify-end gap-3">
         <BackButton />
 
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Creating Property..." : "Create Property"}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Creating Property..." : "Create Property"}
         </Button>
       </div>
     </form>

@@ -1,10 +1,10 @@
-import Hero from "@/components/sections/Hero";
+// import Hero from "@/components/sections/Hero";
 import PropertySearch from "@/components/sections/PropertySearch";
 
 import PropertyCategories from "@/components/sections/PropertyCategories";
-import PopularLocations from "@/components/sections/PopularLocations";
-import Agents from "@/components/sections/Agents";
-import CTA from "@/components/sections/CTA";
+// import PopularLocations from "@/components/sections/PopularLocations";
+// import Agents from "@/components/sections/Agents";
+// import CTA from "@/components/sections/CTA";
 
 type HomeProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;

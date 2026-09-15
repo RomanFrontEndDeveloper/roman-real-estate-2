@@ -10,6 +10,7 @@ function VerifyEmailContent() {
 
   const token = searchParams.get("token");
   const hasVerified = useRef(false);
+  // useRef — це прапорець, який запам'ятовує, чи вже була запущена перевірка email.
 
   const [message, setMessage] = useState(
     token ? "Verifying your email..." : "Verification token is missing.",
@@ -23,6 +24,10 @@ function VerifyEmailContent() {
     }
 
     hasVerified.current = true;
+
+    //  false → ще не перевіряли → запускаємо перевірку.
+    // true → вже перевіряли → повторно не запускаємо.
+    // Головна причина тут — не допустити повторного API-запиту на verification.
 
     const verifyEmail = async () => {
       try {

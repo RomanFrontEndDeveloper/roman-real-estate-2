@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+
 import Button from "../ui/Button";
 import Input from "../ui/Input";
-import Image from "next/image";
 import BackButton from "../ui/BackButton";
 
 type Property = {
@@ -23,6 +24,19 @@ type Property = {
   images: string[];
 };
 
+type PropertyForm = {
+  title: string;
+  description: string;
+  price: string;
+  currency: "UAH" | "USD";
+  listingType: "sale" | "rent";
+  location: string;
+  propertyType: string;
+  bedrooms: string;
+  kitchenArea: string;
+  area: string;
+};
+
 type EditPropertyFormProps = {
   propertyId: string;
 };
@@ -32,27 +46,21 @@ export default function EditPropertyForm({
 }: EditPropertyFormProps) {
   const router = useRouter();
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [currency, setCurrency] = useState<"UAH" | "USD">("USD");
-  const [listingType, setListingType] = useState<"sale" | "rent">("sale");
-  const [location, setLocation] = useState("");
-  const [propertyType, setPropertyType] = useState("");
-  const [bedrooms, setBedrooms] = useState("");
-  const [kitchenArea, setKitchenArea] = useState("");
-  const [area, setArea] = useState("");
-
-  // ==========================================
-  // Existing Images
-  // ==========================================
+  const [form, setForm] = useState<PropertyForm>({
+    title: "",
+    description: "",
+    price: "",
+    currency: "USD",
+    listingType: "sale",
+    location: "",
+    propertyType: "",
+    bedrooms: "",
+    kitchenArea: "",
+    area: "",
+  });
 
   const [mainImage, setMainImage] = useState("");
   const [images, setImages] = useState<string[]>([]);
-
-  // ==========================================
-  // New Images
-  // ==========================================
 
   const [newMainImage, setNewMainImage] = useState<File | null>(null);
   const [newMainImagePreview, setNewMainImagePreview] = useState<string | null>(
@@ -62,17 +70,27 @@ export default function EditPropertyForm({
   const [newImages, setNewImages] = useState<File[]>([]);
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
 
-  // ==========================================
-  // Loading / Message
-  // ==========================================
-
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState("");
 
-  // ==========================================
-  // Load Property
-  // ==========================================
+  const newImagePreviewsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    newImagePreviewsRef.current = newImagePreviews;
+  }, [newImagePreviews]);
+
+  useEffect(() => {
+    return () => {
+      if (newMainImagePreview) {
+        URL.revokeObjectURL(newMainImagePreview);
+      }
+
+      newImagePreviewsRef.current.forEach((preview) => {
+        URL.revokeObjectURL(preview);
+      });
+    };
+  }, [newMainImagePreview]);
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -90,16 +108,18 @@ export default function EditPropertyForm({
 
         const property: Property = data.data;
 
-        setTitle(property.title);
-        setDescription(property.description);
-        setPrice(String(property.price));
-        setCurrency(property.currency);
-        setListingType(property.listingType);
-        setLocation(property.location);
-        setPropertyType(property.propertyType);
-        setBedrooms(String(property.bedrooms));
-        setKitchenArea(String(property.kitchenArea));
-        setArea(String(property.area));
+        setForm({
+          title: property.title,
+          description: property.description,
+          price: String(property.price),
+          currency: property.currency,
+          listingType: property.listingType,
+          location: property.location,
+          propertyType: property.propertyType,
+          bedrooms: String(property.bedrooms),
+          kitchenArea: String(property.kitchenArea),
+          area: String(property.area),
+        });
 
         setMainImage(property.mainImage || "");
         setImages(property.images || []);
@@ -113,33 +133,18 @@ export default function EditPropertyForm({
     fetchProperty();
   }, [propertyId]);
 
-  // ==========================================
-  // Main Image Preview Cleanup
-  // ==========================================
+  const handleChange = (
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    const { name, value } = event.target;
 
-  useEffect(() => {
-    return () => {
-      if (newMainImagePreview) {
-        URL.revokeObjectURL(newMainImagePreview);
-      }
-    };
-  }, [newMainImagePreview]);
-
-  // ==========================================
-  // Additional Images Preview Cleanup
-  // ==========================================
-
-  useEffect(() => {
-    return () => {
-      newImagePreviews.forEach((preview) => {
-        URL.revokeObjectURL(preview);
-      });
-    };
-  }, [newImagePreviews]);
-
-  // ==========================================
-  // Main Image
-  // ==========================================
+    setForm((currentForm) => ({
+      ...currentForm,
+      [name]: value,
+    }));
+  };
 
   const handleMainImageChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -150,20 +155,17 @@ export default function EditPropertyForm({
       URL.revokeObjectURL(newMainImagePreview);
     }
 
-    if (file) {
-      const previewUrl = URL.createObjectURL(file);
-
-      setNewMainImage(file);
-      setNewMainImagePreview(previewUrl);
-    } else {
+    if (!file) {
       setNewMainImage(null);
       setNewMainImagePreview(null);
+      return;
     }
-  };
 
-  // ==========================================
-  // Additional Images
-  // ==========================================
+    const preview = URL.createObjectURL(file);
+
+    setNewMainImage(file);
+    setNewMainImagePreview(preview);
+  };
 
   const handleImagesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -172,25 +174,17 @@ export default function EditPropertyForm({
       URL.revokeObjectURL(preview);
     });
 
-    const previewUrls = files.map((file) => URL.createObjectURL(file));
+    const previews = files.map((file) => URL.createObjectURL(file));
 
     setNewImages(files);
-    setNewImagePreviews(previewUrls);
+    setNewImagePreviews(previews);
   };
-
-  // ==========================================
-  // Remove Existing Image
-  // ==========================================
 
   const handleRemoveImage = (index: number) => {
     setImages((currentImages) =>
       currentImages.filter((_, imageIndex) => imageIndex !== index),
     );
   };
-
-  // ==========================================
-  // Remove New Image
-  // ==========================================
 
   const handleRemoveNewImage = (index: number) => {
     const preview = newImagePreviews[index];
@@ -208,10 +202,6 @@ export default function EditPropertyForm({
     );
   };
 
-  // ==========================================
-  // Submit
-  // ==========================================
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -226,30 +216,27 @@ export default function EditPropertyForm({
         return;
       }
 
-      const formData = new FormData();
+      const data = new FormData();
 
-      formData.append("title", title);
-      formData.append("description", description);
-      formData.append("price", String(Number(price)));
-      formData.append("currency", currency);
-      formData.append("listingType", listingType);
-      formData.append("location", location);
-      formData.append("propertyType", propertyType);
-      formData.append("bedrooms", String(Number(bedrooms)));
-      formData.append("kitchenArea", String(Number(kitchenArea)));
-      formData.append("area", String(Number(area)));
+      data.append("title", form.title);
+      data.append("description", form.description);
+      data.append("price", String(Number(form.price)));
+      data.append("currency", form.currency);
+      data.append("listingType", form.listingType);
+      data.append("location", form.location);
+      data.append("propertyType", form.propertyType);
+      data.append("bedrooms", String(Number(form.bedrooms)));
+      data.append("kitchenArea", String(Number(form.kitchenArea)));
+      data.append("area", String(Number(form.area)));
 
-      // New main image
       if (newMainImage) {
-        formData.append("mainImage", newMainImage);
+        data.append("mainImage", newMainImage);
       }
 
-      // Existing additional images that were not removed
-      formData.append("remainingImages", JSON.stringify(images));
+      data.append("remainingImages", JSON.stringify(images));
 
-      // New additional images
       newImages.forEach((image) => {
-        formData.append("images", image);
+        data.append("images", image);
       });
 
       const response = await fetch(
@@ -259,19 +246,18 @@ export default function EditPropertyForm({
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          body: formData,
+          body: data,
         },
       );
 
-      const data = await response.json();
+      const result = await response.json();
 
       if (!response.ok) {
-        setMessage(data.message || "Failed to update property.");
+        setMessage(result.message || "Failed to update property.");
         return;
       }
 
       setMessage("Property updated successfully!");
-
       router.push(`/property/${propertyId}`);
     } catch {
       setMessage("Unable to connect to the server. Please try again.");
@@ -279,10 +265,6 @@ export default function EditPropertyForm({
       setIsSaving(false);
     }
   };
-
-  // ==========================================
-  // Loading
-  // ==========================================
 
   if (isLoading) {
     return (
@@ -294,14 +276,8 @@ export default function EditPropertyForm({
     );
   }
 
-  // ==========================================
-  // Form
-  // ==========================================
-
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Title */}
-
       <div>
         <label htmlFor="title" className="mb-2 block text-sm font-medium">
           Property Title
@@ -313,15 +289,14 @@ export default function EditPropertyForm({
           placeholder="Write Title the property"
           maxLength={15}
           required
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={form.title}
+          onChange={handleChange}
         />
+
         <p className="mt-1 text-right text-xs text-secondary">
-          {title.length}/15
+          {form.title.length}/15
         </p>
       </div>
-
-      {/* Description */}
 
       <div>
         <label htmlFor="description" className="mb-2 block text-sm font-medium">
@@ -336,15 +311,14 @@ export default function EditPropertyForm({
           required
           rows={5}
           className="w-full resize-none rounded-lg border border-border bg-white px-4 py-3 text-sm outline-none transition focus:border-primary"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={form.description}
+          onChange={handleChange}
         />
+
         <p className="mt-1 text-right text-xs text-secondary">
-          {description.length}/350
+          {form.description.length}/350
         </p>
       </div>
-
-      {/* Price + Currency */}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
@@ -359,8 +333,8 @@ export default function EditPropertyForm({
             min="100"
             step="100"
             required
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            value={form.price}
+            onChange={handleChange}
           />
         </div>
 
@@ -372,8 +346,8 @@ export default function EditPropertyForm({
           <select
             id="currency"
             name="currency"
-            value={currency}
-            onChange={(e) => setCurrency(e.target.value as "UAH" | "USD")}
+            value={form.currency}
+            onChange={handleChange}
             className="h-12 w-full rounded-lg border border-border bg-white px-4 text-sm outline-none transition focus:border-primary"
           >
             <option value="USD">USD ($)</option>
@@ -381,8 +355,6 @@ export default function EditPropertyForm({
           </select>
         </div>
       </div>
-
-      {/* Listing Type */}
 
       <div>
         <label htmlFor="listingType" className="mb-2 block text-sm font-medium">
@@ -392,16 +364,14 @@ export default function EditPropertyForm({
         <select
           id="listingType"
           name="listingType"
-          value={listingType}
-          onChange={(e) => setListingType(e.target.value as "sale" | "rent")}
+          value={form.listingType}
+          onChange={handleChange}
           className="h-12 w-full rounded-lg border border-border bg-white px-4 text-sm outline-none transition focus:border-primary"
         >
           <option value="sale">For Sale</option>
           <option value="rent">For Rent</option>
         </select>
       </div>
-
-      {/* Location */}
 
       <div>
         <label htmlFor="location" className="mb-2 block text-sm font-medium">
@@ -413,12 +383,10 @@ export default function EditPropertyForm({
           type="text"
           placeholder="Location"
           required
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
+          value={form.location}
+          onChange={handleChange}
         />
       </div>
-
-      {/* Property Type */}
 
       <div>
         <label
@@ -431,8 +399,8 @@ export default function EditPropertyForm({
         <select
           id="propertyType"
           name="propertyType"
-          value={propertyType}
-          onChange={(e) => setPropertyType(e.target.value)}
+          value={form.propertyType}
+          onChange={handleChange}
           className="h-12 w-full rounded-lg border border-border bg-white px-4 text-sm outline-none transition focus:border-primary"
           required
         >
@@ -444,8 +412,6 @@ export default function EditPropertyForm({
         </select>
       </div>
 
-      {/* Bedrooms */}
-
       <div>
         <label htmlFor="bedrooms" className="mb-2 block text-sm font-medium">
           Bedrooms
@@ -454,16 +420,14 @@ export default function EditPropertyForm({
         <Input
           name="bedrooms"
           type="number"
-          placeholder="1..  2..  3.."
+          placeholder="1.. 2.. 3.."
           min="1"
           step="1"
           required
-          value={bedrooms}
-          onChange={(e) => setBedrooms(e.target.value)}
+          value={form.bedrooms}
+          onChange={handleChange}
         />
       </div>
-
-      {/* Kitchen Area + Total Area */}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
@@ -481,8 +445,8 @@ export default function EditPropertyForm({
             min="4"
             step="1"
             required
-            value={kitchenArea}
-            onChange={(e) => setKitchenArea(e.target.value)}
+            value={form.kitchenArea}
+            onChange={handleChange}
           />
         </div>
 
@@ -498,15 +462,11 @@ export default function EditPropertyForm({
             min="10"
             step="1"
             required
-            value={area}
-            onChange={(e) => setArea(e.target.value)}
+            value={form.area}
+            onChange={handleChange}
           />
         </div>
       </div>
-
-      {/* ========================================== */}
-      {/* Main Image */}
-      {/* ========================================== */}
 
       <div>
         <p className="mb-2 text-sm font-medium">Main Image</p>
@@ -560,14 +520,8 @@ export default function EditPropertyForm({
         />
       </div>
 
-      {/* ========================================== */}
-      {/* Additional Images */}
-      {/* ========================================== */}
-
       <div>
         <p className="mb-2 text-sm font-medium">Additional Images</p>
-
-        {/* Existing Images */}
 
         {images.length > 0 && (
           <div className="mb-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
@@ -596,8 +550,6 @@ export default function EditPropertyForm({
             ))}
           </div>
         )}
-
-        {/* New Images */}
 
         {newImagePreviews.length > 0 && (
           <div className="mb-4">
@@ -656,11 +608,7 @@ export default function EditPropertyForm({
         )}
       </div>
 
-      {/* Message */}
-
       {message && <p className="text-sm text-secondary">{message}</p>}
-
-      {/* Submit */}
 
       <div className="flex flex-wrap justify-end gap-3">
         <BackButton />

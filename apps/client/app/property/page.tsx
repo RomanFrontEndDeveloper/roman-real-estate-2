@@ -63,7 +63,7 @@ export default function PropertyPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center px-4">
+      <div className="flex min-h-[40vh] items-center justify-center mt-25 px-4">
         <p className="text-center font-serif text-xl text-secondary sm:text-2xl">
           Loading properties...
         </p>
@@ -89,7 +89,7 @@ export default function PropertyPage() {
 
       {properties.length === 0 ? (
         <div className="flex min-h-[30vh] items-center justify-center px-4">
-          <p className="text-center text-secondary">
+          <p className="text-center text-2xl text-secondary">
             You have no properties yet.
           </p>
         </div>
