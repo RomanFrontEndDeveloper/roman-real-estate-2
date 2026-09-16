@@ -225,8 +225,8 @@ export default function CreatePropertyForm() {
             name="price"
             type="number"
             placeholder="price the Property"
-            min="50"
-            step="5"
+            min="100"
+            step="10"
             required
             value={form.price}
             onChange={handleChange}

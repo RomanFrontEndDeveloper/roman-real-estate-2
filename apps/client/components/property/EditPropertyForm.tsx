@@ -331,7 +331,7 @@ export default function EditPropertyForm({
             type="number"
             placeholder="price the Property"
             min="100"
-            step="100"
+            step="10"
             required
             value={form.price}
             onChange={handleChange}
