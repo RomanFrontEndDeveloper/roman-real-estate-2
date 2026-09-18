@@ -1,7 +1,13 @@
 "use client";
 
 import PropertyCard from "@/components/property/PropertyCard";
+import { getFavorites } from "@/components/favorites/favoriteApi";
+
 import { useEffect, useState } from "react";
+
+import Link from "next/link";
+import { Heart } from "lucide-react";
+import Button from "@/components/ui/Button";
 
 type Property = {
   _id: string;
@@ -21,6 +27,7 @@ type Property = {
 
 export default function PropertyPage() {
   const [properties, setProperties] = useState<Property[]>([]);
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState("");
 
@@ -51,6 +58,14 @@ export default function PropertyPage() {
         }
 
         setProperties(data.data);
+
+        const favoritesData = await getFavorites();
+
+        const ids = favoritesData.favorites.map(
+          (favorite: { property: string }) => favorite.property,
+        );
+
+        setFavoriteIds(ids);
       } catch {
         setMessage("Unable to connect to the server. Please try again.");
       } finally {
@@ -63,7 +78,7 @@ export default function PropertyPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center mt-25 px-4">
+      <div className="mt-25 flex min-h-[40vh] items-center justify-center px-4">
         <p className="text-center font-serif text-xl text-secondary sm:text-2xl">
           Loading properties...
         </p>
@@ -86,6 +101,18 @@ export default function PropertyPage() {
       <h1 className="my-8 text-center font-serif text-3xl sm:my-12 sm:text-4xl lg:my-14">
         My Properties
       </h1>
+      <div className="mb-6 flex justify-end">
+        <Link href="/favorites">
+          <Button
+            type="button"
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Heart className="h-4 w-4" />
+            My Favorites
+          </Button>
+        </Link>
+      </div>
 
       {properties.length === 0 ? (
         <div className="flex min-h-[30vh] items-center justify-center px-4">
@@ -110,6 +137,16 @@ export default function PropertyPage() {
               area={property.area}
               mainImage={property.mainImage}
               images={property.images}
+              isFavorite={favoriteIds.includes(property._id)}
+              onFavoriteChange={(isFavorite) => {
+                setFavoriteIds((currentIds) => {
+                  if (isFavorite) {
+                    return [...currentIds, property._id];
+                  }
+
+                  return currentIds.filter((id) => id !== property._id);
+                });
+              }}
             />
           ))}
         </div>

@@ -159,6 +159,8 @@ export default function PropertySearch() {
             placeholder="Min Price"
             type="number"
             value={minPrice}
+            min="50"
+            step="50"
             onChange={(event) => setMinPrice(event.target.value)}
           />
 
@@ -166,6 +168,8 @@ export default function PropertySearch() {
             placeholder="Max Price"
             type="number"
             value={maxPrice}
+            min="200"
+            step="200"
             onChange={(event) => setMaxPrice(event.target.value)}
           />
 
@@ -173,6 +177,8 @@ export default function PropertySearch() {
             placeholder="Min Area"
             type="number"
             value={minArea}
+            min="5"
+            step="5"
             onChange={(event) => setMinArea(event.target.value)}
           />
 
@@ -180,6 +186,8 @@ export default function PropertySearch() {
             placeholder="Max Area"
             type="number"
             value={maxArea}
+            min="10"
+            step="10"
             onChange={(event) => setMaxArea(event.target.value)}
           />
 
@@ -187,6 +195,7 @@ export default function PropertySearch() {
             placeholder="Min Kitchen Area"
             type="number"
             value={minKitchenArea}
+            min="3"
             onChange={(event) => setMinKitchenArea(event.target.value)}
           />
 
@@ -194,6 +203,7 @@ export default function PropertySearch() {
             placeholder="Max Kitchen Area"
             type="number"
             value={maxKitchenArea}
+            min="5"
             onChange={(event) => setMaxKitchenArea(event.target.value)}
           />
 

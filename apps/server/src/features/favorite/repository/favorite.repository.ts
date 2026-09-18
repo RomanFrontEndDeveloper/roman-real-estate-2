@@ -13,3 +13,15 @@ export async function deleteFavorite(userId: string, propertyId: string) {
     property: propertyId,
   });
 }
+
+export async function findFavoritesByUser(userId: string) {
+  return FavoriteModel.find({
+    user: userId,
+  });
+}
+
+export async function findFavoritePropertiesByUser(userId: string) {
+  return FavoriteModel.find({
+    user: userId,
+  }).populate("property");
+}

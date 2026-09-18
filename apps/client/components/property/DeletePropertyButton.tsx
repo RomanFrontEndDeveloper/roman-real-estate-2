@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+
 import Button from "../ui/Button";
 
 type DeletePropertyButtonProps = {
@@ -12,6 +13,7 @@ export default function DeletePropertyButton({
   propertyId,
 }: DeletePropertyButtonProps) {
   const router = useRouter();
+
   const [isDeleting, setIsDeleting] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -61,12 +63,13 @@ export default function DeletePropertyButton({
   };
 
   return (
-    <div>
+    <div className="w-full sm:w-auto">
       <Button
         variant="outline"
         type="button"
         onClick={handleDelete}
         disabled={isDeleting}
+        className="w-full sm:w-auto"
       >
         {isDeleting ? "Deleting..." : "Delete"}
       </Button>

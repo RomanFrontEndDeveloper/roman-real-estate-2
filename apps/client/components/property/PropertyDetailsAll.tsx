@@ -2,7 +2,7 @@
 
 import PropertyGallery from "@/components/property/PropertyGallery";
 import PropertyFeatures from "@/components/property/PropertyFeatures";
-
+import Image from "next/image";
 import BackButton from "../ui/BackButton";
 
 type Property = {
@@ -86,26 +86,35 @@ export default function PropertyDetailsAll({ property }: PropertyDetailsProps) {
 
           {/* Owner */}
           <div className="mt-6 border-t border-border pt-6">
-            <h3 className="font-serif text-2xl">Property Owner</h3>
+            <h3 className="font-serif text-2xl mb-5">Property Owner</h3>
 
-            <div className="mt-4">
-              <p className="text-2xl font-semibold">{property.owner.name}</p>
-
-              {property.owner.phone && (
-                <a
-                  href={`tel:${property.owner.phone}`}
-                  className="mt-2 inline-block text-4xl text-secondary transition-opacity hover:opacity-70"
-                >
-                  {property.owner.phone}
-                </a>
+            <div className="mt-4 flex items-center gap-6">
+              {property.owner.avatar?.url ? (
+                <Image
+                  src={property.owner.avatar.url}
+                  alt={property.owner.name}
+                  width={80}
+                  height={80}
+                  className="h-20 w-20 rounded-full object-cover"
+                />
+              ) : (
+                <div className="h-20 w-20 rounded-full bg-gray-200" />
               )}
+
+              <div>
+                <p className="text-2xl font-semibold">{property.owner.name}</p>
+
+                {property.owner.phone && (
+                  <a
+                    href={`tel:${property.owner.phone}`}
+                    className="mt-2 inline-block text-4xl text-secondary transition-opacity hover:opacity-70"
+                  >
+                    {property.owner.phone}
+                  </a>
+                )}
+              </div>
             </div>
           </div>
-
-          {/* Price */}
-          <p className="mt-6 text-2xl font-semibold">
-            {property.price.toLocaleString()} {property.currency}
-          </p>
 
           {/* Description */}
           <div className="mt-8 border-t border-border pt-6">
@@ -115,6 +124,11 @@ export default function PropertyDetailsAll({ property }: PropertyDetailsProps) {
               {property.description}
             </p>
           </div>
+
+          {/* Price */}
+          <p className="mt-6 text-4xl font-semibold">
+            {property.price.toLocaleString()} {property.currency}
+          </p>
 
           {/* Features */}
           <PropertyFeatures

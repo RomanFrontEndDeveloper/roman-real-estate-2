@@ -1,6 +1,45 @@
 import type { Request, Response } from "express";
+import {
+  addFavorite,
+  removeFavorite,
+  getFavorites,
+  getFavoriteProperties,
+} from "../services/FavoriteService.js";
 
-import { addFavorite, removeFavorite } from "../services/FavoriteService.js";
+export async function getFavoritesController(req: Request, res: Response) {
+  if (!req.user) {
+    return res.status(401).json({
+      message: "Unauthorized",
+    });
+  }
+
+  const userId = req.user.userId;
+
+  const favorites = await getFavorites(userId);
+
+  return res.status(200).json({
+    favorites,
+  });
+}
+
+export async function getFavoritePropertiesController(
+  req: Request,
+  res: Response,
+) {
+  if (!req.user) {
+    return res.status(401).json({
+      message: "Unauthorized",
+    });
+  }
+
+  const userId = req.user.userId;
+
+  const favorites = await getFavoriteProperties(userId);
+
+  return res.status(200).json({
+    favorites,
+  });
+}
 
 export async function addFavoriteController(
   req: Request<{ propertyId: string }>,
