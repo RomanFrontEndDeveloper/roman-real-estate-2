@@ -9,6 +9,7 @@ import Input from "../ui/Input";
 import BackButton from "../ui/BackButton";
 
 import AddressAutocomplete from "./AddressAutocomplete";
+import PropertyLocationPreview from "./PropertyLocationPreview";
 
 type PropertyForm = {
   title: string;
@@ -305,6 +306,12 @@ export default function CreatePropertyForm() {
               houseNumber: value,
             }))
           }
+        />
+        <PropertyLocationPreview
+          location={[form.city, form.street, form.houseNumber]
+            .map((value) => value.trim())
+            .filter(Boolean)
+            .join(", ")}
         />
       </div>
 

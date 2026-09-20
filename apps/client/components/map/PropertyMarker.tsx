@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import type { LeafletMouseEvent } from "leaflet";
 import { CircleMarker, Popup } from "react-leaflet";
+import { memo } from "react";
 
 type PropertyMarkerProps = {
   id: string;
@@ -14,7 +15,7 @@ type PropertyMarkerProps = {
   longitude: number;
 };
 
-export default function PropertyMarker({
+function PropertyMarker({
   id,
   title,
   price,
@@ -92,3 +93,5 @@ export default function PropertyMarker({
     </CircleMarker>
   );
 }
+
+export default memo(PropertyMarker);

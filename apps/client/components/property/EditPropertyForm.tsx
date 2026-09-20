@@ -8,6 +8,7 @@ import Button from "../ui/Button";
 import Input from "../ui/Input";
 import BackButton from "../ui/BackButton";
 import AddressAutocomplete from "./AddressAutocomplete";
+import PropertyLocationPreview from "./PropertyLocationPreview";
 
 type Property = {
   _id: string;
@@ -437,6 +438,13 @@ export default function EditPropertyForm({
               houseNumber: value,
             }))
           }
+        />
+
+        <PropertyLocationPreview
+          location={[form.city, form.street, form.houseNumber]
+            .map((value) => value.trim())
+            .filter(Boolean)
+            .join(", ")}
         />
       </div>
 

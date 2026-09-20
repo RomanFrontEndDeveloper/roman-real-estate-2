@@ -12,6 +12,7 @@ import {
 import { authenticate } from "../../auth/middleware/auth.middleware.js";
 import { validateCreateProperty } from "../middleware/validate-create.property.js";
 import { uploadPropertyImages } from "../middleware/upload-property-images.js";
+import { validatePropertyLocation } from "../middleware/validate-property-location.js";
 
 const router = Router();
 
@@ -21,11 +22,14 @@ router.get("/my", authenticate, getMyProperties);
 
 router.get("/:id", getPropertyById);
 
+
+
 router.post(
   "/",
   authenticate,
   uploadPropertyImages,
   validateCreateProperty,
+  validatePropertyLocation,
   createProperty,
 );
 
