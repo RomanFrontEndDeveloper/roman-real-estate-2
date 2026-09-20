@@ -89,7 +89,7 @@ export default function PropertyGallery({
 
       {selectedImage !== null && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-6"
+          className="fixed inset-x-0 bottom-0 top-20 z-[100] flex items-center justify-center bg-black/80 p-6"
           onClick={closeGallery}
         >
           {/* Close */}
@@ -98,7 +98,7 @@ export default function PropertyGallery({
             type="button"
             onClick={closeGallery}
             aria-label="Close gallery"
-            className="absolute right-6 top-6 z-10 text-3xl text-white hover:opacity-70"
+            className="absolute right-8 top-8 z-10 text-4xl text-white hover:opacity-70"
           >
             ×
           </button>
@@ -112,7 +112,7 @@ export default function PropertyGallery({
               showPrevious();
             }}
             aria-label="Previous image"
-            className="absolute left-6 top-1/2 z-10 -translate-y-1/2 text-5xl text-white hover:opacity-70"
+            className="absolute left-6 top-1/2 z-10 -translate-y-1/2 text-7xl text-white hover:opacity-70"
           >
             ‹
           </button>
@@ -120,7 +120,7 @@ export default function PropertyGallery({
           {/* Large Image */}
 
           <div
-            className="relative h-[80vh] w-[80vw] max-w-6xl overflow-hidden rounded-2xl border-2 border-white"
+            className="relative h-[80vh] w-[80vw] max-w-6xl overflow-hidden rounded-2xl border-2 border-white mt-25"
             onClick={(event) => event.stopPropagation()}
           >
             <Image
@@ -141,7 +141,7 @@ export default function PropertyGallery({
               showNext();
             }}
             aria-label="Next image"
-            className="absolute right-6 top-1/2 z-10 -translate-y-1/2 text-5xl text-white hover:opacity-70"
+            className="absolute right-6 top-1/2 z-10 -translate-y-1/2 text-7xl text-white hover:opacity-70"
           >
             ›
           </button>

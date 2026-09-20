@@ -1,12 +1,19 @@
-import type { CreatePropertyDTO } from "../dto/create-property.dto.js";
-import type { Types } from "mongoose";
+import { Types } from "mongoose";
 
 import * as propertyRepository from "../repository/property.repository.js";
+import { CreatePropertyDTO } from "../dto/create-property.dto.js";
+import { geocodeLocation } from "../utils/geocode-location.js";
 
 export const createProperty = async (
   data: CreatePropertyDTO & { owner: Types.ObjectId },
 ) => {
-  return propertyRepository.createProperty(data);
+  const { latitude, longitude } = await geocodeLocation(data.location);
+
+  return propertyRepository.createProperty({
+    ...data,
+    latitude,
+    longitude,
+  });
 };
 
 export const getProperties = async (
@@ -36,7 +43,24 @@ export const getPropertyById = async (id: string) => {
   return property;
 };
 
-export const updateProperty = async (id: string, owner: string, data: any) => {
+export const updateProperty = async (
+  id: string,
+  owner: string,
+  data: Record<string, unknown>,
+) => {
+  const location =
+    typeof data.location === "string" ? data.location.trim() : "";
+
+  if (location) {
+    const { latitude, longitude } = await geocodeLocation(location);
+
+    data = {
+      ...data,
+      latitude,
+      longitude,
+    };
+  }
+
   return propertyRepository.updateProperty(id, owner, data);
 };
 

@@ -4,10 +4,12 @@ import type { Types } from "mongoose";
 import Property from "../models/Property.js";
 
 export const createProperty = async (
-  data: CreatePropertyDTO & { owner: Types.ObjectId },
-) => {
-  return Property.create(data);
-};
+  data: CreatePropertyDTO & {
+    owner: Types.ObjectId;
+    latitude: number;
+    longitude: number;
+  },
+) => Property.create(data);
 
 export const findProperties = async (
   filters: Record<string, unknown>,
@@ -15,7 +17,14 @@ export const findProperties = async (
   skip = 0,
   limit = 6,
 ) => {
-  return Property.find(filters).sort(sort).skip(skip).limit(limit).lean();
+  return Property.find(filters)
+    .select(
+      "_id title description price currency listingType location latitude longitude propertyType bedrooms kitchenArea area owner mainImage images createdAt updatedAt",
+    )
+    .sort(sort)
+    .skip(skip)
+    .limit(limit)
+    .lean();
 };
 
 export const countProperties = async (filters: Record<string, unknown>) => {

@@ -7,6 +7,7 @@ import Image from "next/image";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
 import BackButton from "../ui/BackButton";
+import AddressAutocomplete from "./AddressAutocomplete";
 
 type Property = {
   _id: string;
@@ -30,7 +31,9 @@ type PropertyForm = {
   price: string;
   currency: "UAH" | "USD";
   listingType: "sale" | "rent";
-  location: string;
+  city: string;
+  street: string;
+  houseNumber: string;
   propertyType: string;
   bedrooms: string;
   kitchenArea: string;
@@ -39,6 +42,19 @@ type PropertyForm = {
 
 type EditPropertyFormProps = {
   propertyId: string;
+};
+
+const parseLocation = (location: string) => {
+  const parts = location
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  return {
+    city: parts[0] ?? "",
+    street: parts[1] ?? "",
+    houseNumber: parts.slice(2).join(", ") ?? "",
+  };
 };
 
 export default function EditPropertyForm({
@@ -52,7 +68,9 @@ export default function EditPropertyForm({
     price: "",
     currency: "USD",
     listingType: "sale",
-    location: "",
+    city: "",
+    street: "",
+    houseNumber: "",
     propertyType: "",
     bedrooms: "",
     kitchenArea: "",
@@ -108,13 +126,17 @@ export default function EditPropertyForm({
 
         const property: Property = data.data;
 
+        const parsedLocation = parseLocation(property.location);
+
         setForm({
           title: property.title,
           description: property.description,
           price: String(property.price),
           currency: property.currency,
           listingType: property.listingType,
-          location: property.location,
+          city: parsedLocation.city,
+          street: parsedLocation.street,
+          houseNumber: parsedLocation.houseNumber,
           propertyType: property.propertyType,
           bedrooms: String(property.bedrooms),
           kitchenArea: String(property.kitchenArea),
@@ -218,12 +240,17 @@ export default function EditPropertyForm({
 
       const data = new FormData();
 
+      const location = [form.city, form.street, form.houseNumber]
+        .map((value) => value.trim())
+        .filter(Boolean)
+        .join(", ");
+
       data.append("title", form.title);
       data.append("description", form.description);
       data.append("price", String(Number(form.price)));
       data.append("currency", form.currency);
       data.append("listingType", form.listingType);
-      data.append("location", form.location);
+      data.append("location", location);
       data.append("propertyType", form.propertyType);
       data.append("bedrooms", String(Number(form.bedrooms)));
       data.append("kitchenArea", String(Number(form.kitchenArea)));
@@ -258,6 +285,7 @@ export default function EditPropertyForm({
       }
 
       setMessage("Property updated successfully!");
+
       router.push(`/property/${propertyId}`);
     } catch {
       setMessage("Unable to connect to the server. Please try again.");
@@ -278,6 +306,8 @@ export default function EditPropertyForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Title */}
+
       <div>
         <label htmlFor="title" className="mb-2 block text-sm font-medium">
           Property Title
@@ -297,6 +327,8 @@ export default function EditPropertyForm({
           {form.title.length}/15
         </p>
       </div>
+
+      {/* Description */}
 
       <div>
         <label htmlFor="description" className="mb-2 block text-sm font-medium">
@@ -319,6 +351,8 @@ export default function EditPropertyForm({
           {form.description.length}/350
         </p>
       </div>
+
+      {/* Price + Currency */}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
@@ -356,6 +390,8 @@ export default function EditPropertyForm({
         </div>
       </div>
 
+      {/* Listing Type */}
+
       <div>
         <label htmlFor="listingType" className="mb-2 block text-sm font-medium">
           Listing Type
@@ -373,20 +409,38 @@ export default function EditPropertyForm({
         </select>
       </div>
 
-      <div>
-        <label htmlFor="location" className="mb-2 block text-sm font-medium">
-          Location
-        </label>
+      {/* Location */}
 
-        <Input
-          name="location"
-          type="text"
-          placeholder="Location"
-          required
-          value={form.location}
-          onChange={handleChange}
+      <div>
+        <p className="mb-2 text-sm font-medium">Location</p>
+
+        <AddressAutocomplete
+          city={form.city}
+          street={form.street}
+          houseNumber={form.houseNumber}
+          resolveInitialCity
+          onCityChange={(value) =>
+            setForm((currentForm) => ({
+              ...currentForm,
+              city: value,
+            }))
+          }
+          onStreetChange={(value) =>
+            setForm((currentForm) => ({
+              ...currentForm,
+              street: value,
+            }))
+          }
+          onHouseNumberChange={(value) =>
+            setForm((currentForm) => ({
+              ...currentForm,
+              houseNumber: value,
+            }))
+          }
         />
       </div>
+
+      {/* Property Type */}
 
       <div>
         <label
@@ -412,6 +466,8 @@ export default function EditPropertyForm({
         </select>
       </div>
 
+      {/* Bedrooms */}
+
       <div>
         <label htmlFor="bedrooms" className="mb-2 block text-sm font-medium">
           Bedrooms
@@ -428,6 +484,8 @@ export default function EditPropertyForm({
           onChange={handleChange}
         />
       </div>
+
+      {/* Kitchen Area + Total Area */}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
@@ -467,6 +525,8 @@ export default function EditPropertyForm({
           />
         </div>
       </div>
+
+      {/* Main Image */}
 
       <div>
         <p className="mb-2 text-sm font-medium">Main Image</p>
@@ -519,6 +579,8 @@ export default function EditPropertyForm({
           className="hidden"
         />
       </div>
+
+      {/* Additional Images */}
 
       <div>
         <p className="mb-2 text-sm font-medium">Additional Images</p>

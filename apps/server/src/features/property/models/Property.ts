@@ -7,6 +7,10 @@ export interface IProperty extends Document {
   currency: "UAH" | "USD";
   listingType: "sale" | "rent";
   location: string;
+
+  latitude: number;
+  longitude: number;
+
   propertyType: string;
   bedrooms: number;
   kitchenArea: number;
@@ -53,6 +57,16 @@ const propertySchema = new Schema<IProperty>(
       trim: true,
     },
 
+    latitude: {
+      type: Number,
+      required: true,
+    },
+
+    longitude: {
+      type: Number,
+      required: true,
+    },
+
     propertyType: {
       type: String,
       required: true,
@@ -96,6 +110,7 @@ const propertySchema = new Schema<IProperty>(
 );
 
 // Search indexes
+
 propertySchema.index({
   listingType: 1,
   propertyType: 1,

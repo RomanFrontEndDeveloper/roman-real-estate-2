@@ -8,13 +8,17 @@ import Button from "../ui/Button";
 import Input from "../ui/Input";
 import BackButton from "../ui/BackButton";
 
+import AddressAutocomplete from "./AddressAutocomplete";
+
 type PropertyForm = {
   title: string;
   description: string;
   price: string;
   currency: "UAH" | "USD";
   listingType: "sale" | "rent";
-  location: string;
+  city: string;
+  street: string;
+  houseNumber: string;
   propertyType: string;
   bedrooms: string;
   kitchenArea: string;
@@ -30,7 +34,9 @@ export default function CreatePropertyForm() {
     price: "",
     currency: "USD",
     listingType: "sale",
-    location: "",
+    city: "",
+    street: "",
+    houseNumber: "",
     propertyType: "",
     bedrooms: "",
     kitchenArea: "",
@@ -121,12 +127,14 @@ export default function CreatePropertyForm() {
 
       const data = new FormData();
 
+      const location = `${form.city}, ${form.street}, ${form.houseNumber}`;
+
       data.append("title", form.title);
       data.append("description", form.description);
       data.append("price", String(Number(form.price)));
       data.append("currency", form.currency);
       data.append("listingType", form.listingType);
-      data.append("location", form.location);
+      data.append("location", location);
       data.append("propertyType", form.propertyType);
       data.append("bedrooms", String(Number(form.bedrooms)));
       data.append("kitchenArea", String(Number(form.kitchenArea)));
@@ -273,17 +281,30 @@ export default function CreatePropertyForm() {
       {/* Location */}
 
       <div>
-        <label htmlFor="location" className="mb-2 block text-sm font-medium">
-          Location
-        </label>
+        <p className="mb-2 text-sm font-medium">Location</p>
 
-        <Input
-          name="location"
-          type="text"
-          placeholder="Location"
-          required
-          value={form.location}
-          onChange={handleChange}
+        <AddressAutocomplete
+          city={form.city}
+          street={form.street}
+          houseNumber={form.houseNumber}
+          onCityChange={(value) =>
+            setForm((currentForm) => ({
+              ...currentForm,
+              city: value,
+            }))
+          }
+          onStreetChange={(value) =>
+            setForm((currentForm) => ({
+              ...currentForm,
+              street: value,
+            }))
+          }
+          onHouseNumberChange={(value) =>
+            setForm((currentForm) => ({
+              ...currentForm,
+              houseNumber: value,
+            }))
+          }
         />
       </div>
 
