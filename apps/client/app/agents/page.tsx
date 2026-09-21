@@ -1,3 +1,9 @@
+import Agents from "@/components/sections/Agents";
+
 export default function AgentsPage() {
-  return <h1>Agents</h1>;
+  return (
+    <div className="mt-8">
+      <Agents />;
+    </div>
+  );
 }

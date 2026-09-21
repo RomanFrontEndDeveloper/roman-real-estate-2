@@ -15,6 +15,8 @@ import {
   updateUserAvatar,
   removeUserAvatar,
   updateUserProfile,
+  findAgents,
+  findAgentById,
 } from "../repository/user.repository.js";
 
 export const updateProfileAvatar = async (
@@ -195,4 +197,22 @@ export const updateProfile = async (
   }
 
   return updatedUser;
+};
+
+export const getAgents = async () => {
+  return findAgents();
+};
+
+export const getPublicAgentById = async (agentId: string) => {
+  const result = await findAgentById(agentId);
+
+  if (!result) {
+    const error = new Error("Agent not found");
+
+    (error as Error & { statusCode?: number }).statusCode = 404;
+
+    throw error;
+  }
+
+  return result;
 };

@@ -8,6 +8,8 @@ import {
   changeUserPassword,
   updateProfile,
   updateProfileAvatar,
+  getAgents,
+  getPublicAgentById,
 } from "../services/profile.service.js";
 
 export const updateAvatar = async (
@@ -226,6 +228,56 @@ export const updateProfileData = async (
     res.status(statusCode).json({
       message:
         error instanceof Error ? error.message : "Failed to update profile",
+    });
+  }
+};
+
+export const getPublicAgents = async (
+  _req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const agents = await getAgents();
+
+    res.status(200).json({
+      success: true,
+      data: agents,
+    });
+  } catch (error) {
+    console.error("Get agents error:", error);
+
+    res.status(500).json({
+      message: "Failed to get agents",
+    });
+  }
+};
+
+export const getPublicAgent = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    if (typeof id !== "string") {
+      res.status(400).json({
+        message: "Invalid agent id",
+      });
+      return;
+    }
+
+    const result = await getPublicAgentById(id);
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    const statusCode =
+      (error as Error & { statusCode?: number }).statusCode ?? 500;
+
+    res.status(statusCode).json({
+      message: error instanceof Error ? error.message : "Failed to load agent",
     });
   }
 };
