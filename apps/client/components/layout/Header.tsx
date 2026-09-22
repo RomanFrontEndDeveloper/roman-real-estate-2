@@ -148,6 +148,13 @@ export default function Header() {
           </Link>
 
           <Link
+            href="/agency"
+            className="text-sm font-medium transition-opacity hover:opacity-70"
+          >
+            Agency
+          </Link>
+
+          <Link
             href="/about"
             className="text-sm font-medium transition-opacity hover:opacity-70"
           >
@@ -283,6 +290,13 @@ export default function Header() {
               className="border-b border-border py-4 text-sm font-medium"
             >
               Agents
+            </Link>
+            <Link
+              href="/agency"
+              onClick={() => setIsMenuOpen(false)}
+              className="border-b border-border py-4 text-sm font-medium"
+            >
+              Agency
             </Link>
 
             <Link

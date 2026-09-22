@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import PropertyCardAll from "@/components/property/PropertyCardAll";
 import Button from "@/components/ui/Button";
+import BackButton from "@/components/ui/BackButton";
 
 type Agent = {
   _id: string;
@@ -176,9 +177,7 @@ export default async function AgentPage({ params }: AgentPageProps) {
 
             {/* Bottom action */}
             <div className="mt-8 border-t border-border pt-9">
-              <Button>
-                <Link href="/agents">← Back to Agents</Link>
-              </Button>
+              <BackButton />
             </div>
           </div>
         </div>

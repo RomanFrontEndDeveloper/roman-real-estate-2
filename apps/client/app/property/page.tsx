@@ -97,7 +97,7 @@ export default function PropertyPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 sm:pb-16">
+    <main className="mx-auto w-full max-w-7xl px-4 pb-6 sm:px-6 sm:pb-6">
       <h1 className="my-8 text-center font-serif text-3xl sm:my-12 sm:text-4xl lg:my-14">
         My Properties
       </h1>

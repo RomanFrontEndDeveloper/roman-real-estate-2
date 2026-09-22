@@ -5,6 +5,7 @@ import authRoutes from "./features/auth/routes/auth.routes.js";
 import profileRoutes from "./features/profile/routes/profile.routes.js";
 import propertyRoutes from "./features/property/routes/property.routes.js";
 import favoriteRoutes from "./features/favorite/routes/favorite.routes.js";
+import agencyRoutes from "./features/agency/routes/agency.routes.js";
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use("/api/profile", profileRoutes); //Це дозволяє працюват
 app.use("/api/properties", propertyRoutes);
 
 app.use("/api/favorites", favoriteRoutes);
+app.use("/api/agency", agencyRoutes);
 
 app.get("/", (_req, res) => {
   res.json({

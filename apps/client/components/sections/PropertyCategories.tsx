@@ -3,6 +3,8 @@ import Link from "next/link";
 import PropertyMap from "@/components/map/PropertyMap";
 import PropertyCardAll from "@/components/property/PropertyCardAll";
 
+import BackButton from "../ui/BackButton";
+
 type Property = {
   _id: string;
   title: string;
@@ -30,10 +32,12 @@ type Pagination = {
 
 type PropertyCategoriesProps = {
   searchParams: Record<string, string | string[] | undefined>;
+  basePath?: string;
 };
 
 export default async function PropertyCategories({
   searchParams,
+  basePath = "/",
 }: PropertyCategoriesProps) {
   const params = new URLSearchParams();
 
@@ -93,23 +97,29 @@ export default async function PropertyCategories({
 
     pageParams.set("page", String(page));
 
-    return `/?${pageParams.toString()}`;
+    return `${basePath}?${pageParams.toString()}`;
   };
 
   return (
     <section className="mx-auto mb-6 max-w-7xl px-4 sm:px-6">
-      <div className="mb-8">
-        <p className="text-sm uppercase tracking-[0.2em] text-secondary">
-          Properties
-        </p>
+      <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm uppercase tracking-[0.2em] text-secondary">
+            Properties
+          </p>
 
-        <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
-          Explore Properties
-        </h2>
+          <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
+            Explore Properties
+          </h2>
 
-        <p className="mt-3 text-secondary">
-          Discover properties from all users.
-        </p>
+          <p className="mt-3 text-secondary">
+            Discover properties from all users.
+          </p>
+        </div>
+
+        <div className="shrink-0">
+          <BackButton />
+        </div>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
@@ -161,6 +171,7 @@ export default async function PropertyCategories({
                   {pagination.page > 1 ? (
                     <Link
                       href={createPageUrl(pagination.page - 1)}
+                      scroll={false}
                       className="rounded-lg border border-border bg-white px-4 py-2 text-sm transition-opacity hover:opacity-70"
                     >
                       Previous
@@ -185,6 +196,7 @@ export default async function PropertyCategories({
                     ) : (
                       <Link
                         key={page}
+                        scroll={false}
                         href={createPageUrl(page)}
                         className="rounded-lg border border-border bg-white px-4 py-2 text-sm transition-opacity hover:opacity-70"
                       >
@@ -196,6 +208,7 @@ export default async function PropertyCategories({
                   {pagination.page < pagination.totalPages ? (
                     <Link
                       href={createPageUrl(pagination.page + 1)}
+                      scroll={false}
                       className="rounded-lg border border-border bg-white px-4 py-2 text-sm transition-opacity hover:opacity-70"
                     >
                       Next

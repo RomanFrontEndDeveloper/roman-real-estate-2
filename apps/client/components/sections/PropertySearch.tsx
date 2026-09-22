@@ -82,7 +82,9 @@ export default function PropertySearch() {
       params.set("sortBy", sortBy);
     }
 
-    router.push(`/?${params.toString()}`);
+    router.push(`/?${params.toString()}`, {
+      scroll: false,
+    });
   };
 
   const handleReset = () => {

@@ -31,28 +31,28 @@ export default function Footer() {
 
               <li>
                 <Link
-                  href="/property"
-                  className="transition-colors hover:text-foreground"
-                >
-                  Property
-                </Link>
-              </li>
-
-              <li>
-                <Link
-                  href="/profile"
-                  className="transition-colors hover:text-foreground"
-                >
-                  Profile
-                </Link>
-              </li>
-
-              <li>
-                <Link
                   href="/agents"
                   className="transition-colors hover:text-foreground"
                 >
                   Agents
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/agency"
+                  className="transition-colors hover:text-foreground"
+                >
+                  Agency
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/about"
+                  className="transition-colors hover:text-foreground"
+                >
+                  About
                 </Link>
               </li>
 
