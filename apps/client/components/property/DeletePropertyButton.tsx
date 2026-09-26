@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
+import { API_URL } from "@/lib/apiUrl";
 import Button from "../ui/Button";
 
 type DeletePropertyButtonProps = {
@@ -37,15 +37,12 @@ export default function DeletePropertyButton({
         return;
       }
 
-      const response = await fetch(
-        `http://localhost:5000/api/properties/${propertyId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const response = await fetch(`${API_URL}/api/properties/${propertyId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       const data = await response.json();
 

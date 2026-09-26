@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Playwrite_DE_LA } from "next/font/google";
-
+import { API_URL } from "@/lib/apiUrl";
 import Button from "@/components/ui/Button";
 import { apiFetch } from "@/lib/apiFetch";
 
@@ -83,7 +83,7 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:5000/api/auth/logout", {
+      await fetch(`${API_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
       });

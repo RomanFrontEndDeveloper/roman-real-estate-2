@@ -2,6 +2,8 @@
 
 "use no memo";
 
+import { API_URL } from "@/lib/apiUrl";
+
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -61,7 +63,7 @@ export default function EditProfileForm() {
       }
 
       try {
-        const response = await fetch("http://localhost:5000/api/auth/me", {
+        const response = await fetch(`${API_URL}/api/auth/me`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -155,7 +157,7 @@ export default function EditProfileForm() {
       // 1. Оновлюємо текстові дані профілю
       // ==========================================
 
-      const profileResponse = await fetch("http://localhost:5000/api/profile", {
+      const profileResponse = await fetch(`${API_URL}/api/profile`, {
         method: "PUT",
 
         headers: {
@@ -189,7 +191,7 @@ export default function EditProfileForm() {
         formData.append("avatar", avatarFile);
 
         const avatarResponse = await fetch(
-          "http://localhost:5000/api/profile/avatar",
+         `${API_URL}/api/profile/avatar`,
           {
             method: "POST",
 

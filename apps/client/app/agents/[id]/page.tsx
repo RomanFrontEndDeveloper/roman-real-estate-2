@@ -2,8 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 
 import PropertyCardAll from "@/components/property/PropertyCardAll";
-import Button from "@/components/ui/Button";
+
 import BackButton from "@/components/ui/BackButton";
+import { API_URL } from "@/lib/apiUrl";
 
 type Agent = {
   _id: string;
@@ -53,12 +54,9 @@ type AgentPageProps = {
 export default async function AgentPage({ params }: AgentPageProps) {
   const { id } = await params;
 
-  const response = await fetch(
-    `http://localhost:5000/api/profile/agents/${id}`,
-    {
-      cache: "no-store",
-    },
-  );
+  const response = await fetch(`${API_URL}/api/profile/agents/${id}`, {
+    cache: "no-store",
+  });
 
   if (!response.ok) {
     return (

@@ -20,17 +20,11 @@ export default async function Home({ searchParams }: HomeProps) {
       <Hero />
       {/* Пошук нерухомості за параметрами */}
       <PropertySearch />
-
       {/* Добірка рекомендованих об'єктів нерухомості */}
       <PropertyCategories searchParams={params} />
-
-    
-
       {/* Агенти: фото, ім'я, посада та кількість об'єктів */}
       <Agents />
-
       <AllAgencies />
-
       {/* Фінальний заклик до дії: знайти нерухомість або зв'язатися */}
       <CTA />
     </div>

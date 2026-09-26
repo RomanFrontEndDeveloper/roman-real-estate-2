@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-
+import { API_URL } from "@/lib/apiUrl";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
 import BackButton from "../ui/BackButton";
@@ -115,7 +115,7 @@ export default function EditPropertyForm({
     const fetchProperty = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/properties/${propertyId}`,
+          `${API_URL}/api/properties/${propertyId}`,
         );
 
         const data = await response.json();
@@ -268,7 +268,7 @@ export default function EditPropertyForm({
       });
 
       const response = await fetch(
-        `http://localhost:5000/api/properties/${propertyId}`,
+       `${API_URL}/api/properties/${propertyId}`,
         {
           method: "PUT",
           headers: {

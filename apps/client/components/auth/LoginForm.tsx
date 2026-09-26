@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
+import { API_URL } from "@/lib/apiUrl";
 
 type ValidationError = {
   field: string;
@@ -42,7 +43,7 @@ export default function LoginForm() {
     const password = String(formData.get("password") ?? "");
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         credentials: "include",
         headers: {

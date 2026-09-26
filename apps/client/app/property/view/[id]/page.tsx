@@ -1,4 +1,5 @@
 import PropertyDetailsAll from "@/components/property/PropertyDetailsAll";
+import { API_URL } from "@/lib/apiUrl";
 
 type Property = {
   _id: string;
@@ -38,7 +39,7 @@ export default async function PropertyDetailsPage({
 }: PropertyDetailsPageProps) {
   const { id } = await params;
 
-  const response = await fetch(`http://localhost:5000/api/properties/${id}`, {
+  const response = await fetch(`${API_URL}/api/properties/${id}`, {
     cache: "no-store",
   });
 

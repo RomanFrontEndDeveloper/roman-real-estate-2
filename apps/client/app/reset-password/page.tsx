@@ -5,7 +5,7 @@
 
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-
+import { API_URL } from "@/lib/apiUrl";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 
@@ -57,7 +57,7 @@ function ResetPasswordContent() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/reset-password",
+       `${API_URL}/api/auth/reset-password`,
         {
           method: "POST",
           headers: {

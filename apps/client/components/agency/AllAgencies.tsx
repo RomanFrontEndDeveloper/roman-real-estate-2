@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import { API_URL } from "@/lib/apiUrl";
 import AgencyCard from "./AgencyCard";
 
 type Agency = {
@@ -37,7 +37,7 @@ export default function AllAgencies() {
         setIsLoading(true);
         setError("");
 
-        const response = await fetch("http://localhost:5000/api/agency");
+        const response = await fetch(`${API_URL}/api/agency`);
 
         if (!response.ok) {
           throw new Error("Failed to load agencies");

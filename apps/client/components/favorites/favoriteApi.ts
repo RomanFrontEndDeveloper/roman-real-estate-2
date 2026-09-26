@@ -1,4 +1,5 @@
-const API_URL = "http://localhost:5000";
+import { API_URL } from "@/lib/apiUrl";
+
 
 export async function addFavorite(propertyId: string) {
   const token = sessionStorage.getItem("accessToken");

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
+import { API_URL } from "@/lib/apiUrl";
 import Button from "../ui/Button";
 
 type AgencyOwner = {
@@ -65,12 +65,9 @@ export default function AgencyProfile({ agencyId }: AgencyProfileProps) {
         setIsLoading(true);
         setError("");
 
-        const response = await fetch(
-          `http://localhost:5000/api/agency/${agencyId}`,
-          {
-            cache: "no-store",
-          },
-        );
+        const response = await fetch(`${API_URL}/api/agency/${agencyId}`, {
+          cache: "no-store",
+        });
 
         if (!response.ok) {
           const data = await response.json().catch(() => null);

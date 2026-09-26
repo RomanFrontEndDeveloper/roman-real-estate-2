@@ -4,7 +4,7 @@ import PropertyCard from "@/components/property/PropertyCard";
 import { getFavorites } from "@/components/favorites/favoriteApi";
 
 import { useEffect, useState } from "react";
-
+import { API_URL } from "@/lib/apiUrl";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import Button from "@/components/ui/Button";
@@ -42,7 +42,7 @@ export default function PropertyPage() {
         }
 
         const response = await fetch(
-          "http://localhost:5000/api/properties/my",
+          `${API_URL}/api/properties/my`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

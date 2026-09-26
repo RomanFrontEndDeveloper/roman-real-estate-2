@@ -133,6 +133,7 @@
   };
 
   export const verifyEmail = async (token: string) => {
+    
     const verificationTokenHash = crypto
       .createHash("sha256")
       .update(token)

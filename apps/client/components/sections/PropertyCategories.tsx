@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import PropertyMap from "@/components/map/PropertyMap";
 import PropertyCardAll from "@/components/property/PropertyCardAll";
-
+import { API_URL } from "@/lib/apiUrl";
 import BackButton from "../ui/BackButton";
 
 type Property = {
@@ -53,9 +53,7 @@ export default async function PropertyCategories({
    * Properties for paginated list
    */
   const response = await fetch(
-    `http://localhost:5000/api/properties${
-      queryString ? `?${queryString}` : ""
-    }`,
+    `${API_URL}/api/properties${queryString ? `?${queryString}` : ""}`,
     {
       cache: "no-store",
     },
@@ -82,7 +80,7 @@ export default async function PropertyCategories({
   mapParams.set("limit", "50");
 
   const mapResponse = await fetch(
-    `http://localhost:5000/api/properties?${mapParams.toString()}`,
+    `${API_URL}/api/properties?${mapParams.toString()}`,
     {
       cache: "no-store",
     },

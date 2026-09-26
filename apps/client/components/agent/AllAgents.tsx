@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import { API_URL } from "@/lib/apiUrl";
 import AgentCard, {
   type Agent,
 } from "../agent/AgentCard";
@@ -26,7 +26,7 @@ export default function AllAgents() {
         setError("");
 
         const response = await fetch(
-          "http://localhost:5000/api/profile/agents",
+         `${API_URL}/api/profile/agents`,
         );
 
         if (!response.ok) {

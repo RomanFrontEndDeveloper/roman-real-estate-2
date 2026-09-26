@@ -2,8 +2,12 @@
 
 import { useState } from "react";
 
+import { API_URL } from "@/lib/apiUrl";
+
 import Button from "../ui/Button";
 import Input from "../ui/Input";
+
+type UserRole = "agency" | "agent" | "owner-client";
 
 type ValidationError = {
   field: string;
@@ -11,14 +15,20 @@ type ValidationError = {
 };
 
 type RegisterResponse = {
-  message: string;
+  message?: string;
   errors?: ValidationError[];
   user?: {
     id: string;
     name: string;
     email: string;
-    role: "agency" | "agent" | "owner-client";
+    role: UserRole;
   };
+};
+
+const USER_ROLES: UserRole[] = ["agency", "agent", "owner-client"];
+
+const isUserRole = (value: string): value is UserRole => {
+  return USER_ROLES.includes(value as UserRole);
 };
 
 export default function RegisterForm() {
@@ -26,53 +36,55 @@ export default function RegisterForm() {
   const [isRegistered, setIsRegistered] = useState(false);
 
   const [message, setMessage] = useState("");
-  const [passwordMismatch, setPasswordMismatch] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const passwordMismatch =
+    confirmPassword.length > 0 && password !== confirmPassword;
 
   const handleSubmit = async (
     event: React.FormEvent<HTMLFormElement>,
-  ) => {
+  ): Promise<void> => {
     event.preventDefault();
 
-    const form = event.currentTarget;
+    if (isLoading) {
+      return;
+    }
 
     setMessage("");
 
+    if (passwordMismatch) {
+      return;
+    }
+
+    const form = event.currentTarget;//"Візьми HTML-форму, на якій спрацював onSubmit, і поклади її в змінну form."
+    
     const formData = new FormData(form);
 
     const name = String(formData.get("name") ?? "");
     const email = String(formData.get("email") ?? "");
-    const password = String(formData.get("password") ?? "");
-    const confirmPassword = String(
-      formData.get("confirmPassword") ?? "",
-    );
-    const role = String(formData.get("role") ?? "");
+    const roleValue = String(formData.get("role") ?? "");
 
-    // Перевіряємо паролі ДО відправки на сервер
-    if (password !== confirmPassword) {
-      setPasswordMismatch(true);
-      setMessage("Passwords do not match.");
+    if (!isUserRole(roleValue)) {
+      setMessage("Invalid account type.");
       return;
     }
 
-    setPasswordMismatch(false);
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/auth/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name,
-            email,
-            password,
-            role,
-          }),
+      const response = await fetch(`${API_URL}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          role: roleValue,
+        }),
+      });
 
       const data: RegisterResponse = await response.json();
 
@@ -81,16 +93,15 @@ export default function RegisterForm() {
           ?.map((error) => error.message)
           .join(" ");
 
-        setMessage(
-          validationMessage ||
-            data.message ||
-            "Registration failed.",
-        );
+        setMessage(validationMessage || data.message || "Registration failed.");
 
         return;
       }
 
       form.reset();
+
+      setPassword("");
+      setConfirmPassword("");
 
       setMessage(
         "Registration successful! Please check your email and verify your account.",
@@ -98,68 +109,18 @@ export default function RegisterForm() {
 
       setIsRegistered(true);
     } catch {
-      setMessage(
-        "Unable to connect to the server. Please try again.",
-      );
+      setMessage("Unable to connect to the server. Please try again.");
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handlePasswordChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const password = event.target.value;
-
-    const form = event.currentTarget.form;
-
-    if (!form) {
-      return;
-    }
-
-    const confirmPassword = String(
-      new FormData(form).get("confirmPassword") ?? "",
-    );
-
-    if (confirmPassword && password !== confirmPassword) {
-      setPasswordMismatch(true);
-    } else {
-      setPasswordMismatch(false);
-    }
-  };
-
-  const handleConfirmPasswordChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const confirmPassword = event.target.value;
-
-    const form = event.currentTarget.form;
-
-    if (!form) {
-      return;
-    }
-
-    const password = String(
-      new FormData(form).get("password") ?? "",
-    );
-
-    if (confirmPassword && password !== confirmPassword) {
-      setPasswordMismatch(true);
-    } else {
-      setPasswordMismatch(false);
     }
   };
 
   if (isRegistered) {
     return (
       <div className="text-center">
-        <h2 className="mb-4 text-2xl font-semibold">
-          Check your email
-        </h2>
+        <h2 className="mb-4 text-2xl font-semibold">Check your email</h2>
 
-        <p className="text-secondary">
-          {message}
-        </p>
+        <p className="text-secondary">{message}</p>
       </div>
     );
   }
@@ -168,10 +129,7 @@ export default function RegisterForm() {
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Account Type */}
       <div>
-        <label
-          htmlFor="role"
-          className="mb-2 block text-sm font-medium"
-        >
+        <label htmlFor="role" className="mb-2 block text-sm font-medium">
           Account Type
         </label>
 
@@ -179,19 +137,14 @@ export default function RegisterForm() {
           id="role"
           name="role"
           defaultValue="owner-client"
-          className="h-12 w-full rounded-lg border border-border bg-white px-4 text-sm outline-none transition focus:border-primary"
+          disabled={isLoading}
+          className="h-12 w-full rounded-lg border border-border bg-white px-4 text-sm outline-none transition focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <option value="owner-client">
-            Property Owner
-          </option>
+          <option value="owner-client">Property Owner</option>
 
-          <option value="agent">
-            Real Estate Agent
-          </option>
+          <option value="agent">Real Estate Agent</option>
 
-          <option value="agency">
-            Real Estate Agency
-          </option>
+          <option value="agency">Real Estate Agency</option>
         </select>
       </div>
 
@@ -202,6 +155,7 @@ export default function RegisterForm() {
         placeholder="Full name"
         autoComplete="name"
         required
+        disabled={isLoading}
       />
 
       {/* Email */}
@@ -211,6 +165,7 @@ export default function RegisterForm() {
         placeholder="Email address"
         autoComplete="email"
         required
+        disabled={isLoading}
       />
 
       {/* Password */}
@@ -220,7 +175,11 @@ export default function RegisterForm() {
         placeholder="Password"
         autoComplete="new-password"
         required
-        onChange={handlePasswordChange}
+        disabled={isLoading}
+        value={password}
+        onChange={(event) => {
+          setPassword(event.target.value);
+        }}
       />
 
       {/* Confirm Password */}
@@ -231,28 +190,30 @@ export default function RegisterForm() {
           placeholder="Confirm password"
           autoComplete="new-password"
           required
-          onChange={handleConfirmPasswordChange}
+          disabled={isLoading}
+          value={confirmPassword}
+          onChange={(event) => {
+            setConfirmPassword(event.target.value);
+          }}
         />
 
         {passwordMismatch && (
-          <p className="mt-2 text-sm text-red-500">
+          <p role="alert" className="mt-2 text-sm text-red-500">
             Passwords do not match.
           </p>
         )}
       </div>
 
-      {/* Response Message */}
+      {/* Server Response */}
       {message && (
-        <p className="text-sm text-secondary">
+        <p role="alert" className="text-sm text-secondary">
           {message}
         </p>
       )}
 
       {/* Submit */}
-      <Button type="submit" disabled={isLoading}>
-        {isLoading
-          ? "Creating Account..."
-          : "Create Account"}
+      <Button type="submit" disabled={isLoading || passwordMismatch}>
+        {isLoading ? "Creating Account..." : "Create Account"}
       </Button>
     </form>
   );

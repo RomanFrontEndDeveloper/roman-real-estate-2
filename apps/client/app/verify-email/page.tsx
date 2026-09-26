@@ -1,14 +1,14 @@
 "use client";
 
 import { Suspense, useEffect, useRef, useState } from "react";
-
+import { API_URL } from "@/lib/apiUrl";
 import { useRouter, useSearchParams } from "next/navigation";
 
 function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const token = searchParams.get("token");
+  const token = searchParams.get("token"); //Дай мені значення параметра token з URL.
   const hasVerified = useRef(false);
   // useRef — це прапорець, який запам'ятовує, чи вже була запущена перевірка email.
 
@@ -32,7 +32,7 @@ function VerifyEmailContent() {
     const verifyEmail = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/auth/verify-email?token=${encodeURIComponent(token)}`,
+          `${API_URL}/api/auth/verify-email?token=${encodeURIComponent(token)}`,
         );
 
         const data = await response.json();
@@ -94,3 +94,5 @@ export default function VerifyEmailPage() {
     </Suspense>
   );
 }
+
+//!!! React-компонент — це функція, яку React викликає під час render!!!

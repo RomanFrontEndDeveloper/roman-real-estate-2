@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { useRouter } from "next/navigation";
-
+import { API_URL } from "@/lib/apiUrl";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 
@@ -35,18 +35,15 @@ export default function ForgotPasswordPage() {
     const email = String(formData.get("email") ?? "");
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/auth/forgot-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-          }),
+      const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          email,
+        }),
+      });
 
       const data: ForgotPasswordResponse = await response.json();
 
