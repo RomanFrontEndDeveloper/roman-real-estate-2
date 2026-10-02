@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 
 import Button from "../ui/Button";
 
@@ -23,6 +24,15 @@ type AgentCardProps = {
 };
 
 export default function AgentCard({ agent }: AgentCardProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const handleViewProfile = () => {
+    startTransition(() => {
+      router.push(`/agents/${agent._id}`);
+    });
+  };
+
   return (
     <div className="rounded-2xl border border-border bg-white p-6 transition-shadow hover:shadow-md">
       <div className="relative flex h-85 items-center justify-center overflow-hidden rounded-xl bg-gray-100">
@@ -64,8 +74,8 @@ export default function AgentCard({ agent }: AgentCardProps) {
         </p>
 
         <div className="mt-5">
-          <Button>
-            <Link href={`/agents/${agent._id}`}>View Profile →</Link>
+          <Button onClick={handleViewProfile} disabled={isPending}>
+            {isPending ? "Loading..." : "View Profile →"}
           </Button>
         </div>
       </div>
