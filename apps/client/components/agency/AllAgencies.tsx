@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { API_URL } from "@/lib/apiUrl";
+
 import AgencyCard from "./AgencyCard";
+import BackButton from "../ui/BackButton";
 
 type Agency = {
   _id: string;
@@ -26,7 +28,13 @@ type AgenciesResponse = {
   data: Agency[];
 };
 
-export default function AllAgencies() {
+type AllAgenciesProps = {
+  showBackButton?: boolean;
+};
+
+export default function AllAgencies({
+  showBackButton = false,
+}: AllAgenciesProps) {
   const [agencies, setAgencies] = useState<Agency[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -100,18 +108,26 @@ export default function AllAgencies() {
 
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6">
-      <div className="mb-10">
-        <p className="text-sm uppercase tracking-[0.2em] text-secondary">
-          Our Network
-        </p>
+      <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm uppercase tracking-[0.2em] text-secondary">
+            Our Network
+          </p>
 
-        <h1 className="mt-2 font-serif text-4xl sm:text-5xl">
-          Real Estate Agencies
-        </h1>
+          <h1 className="mt-2 font-serif text-4xl sm:text-5xl">
+            Real Estate Agencies
+          </h1>
 
-        <p className="mt-3 max-w-2xl text-secondary">
-          Explore real estate agencies and meet their professional agents.
-        </p>
+          <p className="mt-3 max-w-2xl text-secondary">
+            Explore real estate agencies and meet their professional agents.
+          </p>
+        </div>
+
+        {showBackButton && (
+          <div className="shrink-0">
+            <BackButton />
+          </div>
+        )}
       </div>
 
       <div className="grid min-w-0 grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

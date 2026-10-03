@@ -11,7 +11,7 @@ export default async function AllPropertyPage({
 
   return (
     <main className="min-h-full mt-8">
-      <PropertyCategories searchParams={params} basePath="/allproperty" />
+      <PropertyCategories searchParams={params} basePath="/allproperty" showBackButton />
     </main>
   );
 }

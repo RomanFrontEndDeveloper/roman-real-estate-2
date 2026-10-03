@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import PropertyMap from "@/components/map/PropertyMap";
-import PropertyCardAll from "@/components/property/PropertyCardAll";
+import PropertyCard from "@/components/property/PropertyCard";
 import { API_URL } from "@/lib/apiUrl";
 import BackButton from "../ui/BackButton";
 
@@ -33,11 +33,13 @@ type Pagination = {
 type PropertyCategoriesProps = {
   searchParams: Record<string, string | string[] | undefined>;
   basePath?: string;
+  showBackButton?: boolean;
 };
 
 export default async function PropertyCategories({
   searchParams,
   basePath = "/",
+  showBackButton = false,
 }: PropertyCategoriesProps) {
   const params = new URLSearchParams();
 
@@ -49,7 +51,7 @@ export default async function PropertyCategories({
 
   const queryString = params.toString();
 
-  /*
+  /**
    * Properties for paginated list
    */
   const response = await fetch(
@@ -68,7 +70,7 @@ export default async function PropertyCategories({
   const properties: Property[] = data.data;
   const pagination: Pagination = data.pagination;
 
-  /*
+  /**
    * Properties for map
    *
    * Map does not depend on current pagination page.
@@ -115,9 +117,11 @@ export default async function PropertyCategories({
           </p>
         </div>
 
-        <div className="shrink-0">
-          <BackButton />
-        </div>
+        {showBackButton && (
+          <div className="shrink-0">
+            <BackButton />
+          </div>
+        )}
       </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
@@ -146,7 +150,7 @@ export default async function PropertyCategories({
             <>
               <div className="grid min-w-0 grid-cols-1 gap-5 sm:grid-cols-2">
                 {properties.map((property) => (
-                  <PropertyCardAll
+                  <PropertyCard
                     key={property._id}
                     id={property._id}
                     title={property.title}
@@ -160,6 +164,7 @@ export default async function PropertyCategories({
                     area={property.area}
                     mainImage={property.mainImage}
                     images={property.images}
+                    href={`/property/view/${property._id}`}
                   />
                 ))}
               </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
@@ -20,8 +22,11 @@ type PropertyCardProps = {
   area: number;
   mainImage: string;
   images: string[];
-  isFavorite: boolean;
-  onFavoriteChange: (isFavorite: boolean) => void;
+
+  href?: string;
+
+  isFavorite?: boolean;
+  onFavoriteChange?: (isFavorite: boolean) => void;
 };
 
 export default function PropertyCard({
@@ -37,20 +42,23 @@ export default function PropertyCard({
   area,
   mainImage,
   images,
-  isFavorite,
+  href = `/property/${id}`,
+  isFavorite = false,
   onFavoriteChange,
 }: PropertyCardProps) {
   const image = mainImage || images?.[0];
 
   const handleFavorite = async () => {
+    if (!onFavoriteChange) {
+      return;
+    }
+
     try {
       if (isFavorite) {
         await removeFavorite(id);
-
         onFavoriteChange(false);
       } else {
         await addFavorite(id);
-
         onFavoriteChange(true);
       }
     } catch (error) {
@@ -60,7 +68,7 @@ export default function PropertyCard({
 
   return (
     <div className="relative">
-      <Link href={`/property/${id}`}>
+      <Link href={href}>
         <Card>
           {/* Main Photo */}
           <div className="relative h-52 overflow-hidden rounded-xl bg-gray-100">
@@ -79,8 +87,8 @@ export default function PropertyCard({
             )}
           </div>
 
+          {/* Property Info */}
           <div className="mt-5">
-            {/* Property Type + Listing Type */}
             <div className="flex items-center gap-3">
               <p className="text-sm text-secondary">{propertyType}</p>
 
@@ -89,23 +97,18 @@ export default function PropertyCard({
               </span>
             </div>
 
-            {/* Title */}
             <h3 className="mt-1 font-serif text-2xl">{title}</h3>
 
-            {/* Location */}
             <p className="mt-2 text-secondary">{location}</p>
 
-            {/* Description */}
             <p className="mt-2 line-clamp-2 text-sm leading-6 text-secondary">
               {description}
             </p>
 
-            {/* Price */}
             <p className="mt-4 text-lg font-semibold">
               {price.toLocaleString()} {currency}
             </p>
 
-            {/* Details */}
             <div className="mt-4 border-t border-border pt-4 text-sm text-secondary">
               {bedrooms} Bedrooms
               <span className="mx-2">•</span>
@@ -116,16 +119,18 @@ export default function PropertyCard({
       </Link>
 
       {/* Favorite Button */}
-      <Button
-        type="button"
-        variant="outline"
-        size="icon"
-        aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-        className="absolute right-4 top-4 rounded-full"
-        onClick={handleFavorite}
-      >
-        <Heart className={`h-5 w-5 ${isFavorite ? "fill-current" : ""}`} />
-      </Button>
+      {onFavoriteChange && (
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+          className="absolute right-4 top-4 rounded-full"
+          onClick={handleFavorite}
+        >
+          <Heart className={`h-5 w-5 ${isFavorite ? "fill-current" : ""}`} />
+        </Button>
+      )}
     </div>
   );
 }

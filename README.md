@@ -2,7 +2,7 @@
 
 Full-Stack real estate platform built from scratch as a learning and portfolio project.
 
-The application simulates a modern real estate marketplace where users can register, manage their profiles, create property listings, search and filter properties, work with agents and agencies, and save properties to favorites.
+The application simulates a modern real estate marketplace where users can register, manage their profiles, create and manage property listings, search and filter properties, work with agents and agencies, and save properties to favorites.
 
 ---
 
@@ -17,7 +17,8 @@ The application simulates a modern real estate marketplace where users can regis
 - Email verification
 - Forgot / Reset password
 - Protected routes
-- Automatic token refresh
+- Automatic access-token refresh
+- Authorization for protected resources
 
 ### 👤 User Profile
 
@@ -33,8 +34,11 @@ The application simulates a modern real estate marketplace where users can regis
 - Delete property
 - Property details
 - Property gallery
-- Property ownership & authorization
-- Property cards
+- Property ownership
+- Ownership-based authorization
+- Reusable property cards
+- Public property pages
+- Personal property pages
 - Pagination
 
 ### 🔎 Search & Filters
@@ -49,13 +53,15 @@ The application simulates a modern real estate marketplace where users can regis
 - Sorting
 - Pagination
 - Combined search & filters
+- Map-based property display
 
 ### ❤️ Favorites
 
 - Add property to favorites
-- Remove from favorites
+- Remove property from favorites
 - Favorites page
 - Favorite state synchronization
+- Favorite controls available only to authenticated users
 
 ### 👨‍💼 Agents
 
@@ -74,122 +80,24 @@ The application simulates a modern real estate marketplace where users can regis
 
 ---
 
-## 🧱 Architecture
+## 🧩 Reusable Components
 
-The project uses **Monorepo + Feature-First Architecture**.
+The project avoids unnecessary component duplication by using reusable components with configurable props.
 
-roman-real-estate-2/
-├── apps/
-│ ├── client/ # Next.js frontend
-│ └── server/ # Node.js / Express backend
-│
-├── packages/
-├── package.json
-├── pnpm-workspace.yaml
-└── README.md
+Examples:
 
-Backend features are organized by business domain:
+- `PropertyCard`
+- `PropertyDetails`
+- `BackButton`
+- `PropertyGallery`
+- `PropertyFeatures`
+- `DeletePropertyButton`
+- `AgencyCard`
+- `AgentCard`
 
-features/
-├── auth/
-├── profile/
-├── property/
-├── favorite/
-└── agency/
+Components can change their behavior depending on the page context.
 
-Each feature contains its own controllers, services, repositories, routes, models, validation and related logic.
+For example, `PropertyDetails` supports different modes:
 
-🛠️ Tech Stack
-Frontend
-Next.js
-React
-TypeScript
-Tailwind CSS
-React Hook Form
-Zod
-TanStack Query
-Next/Image
-Backend
-Node.js
-Express.js
-TypeScript
-MongoDB
-Mongoose
-JWT
-bcrypt
-Multer
-Cloud & Tools
-Cloudinary
-pnpm Workspace
-Git / GitHub
-Postman
-ESLint
-Prettier
-🔄 Development Approach
-
-Features are developed as complete vertical slices:
-
-UI
-↓
-API
-↓
-Database
-↓
-Integration
-↓
-Validation
-↓
-Authentication / Security
-↓
-Testing
-↓
-Refactoring
-↓
-Commit
-
-The goal is to understand the complete lifecycle of a real Full-Stack feature rather than only building isolated components.
-
-📈 Current Progress
-
-Implemented:
-
-Product foundation
-Public website
-Authentication
-User profiles
-Property CRUD
-Property search & filtering
-Sorting & pagination
-Agents
-Agencies
-Favorites
-
-Planned:
-
-Messaging
-Real-time communication
-Notifications
-Administration
-RBAC
-Automated testing
-Swagger / API documentation
-Production deployment
-Performance & security improvements
-🎯 Project Goal
-
-Roman Real Estate 2 is both a practical Full-Stack project and a structured learning path focused on progressing from:
-
-Junior → Junior+ → Strong Junior → Production-Oriented Full-Stack Developer
-
-The main focus is not only making the application work, but understanding architecture, API design, databases, authentication, security, integration, reusable code and maintainability.
-
-👨‍💻 Author
-
-Roman Okhremov
-
-Frontend Developer (React / Next.js / TypeScript)
-with Full-Stack experience
-
-GitHub: https://github.com/RomanFrontEndDeveloper/
-LinkedIn: https://www.linkedin.com/in/roman-okhremov-9b0764369/
-Portfolio: https://portfolio-react-roman-okhremov.netlify.app/
+```tsx
+<PropertyDetails property={property} />

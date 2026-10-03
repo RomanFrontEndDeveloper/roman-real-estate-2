@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import PropertyCardAll from "@/components/property/PropertyCardAll";
+import PropertyCard from "@/components/property/PropertyCard";
 
 import BackButton from "@/components/ui/BackButton";
 import { API_URL } from "@/lib/apiUrl";
@@ -206,7 +206,7 @@ export default async function AgentPage({ params }: AgentPageProps) {
         ) : (
           <div className="grid min-w-0 grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {properties.map((property) => (
-              <PropertyCardAll
+              <PropertyCard
                 key={property._id}
                 id={property._id}
                 title={property.title}

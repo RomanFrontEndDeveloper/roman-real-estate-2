@@ -3,7 +3,6 @@ import PropertySearch from "@/components/sections/PropertySearch";
 import PropertyCategories from "@/components/sections/PropertyCategories";
 
 import Agents from "@/components/sections/Agents";
-import CTA from "@/components/sections/CTA";
 
 import AllAgencies from "@/components/agency/AllAgencies";
 
@@ -25,8 +24,6 @@ export default async function Home({ searchParams }: HomeProps) {
       {/* Агенти: фото, ім'я, посада та кількість об'єктів */}
       <Agents />
       <AllAgencies />
-      {/* Фінальний заклик до дії: знайти нерухомість або зв'язатися */}
-      <CTA />
     </div>
   );
 }

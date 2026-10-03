@@ -1,4 +1,4 @@
-import PropertyDetailsAll from "@/components/property/PropertyDetailsAll";
+import PropertyDetails from "@/components/property/PropertyDetails";
 import { API_URL } from "@/lib/apiUrl";
 
 type Property = {
@@ -15,16 +15,14 @@ type Property = {
   area: number;
   mainImage: string;
   images: string[];
-  owner: PropertyOwner;
-};
-
-type PropertyOwner = {
-  _id: string;
-  name: string;
-  phone?: string;
-  avatar?: {
-    url: string;
-    publicId: string;
+  owner?: {
+    _id: string;
+    name: string;
+    phone?: string;
+    avatar?: {
+      url: string;
+      publicId: string;
+    };
   };
 };
 
@@ -51,5 +49,5 @@ export default async function PropertyDetailsPage({
 
   const property: Property = data.data;
 
-  return <PropertyDetailsAll property={property} />;
+  return <PropertyDetails property={property} showOwner />;
 }

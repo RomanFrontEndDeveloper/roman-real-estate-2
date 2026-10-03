@@ -41,14 +41,11 @@ export default function PropertyPage() {
           return;
         }
 
-        const response = await fetch(
-          `${API_URL}/api/properties/my`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+        const response = await fetch(`${API_URL}/api/properties/my`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
+        });
 
         const data = await response.json();
 
@@ -101,6 +98,7 @@ export default function PropertyPage() {
       <h1 className="my-8 text-center font-serif text-3xl sm:my-12 sm:text-4xl lg:my-14">
         My Properties
       </h1>
+
       <div className="mb-6 flex justify-end">
         <Link href="/favorites">
           <Button
