@@ -23,5 +23,9 @@ export async function findFavoritesByUser(userId: string) {
 export async function findFavoritePropertiesByUser(userId: string) {
   return FavoriteModel.find({
     user: userId,
-  }).populate("property");
+  })
+    .populate("property")
+    .then((favorites) =>
+      favorites.filter((favorite) => favorite.property !== null),
+    );
 }

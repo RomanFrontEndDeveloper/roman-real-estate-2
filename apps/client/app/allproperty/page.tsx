@@ -7,11 +7,13 @@ type AllPropertyPageProps = {
 export default async function AllPropertyPage({
   searchParams,
 }: AllPropertyPageProps) {
-  const params = await searchParams;
-
   return (
-    <main className="min-h-full mt-8">
-      <PropertyCategories searchParams={params} basePath="/allproperty" showBackButton />
+    <main className="mt-8 min-h-full">
+      <PropertyCategories
+        searchParams={searchParams}
+        basePath="/allproperty"
+        showBackButton
+      />
     </main>
   );
 }

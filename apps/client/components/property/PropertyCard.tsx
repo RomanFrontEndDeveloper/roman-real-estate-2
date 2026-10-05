@@ -67,9 +67,9 @@ export default function PropertyCard({
   };
 
   return (
-    <div className="relative">
-      <Link href={href}>
-        <Card>
+    <div className="relative flex h-full flex-col">
+      <Link href={href} className="flex h-full">
+        <Card className="flex h-full w-full flex-col">
           {/* Main Photo */}
           <div className="relative h-52 overflow-hidden rounded-xl bg-gray-100">
             {image ? (

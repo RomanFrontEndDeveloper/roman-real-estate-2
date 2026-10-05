@@ -6,6 +6,7 @@ import profileRoutes from "./features/profile/routes/profile.routes.js";
 import propertyRoutes from "./features/property/routes/property.routes.js";
 import favoriteRoutes from "./features/favorite/routes/favorite.routes.js";
 import agencyRoutes from "./features/agency/routes/agency.routes.js";
+import adminRoutes from "./features/admin/routes/admin.routes.js";
 
 const app = express();
 
@@ -28,6 +29,8 @@ app.use("/api/properties", propertyRoutes);
 
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/agency", agencyRoutes);
+
+app.use("/api/admin", adminRoutes);
 
 app.get("/", (_req, res) => {
   res.json({

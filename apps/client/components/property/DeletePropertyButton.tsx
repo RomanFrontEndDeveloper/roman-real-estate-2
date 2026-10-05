@@ -18,7 +18,6 @@ export default function DeletePropertyButton({
   const [isDeleting, setIsDeleting] = useState(false);
   const [message, setMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const handleDelete = async () => {
     setMessage("");
     setIsDeleting(true);
@@ -31,12 +30,15 @@ export default function DeletePropertyButton({
         return;
       }
 
-      const response = await fetch(`${API_URL}/api/properties/${propertyId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `${API_URL}/api/admin/properties/${propertyId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       const data = await response.json();
 
@@ -45,7 +47,7 @@ export default function DeletePropertyButton({
         return;
       }
 
-      router.push("/property");
+      router.refresh();
     } catch {
       setMessage("Unable to connect to the server. Please try again.");
     } finally {
@@ -53,7 +55,6 @@ export default function DeletePropertyButton({
       setIsModalOpen(false);
     }
   };
-
   return (
     <div className="w-full sm:w-auto">
       <Button

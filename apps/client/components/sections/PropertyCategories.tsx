@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import PropertyMap from "@/components/map/PropertyMap";
 import PropertyCard from "@/components/property/PropertyCard";
+import DeletePropertyButton from "@/components/property/DeletePropertyButton";
+
 import { API_URL } from "@/lib/apiUrl";
 import BackButton from "../ui/BackButton";
 
@@ -31,19 +33,23 @@ type Pagination = {
 };
 
 type PropertyCategoriesProps = {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
   basePath?: string;
   showBackButton?: boolean;
+  showAdminActions?: boolean;
 };
 
 export default async function PropertyCategories({
   searchParams,
   basePath = "/",
   showBackButton = false,
+  showAdminActions = false,
 }: PropertyCategoriesProps) {
+  const resolvedSearchParams = await searchParams;
+
   const params = new URLSearchParams();
 
-  Object.entries(searchParams).forEach(([key, value]) => {
+  Object.entries(resolvedSearchParams).forEach(([key, value]) => {
     if (typeof value === "string" && value) {
       params.set(key, value);
     }
@@ -102,21 +108,7 @@ export default async function PropertyCategories({
 
   return (
     <section className="mx-auto mb-6 max-w-7xl px-4 sm:px-6">
-      <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm uppercase tracking-[0.2em] text-secondary">
-            Properties
-          </p>
-
-          <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
-            Explore Properties
-          </h2>
-
-          <p className="mt-3 text-secondary">
-            Discover properties from all users.
-          </p>
-        </div>
-
+      <div className="mb-8 ml-4">
         {showBackButton && (
           <div className="shrink-0">
             <BackButton />
@@ -148,24 +140,31 @@ export default async function PropertyCategories({
             </div>
           ) : (
             <>
-              <div className="grid min-w-0 grid-cols-1 gap-5 sm:grid-cols-2">
+              <div className="grid min-w-0 grid-cols-1 items-stretch gap-5 sm:grid-cols-2">
                 {properties.map((property) => (
-                  <PropertyCard
-                    key={property._id}
-                    id={property._id}
-                    title={property.title}
-                    description={property.description}
-                    price={property.price}
-                    currency={property.currency}
-                    location={property.location}
-                    propertyType={property.propertyType}
-                    listingType={property.listingType}
-                    bedrooms={property.bedrooms}
-                    area={property.area}
-                    mainImage={property.mainImage}
-                    images={property.images}
-                    href={`/property/view/${property._id}`}
-                  />
+                  <div key={property._id} className="flex h-full flex-col">
+                    <PropertyCard
+                      id={property._id}
+                      title={property.title}
+                      description={property.description}
+                      price={property.price}
+                      currency={property.currency}
+                      location={property.location}
+                      propertyType={property.propertyType}
+                      listingType={property.listingType}
+                      bedrooms={property.bedrooms}
+                      area={property.area}
+                      mainImage={property.mainImage}
+                      images={property.images}
+                      href={`/property/view/${property._id}`}
+                    />
+
+                    {showAdminActions && (
+                      <div className="mt-3">
+                        <DeletePropertyButton propertyId={property._id} />
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
 
