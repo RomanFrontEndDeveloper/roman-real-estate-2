@@ -7,6 +7,7 @@ import Image from "next/image";
 
 import Button from "../ui/Button";
 import Card from "../ui/Card";
+import ConfirmModal from "../ui/ConfirmModal";
 
 import { apiFetch } from "@/lib/apiFetch";
 
@@ -40,6 +41,8 @@ export default function ProfileCard() {
 
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
 
   const [agencyMembership, setAgencyMembership] =
     useState<AgencyMembership | null>(null);
@@ -113,14 +116,6 @@ export default function ProfileCard() {
   }, [router]);
 
   const handleLeaveAgency = async () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to leave this agency?",
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
     try {
       setIsLeavingAgency(true);
 
@@ -135,6 +130,7 @@ export default function ProfileCard() {
       }
 
       setAgencyMembership(null);
+      setIsLeaveModalOpen(false);
     } catch (error) {
       console.error("Failed to leave agency:", error);
 
@@ -266,7 +262,7 @@ export default function ProfileCard() {
 
                 <Button
                   variant="outline"
-                  onClick={handleLeaveAgency}
+                  onClick={() => setIsLeaveModalOpen(true)}
                   disabled={isLeavingAgency}
                 >
                   {isLeavingAgency ? "Leaving..." : "Leave Agency"}
@@ -289,6 +285,16 @@ export default function ProfileCard() {
           </div>
         </div>
       </div>
+      <ConfirmModal
+        isOpen={isLeaveModalOpen}
+        title="Leave Agency"
+        description="Are you sure you want to leave this agency?"
+        onClose={() => setIsLeaveModalOpen(false)}
+        onConfirm={handleLeaveAgency}
+        isLoading={isLeavingAgency}
+        confirmText="Leave Agency"
+        loadingText="Leaving..."
+      />
     </Card>
   );
 }

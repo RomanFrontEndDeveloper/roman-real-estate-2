@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import Button from "../ui/Button";
+import ConfirmModal from "../ui/ConfirmModal";
 
 import {
   getAgencyMembers,
@@ -25,6 +26,9 @@ export default function AgencyMembers() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [removingAgentId, setRemovingAgentId] = useState<string | null>(null);
+
+  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
 
   useEffect(() => {
     const loadAgencyData = async () => {
@@ -118,17 +122,15 @@ export default function AgencyMembers() {
     }
   };
 
-  const handleRemoveMember = async (agentId: string) => {
-    const confirmed = window.confirm("Remove this agent from the agency?");
-
-    if (!confirmed) {
+  const handleRemoveMember = async () => {
+    if (!selectedAgentId) {
       return;
     }
 
     try {
-      setRemovingAgentId(agentId);
+      setRemovingAgentId(selectedAgentId);
 
-      const response = await removeAgencyMember(agentId);
+      const response = await removeAgencyMember(selectedAgentId);
       const data = await response.json();
 
       if (!response.ok) {
@@ -136,8 +138,11 @@ export default function AgencyMembers() {
       }
 
       setMembers((current) =>
-        current.filter((member) => member.agent._id !== agentId),
+        current.filter((member) => member.agent._id !== selectedAgentId),
       );
+
+      setIsRemoveModalOpen(false);
+      setSelectedAgentId(null);
     } catch (error) {
       console.error("Failed to remove agent:", error);
 
@@ -261,7 +266,10 @@ export default function AgencyMembers() {
                   <div className="w-full">
                     <Button
                       variant="outline"
-                      onClick={() => handleRemoveMember(member.agent._id)}
+                      onClick={() => {
+                        setSelectedAgentId(member.agent._id);
+                        setIsRemoveModalOpen(true);
+                      }}
                       disabled={removingAgentId === member.agent._id}
                       className="h-16 w-full px-1 py-0.5 text-sm leading-tight sm:text-base"
                     >
@@ -356,6 +364,19 @@ export default function AgencyMembers() {
           })}
         </div>
       )}
+      <ConfirmModal
+        isOpen={isRemoveModalOpen}
+        title="Remove Agent"
+        description="Are you sure you want to remove this agent from the agency?"
+        onClose={() => {
+          setIsRemoveModalOpen(false);
+          setSelectedAgentId(null);
+        }}
+        onConfirm={handleRemoveMember}
+        isLoading={removingAgentId !== null}
+        confirmText="Remove"
+        loadingText="Removing..."
+      />
     </section>
   );
 }
