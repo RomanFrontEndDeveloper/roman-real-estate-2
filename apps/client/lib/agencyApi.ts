@@ -11,6 +11,7 @@ export type AgencyAgent = {
     publicId: string;
   };
   role: "agent";
+  agencyId?: string | null;
 };
 
 export type AgencyMember = {
@@ -98,4 +99,8 @@ export const leaveAgency = () => {
   return apiFetch("/api/agency/membership/me", {
     method: "DELETE",
   });
+};
+
+export const getAvailableAgents = async () => {
+  return apiFetch("/api/agency/available-agents");
 };

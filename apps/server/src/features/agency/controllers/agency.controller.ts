@@ -7,7 +7,7 @@ import {
   getAllAgencies,
   getPublicAgencyById,
   leaveAgency,
-  getMyAgencyMembership,  
+  getMyAgencyMembership,
 } from "../services/agency.service.js";
 
 import {
@@ -17,6 +17,7 @@ import {
   respondToJoinRequest,
   sendAgentJoinRequest,
   removeAgencyMember,
+  getAvailableAgents,
 } from "../services/agency-member.service.js";
 
 export const createAgencyProfile = async (
@@ -361,6 +362,30 @@ export const getPublicAgency = async (
     res.status(200).json({
       success: true,
       data: agency,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAvailableAgentsController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    if (!req.user) {
+      res.status(401).json({
+        message: "Authentication required",
+      });
+      return;
+    }
+
+    const agents = await getAvailableAgents();
+
+    res.status(200).json({
+      success: true,
+      data: agents,
     });
   } catch (error) {
     next(error);

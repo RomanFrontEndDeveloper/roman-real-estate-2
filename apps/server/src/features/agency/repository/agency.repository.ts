@@ -30,6 +30,7 @@ export const updateAgencyByOwner = async (
 export const findMyAgencyMembership = async (agentId: string) => {
   return AgencyMember.findOne({
     agent: agentId,
+    status: "active",
   })
     .populate("agency", "_id name")
     .lean();
@@ -75,10 +76,7 @@ export const findAgencyById = async (agencyId: string) => {
   const members = await AgencyMember.find({
     agency: agency._id,
   })
-    .populate(
-      "agent",
-      "_id name email phone bio avatar",
-    )
+    .populate("agent", "_id name email phone bio avatar")
     .lean();
 
   return {

@@ -11,6 +11,8 @@ import {
   findOutgoingRequests,
   updateMembershipStatus,
   deleteMembership,
+  findAvailableAgents,
+  findMembershipByAgent,
 } from "../repository/agency-member.repository.js";
 
 const createError = (message: string, statusCode: number) => {
@@ -46,6 +48,13 @@ export const sendAgentJoinRequest = async (userId: string, agentId: string) => {
 
   if (agent.role !== "agent") {
     throw createError("Selected user is not an agent", 400);
+  }
+
+  // Agent already works in any agency.
+  const activeMembership = await findMembershipByAgent(agentId, "active");
+
+  if (activeMembership) {
+    throw createError("Agent already belongs to an agency", 409);
   }
 
   const existingMembership = await findMembership(
@@ -137,6 +146,16 @@ export const respondToJoinRequest = async (
     throw createError("Join request has already been processed", 409);
   }
 
+  // If agent accepts a request, make sure they are not
+  // already active in another agency.
+  if (status === "active") {
+    const activeMembership = await findMembershipByAgent(userId, "active");
+
+    if (activeMembership && activeMembership._id.toString() !== membershipId) {
+      throw createError("You already belong to another agency", 409);
+    }
+  }
+
   return updateMembershipStatus(membershipId, status);
 };
 
@@ -167,4 +186,8 @@ export const removeAgencyMember = async (userId: string, agentId: string) => {
   }
 
   return removedMembership;
+};
+
+export const getAvailableAgents = async () => {
+  return findAvailableAgents();
 };

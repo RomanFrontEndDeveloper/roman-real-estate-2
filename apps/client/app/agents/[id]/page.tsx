@@ -220,6 +220,7 @@ export default async function AgentPage({ params }: AgentPageProps) {
                 area={property.area}
                 mainImage={property.mainImage}
                 images={property.images}
+                href={`/property/view/${property._id}`}
               />
             ))}
           </div>

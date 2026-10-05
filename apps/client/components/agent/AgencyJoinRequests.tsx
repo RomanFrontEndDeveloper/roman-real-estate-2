@@ -20,12 +20,16 @@ type UserResponse = {
 
 export default function AgencyJoinRequests() {
   const [requests, setRequests] = useState<AgencyRequest[]>([]);
-
   const [isLoading, setIsLoading] = useState(true);
+  const [processingRequestId, setProcessingRequestId] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     const loadRequests = async () => {
       try {
+        setIsLoading(true);
+
         const userResponse = await apiFetch("/api/auth/me");
 
         if (!userResponse.ok) {
@@ -61,7 +65,13 @@ export default function AgencyJoinRequests() {
     membershipId: string,
     status: "active" | "rejected",
   ) => {
+    if (processingRequestId) {
+      return;
+    }
+
     try {
+      setProcessingRequestId(membershipId);
+
       const response = await respondToAgencyRequest(membershipId, status);
 
       const data = await response.json();
@@ -73,12 +83,23 @@ export default function AgencyJoinRequests() {
       setRequests((current) =>
         current.filter((request) => request._id !== membershipId),
       );
+
+      /**
+       * Notify other profile components that agency membership changed.
+       *
+       * ProfileCard listens to this event and reloads the current user.
+       */
+      if (status === "active") {
+        window.dispatchEvent(new Event("agency-membership-changed"));
+      }
     } catch (error) {
       console.error("Failed to respond to request:", error);
 
       alert(
         error instanceof Error ? error.message : "Failed to process request",
       );
+    } finally {
+      setProcessingRequestId(null);
     }
   };
 
@@ -96,31 +117,39 @@ export default function AgencyJoinRequests() {
         <h2 className="mt-2 font-serif text-3xl">Join Requests</h2>
 
         <div className="mt-6 space-y-4">
-          {requests.map((request) => (
-            <div
-              key={request._id}
-              className="rounded-xl border border-border p-5"
-            >
-              <h3 className="font-serif text-xl">{request.agency.name}</h3>
+          {requests.map((request) => {
+            const isProcessing = processingRequestId === request._id;
 
-              <p className="mt-2 text-sm text-secondary">
-                This agency would like you to join their team.
-              </p>
+            return (
+              <div
+                key={request._id}
+                className="rounded-xl border border-border p-5"
+              >
+                <h3 className="font-serif text-xl">{request.agency.name}</h3>
 
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Button onClick={() => handleResponse(request._id, "active")}>
-                  Accept
-                </Button>
+                <p className="mt-2 text-sm text-secondary">
+                  This agency would like you to join their team.
+                </p>
 
-                <Button
-                  variant="outline"
-                  onClick={() => handleResponse(request._id, "rejected")}
-                >
-                  Reject
-                </Button>
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <Button
+                    onClick={() => handleResponse(request._id, "active")}
+                    disabled={isProcessing}
+                  >
+                    {isProcessing ? "Processing..." : "Accept"}
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => handleResponse(request._id, "rejected")}
+                    disabled={isProcessing}
+                  >
+                    Reject
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

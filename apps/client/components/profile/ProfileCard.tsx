@@ -1,15 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import { useRouter } from "next/navigation";
-
 import Link from "next/link";
-
 import Image from "next/image";
 
 import Button from "../ui/Button";
-
 import Card from "../ui/Card";
 
 import { apiFetch } from "@/lib/apiFetch";
@@ -82,7 +78,11 @@ export default function ProfileCard() {
             const membershipData = await membershipResponse.json();
 
             setAgencyMembership(membershipData.data);
+          } else {
+            setAgencyMembership(null);
           }
+        } else {
+          setAgencyMembership(null);
         }
       } catch {
         sessionStorage.removeItem("accessToken");
@@ -94,6 +94,22 @@ export default function ProfileCard() {
     };
 
     loadUser();
+
+    const handleMembershipChange = () => {
+      loadUser();
+    };
+
+    window.addEventListener(
+      "agency-membership-changed",
+      handleMembershipChange,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "agency-membership-changed",
+        handleMembershipChange,
+      );
+    };
   }, [router]);
 
   const handleLeaveAgency = async () => {
@@ -236,6 +252,7 @@ export default function ProfileCard() {
             </p>
           </div>
 
+          {/* Agency membership */}
           {user.role === "agent" && agencyMembership && (
             <div className="mt-6 border-t border-border pt-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

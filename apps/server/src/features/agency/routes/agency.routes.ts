@@ -14,6 +14,7 @@ import {
   removeMember,
   getPublicAgencies,
   getPublicAgency,
+  getAvailableAgentsController,
 } from "../controllers/agency.controller.js";
 
 import { authenticate } from "../../auth/middleware/auth.middleware.js";
@@ -23,6 +24,8 @@ const router = Router();
 /* Public */
 
 router.get("/", getPublicAgencies);
+
+router.get("/available-agents", authenticate, getAvailableAgentsController);
 
 /* Current agency */
 

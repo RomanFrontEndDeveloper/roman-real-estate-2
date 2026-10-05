@@ -1,12 +1,23 @@
-import AgencyMember from "../models/AgencyMemberModel.js";
-
-import Property from "../../property/models/Property.js";
 import mongoose from "mongoose";
+
+import AgencyMember from "../models/AgencyMemberModel.js";
+import Property from "../../property/models/Property.js";
+import User from "../../auth/models/User.js";
 
 export const findMembership = async (agencyId: string, agentId: string) => {
   return AgencyMember.findOne({
     agency: agencyId,
     agent: agentId,
+  }).lean();
+};
+
+export const findMembershipByAgent = async (
+  agentId: string,
+  status: "pending" | "active" | "rejected",
+) => {
+  return AgencyMember.findOne({
+    agent: agentId,
+    status,
   }).lean();
 };
 
@@ -94,4 +105,19 @@ export const deleteMembership = async (agencyId: string, agentId: string) => {
     agent: agentId,
     status: "active",
   }).lean();
+};
+
+export const findAvailableAgents = async () => {
+  const busyAgentIds = await AgencyMember.find({
+    status: "active",
+  }).distinct("agent");
+
+  return User.find({
+    role: "agent",
+    _id: {
+      $nin: busyAgentIds,
+    },
+  })
+    .select("_id name email phone bio avatar role")
+    .lean();
 };
