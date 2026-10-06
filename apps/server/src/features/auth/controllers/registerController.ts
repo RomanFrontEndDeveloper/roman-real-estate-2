@@ -83,7 +83,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: "lax",
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/api/auth",
     });
@@ -186,13 +186,12 @@ export const getCurrentUser = async (
 };
 
 export const logout = (_req: Request, res: Response): void => {
+  const isProduction = process.env.NODE_ENV === "production";
 
-   const isProduction = process.env.NODE_ENV === "production";
-   
   res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: isProduction,
-    sameSite: "lax",
+    sameSite: isProduction ? "none" : "lax",
     path: "/api/auth",
   });
 
