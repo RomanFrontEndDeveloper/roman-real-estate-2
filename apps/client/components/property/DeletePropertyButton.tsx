@@ -12,6 +12,10 @@ type DeletePropertyButtonProps = {
   propertyId: string;
 };
 
+type DeletePropertyResponse = {
+  message?: string;
+};
+
 export default function DeletePropertyButton({
   propertyId,
 }: DeletePropertyButtonProps) {
@@ -21,7 +25,7 @@ export default function DeletePropertyButton({
   const [message, setMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleDelete = async () => {
+  const handleDelete = async (): Promise<void> => {
     setMessage("");
     setIsDeleting(true);
 
@@ -30,18 +34,29 @@ export default function DeletePropertyButton({
         method: "DELETE",
       });
 
-      const data: { message?: string } = await response.json();
+      const data: DeletePropertyResponse = await response.json();
 
       if (!response.ok) {
         setMessage(data.message || "Failed to delete property.");
         return;
       }
 
-      router.refresh();
+      router.replace("/allproperty");
     } catch {
       setMessage("Unable to connect to the server. Please try again.");
     } finally {
       setIsDeleting(false);
+      setIsModalOpen(false);
+    }
+  };
+
+  const handleOpenModal = (): void => {
+    setMessage("");
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = (): void => {
+    if (!isDeleting) {
       setIsModalOpen(false);
     }
   };
@@ -51,7 +66,7 @@ export default function DeletePropertyButton({
       <Button
         variant="outline"
         type="button"
-        onClick={() => setIsModalOpen(true)}
+        onClick={handleOpenModal}
         disabled={isDeleting}
         className="w-full sm:w-auto"
       >
@@ -64,7 +79,7 @@ export default function DeletePropertyButton({
         isOpen={isModalOpen}
         title="Delete Property"
         description="Are you sure you want to delete this property? This action cannot be undone."
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleCloseModal}
         onConfirm={handleDelete}
         isLoading={isDeleting}
         confirmText="Delete"
