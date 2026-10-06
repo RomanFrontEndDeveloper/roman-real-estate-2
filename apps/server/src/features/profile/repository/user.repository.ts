@@ -1,5 +1,4 @@
 import User from "../../auth/models/User.js";
-
 import Property from "../../property/models/Property.js";
 
 export const updateUserAvatar = async (
@@ -79,6 +78,7 @@ export const removeUserAvatar = async (userId: string) => {
 export const findAgents = async () => {
   const agents = await User.find({
     role: "agent",
+    isVerified: true,
   })
     .select("_id name email phone bio avatar")
     .lean();
@@ -111,9 +111,6 @@ export const findAgentById = async (agentId: string) => {
   if (!agent) {
     return null;
   }
-
-  return agent;
-};
 
   const properties = await Property.find({
     owner: agent._id,
