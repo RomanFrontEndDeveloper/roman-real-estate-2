@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { API_URL } from "@/lib/apiUrl";
+
+import { apiFetch } from "@/lib/apiFetch";
+
 import Button from "../ui/Button";
 import ConfirmModal from "../ui/ConfirmModal";
 
@@ -18,29 +20,17 @@ export default function DeletePropertyButton({
   const [isDeleting, setIsDeleting] = useState(false);
   const [message, setMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const handleDelete = async () => {
     setMessage("");
     setIsDeleting(true);
 
     try {
-      const token = sessionStorage.getItem("accessToken");
+      const response = await apiFetch(`/api/properties/${propertyId}`, {
+        method: "DELETE",
+      });
 
-      if (!token) {
-        setMessage("Authentication required.");
-        return;
-      }
-
-      const response = await fetch(
-        `${API_URL}/api/admin/properties/${propertyId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      const data = await response.json();
+      const data: { message?: string } = await response.json();
 
       if (!response.ok) {
         setMessage(data.message || "Failed to delete property.");
@@ -55,6 +45,7 @@ export default function DeletePropertyButton({
       setIsModalOpen(false);
     }
   };
+
   return (
     <div className="w-full sm:w-auto">
       <Button
