@@ -14,6 +14,8 @@ import { validateCreateProperty } from "../middleware/validate-create.property.j
 import { uploadPropertyImages } from "../middleware/upload-property-images.js";
 import { validatePropertyLocation } from "../middleware/validate-property-location.js";
 
+import { validateUpdateProperty } from "../dto/validate-update-property.js";
+
 const router = Router();
 
 router.get("/", getProperties);
@@ -21,8 +23,6 @@ router.get("/", getProperties);
 router.get("/my", authenticate, getMyProperties);
 
 router.get("/:id", getPropertyById);
-
-
 
 router.post(
   "/",
@@ -33,7 +33,14 @@ router.post(
   createProperty,
 );
 
-router.put("/:id", authenticate, uploadPropertyImages, updateProperty);
+router.put(
+  "/:id",
+  authenticate,
+  uploadPropertyImages,
+  validateUpdateProperty,
+  validatePropertyLocation,
+  updateProperty,
+);
 
 router.delete("/:id", authenticate, deleteProperty);
 

@@ -8,6 +8,11 @@ import favoriteRoutes from "./features/favorite/routes/favorite.routes.js";
 import agencyRoutes from "./features/agency/routes/agency.routes.js";
 import adminRoutes from "./features/admin/routes/admin.routes.js";
 
+import {
+  notFoundHandler,
+  errorHandler,
+} from "./middleware/error.middleware.js";
+
 const app = express();
 
 app.use(
@@ -37,5 +42,8 @@ app.get("/", (_req, res) => {
     message: "Roman Real Estate API",
   });
 });
+
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 export default app;

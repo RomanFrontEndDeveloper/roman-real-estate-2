@@ -6,6 +6,8 @@ import { geocodeLocation } from "../utils/geocode-location.js";
 
 import type { UpdatePropertyDTO } from "../dto/update-property.dto.js";
 
+import { ApiError } from "../../auth/utils/api-error.js";
+
 export const createProperty = async (
   data: CreatePropertyDTO & { owner: Types.ObjectId },
 ) => {
@@ -27,7 +29,9 @@ export const getProperties = async (
   return propertyRepository.findProperties(filters, sort, skip, limit);
 };
 
-export const countProperties = async (filters: Record<string, unknown>) => {
+export const countProperties = async (
+  filters: Record<string, unknown>,
+) => {
   return propertyRepository.countProperties(filters);
 };
 
@@ -39,11 +43,12 @@ export const getPropertyById = async (id: string) => {
   const property = await propertyRepository.findPropertyById(id);
 
   if (!property) {
-    throw new Error("Property not found");
+    throw new ApiError("Property not found", 404);
   }
 
   return property;
 };
+
 export const updateProperty = async (
   id: string,
   owner: string,
@@ -70,10 +75,11 @@ export const deleteProperty = async (id: string, owner: string) => {
 };
 
 export const getPropertyByIdWithoutOwner = async (id: string) => {
-  const property = await propertyRepository.findPropertyByIdWithoutOwner(id);
+  const property =
+    await propertyRepository.findPropertyByIdWithoutOwner(id);
 
   if (!property) {
-    throw new Error("Property not found");
+    throw new ApiError("Property not found", 404);
   }
 
   return property;

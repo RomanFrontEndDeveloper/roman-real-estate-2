@@ -78,9 +78,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     const { user, accessToken, refreshToken } = await loginUser(result.data);
 
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: isProduction,
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/api/auth",
@@ -184,9 +186,12 @@ export const getCurrentUser = async (
 };
 
 export const logout = (_req: Request, res: Response): void => {
+
+   const isProduction = process.env.NODE_ENV === "production";
+   
   res.clearCookie("refreshToken", {
     httpOnly: true,
-    secure: false,
+    secure: isProduction,
     sameSite: "lax",
     path: "/api/auth",
   });

@@ -22,7 +22,8 @@ Roman Real Estate 2 simulates a modern real estate platform where users can regi
 - Authentication middleware
 - Authorization for protected resources
 - Ownership-based authorization
-- Role-based authorization (RBAC)
+- Role-Based Access Control (RBAC)
+- Admin-only protected routes
 
 ### 👤 User Profile
 
@@ -96,6 +97,7 @@ Roman Real Estate 2 simulates a modern real estate platform where users can regi
 ### 🛡️ Administration
 
 - Admin role architecture
+- Admin authentication and authorization
 - Admin authorization middleware
 - Admin-only routes
 - Admin property management
@@ -147,7 +149,7 @@ Personal actions:
 - Delete
 - All Properties
 - Back
-  This approach avoids unnecessary duplicated components such as separate PropertyDetailsAll or PropertyCardAll versions.
+  This approach keeps the codebase maintainable and avoids unnecessary duplicated components such as PropertyDetailsAll or PropertyCardAll.
   🧱 Architecture
   The project uses a PNPM Monorepo + Feature-First Architecture.
   roman-real-estate-2/
@@ -195,7 +197,7 @@ Repository
 ↓
 MongoDB
 
-This structure keeps HTTP handling, business logic, database access, validation, and authorization separated.
+This separation keeps HTTP handling, business logic, database access, validation, authentication, and authorization organized by responsibility.
 🖥️ Frontend Architecture
 The frontend uses Next.js App Router and a domain-oriented component structure.
 components/
@@ -226,15 +228,16 @@ app/
 ├── reset-password/
 └── verify-email/
 
-Shared infrastructure includes:
+Shared frontend infrastructure includes:
 
 - API layer
 - apiFetch
 - Authentication handling
-- Token refresh logic
+- Automatic token refresh
 - Reusable UI components
 - Form validation
 - Shared types
+- TanStack Query integration
   🛠️ Tech Stack
   Frontend
 - Next.js
@@ -276,7 +279,7 @@ Shared infrastructure includes:
   ↓
   Automatic Access Token Refresh
 
-Access tokens are short-lived, while refresh tokens are handled through secure HttpOnly cookies.
+Access tokens are short-lived, while refresh tokens are stored in secure HttpOnly cookies.
 Ownership Authorization
 Property modification is protected by ownership checks:
 Authenticated User
@@ -306,25 +309,52 @@ Service
 
 Frontend controls are used for UI visibility and UX only.
 Actual authorization is enforced by the backend.
-🔄 Development Approach
-Features are developed as complete vertical slices:
-UI
-↓
-API
-↓
-Database
-↓
-Integration
-↓
-Validation
-↓
-Authentication / Authorization
-↓
-Testing
-↓
-Refactoring
-↓
-Commit
+🛡️ Production Hardening
+Before reaching the production baseline, the project went through a final hardening pass covering:
+
+- Final architecture audit
+- Frontend ↔ Backend data-flow audit
+- API contract audit
+- Error handling audit
+- Environment / configuration hardening
+- Authentication / security audit
+- MongoDB query / index audit
+- Frontend performance audit
+- Technical debt refactoring
+- Production build verification
+  Production Baseline v1.0
+  The application currently has:
+- Centralized API request handling
+- Automatic access-token refresh
+- Strongly typed property update flow
+- Backend request validation
+- Ownership-based authorization
+- Role-based authorization
+- Centralized error handling
+- Environment-based configuration
+- Protected refresh-token cookies
+- MongoDB query and index baseline
+- Pagination and API result limits
+- Production client and server build verification
+  🔄 Development Approach
+  Features are developed as complete vertical slices:
+  UI
+  ↓
+  API
+  ↓
+  Database
+  ↓
+  Integration
+  ↓
+  Validation
+  ↓
+  Authentication / Authorization
+  ↓
+  Testing
+  ↓
+  Refactoring
+  ↓
+  Commit
 
 The project focuses on understanding the complete lifecycle of a Full-Stack feature rather than only implementing isolated UI functionality.
 📈 Current Progress
@@ -365,20 +395,10 @@ The project focuses on understanding the complete lifecycle of a Full-Stack feat
 - Delete confirmation modal
 - Success / error notifications
 - Loading / disabled action states
-  🚧 Production Hardening
-  The project is currently moving through the final production-hardening stage:
-- Final architecture audit
-- Frontend ↔ Backend data-flow audit
-- API contract audit
-- Error handling audit
-- Environment / configuration hardening
-- Authentication / security audit
-- MongoDB query / index audit
-- Frontend performance audit
-- Technical debt refactoring
-- Final regression testing
-- Production baseline
-  📌 Planned
+- Final production hardening
+- Production Baseline v1.0
+  🚧 Next Development Stage
+  The next stage focuses on expanding the project toward stronger production and Middle-level engineering practices:
 - Automated testing
 - Expanded API documentation
 - Production deployment
@@ -443,13 +463,24 @@ The objective is to understand not only what works, but also:
 - How failures are handled
 - How the system behaves under real-world conditions
 - How the application can evolve without becoming difficult to maintain
-  👨‍💻 Author
-  Roman Okhremov
-  Frontend Developer (React / Next.js / TypeScript)
-  with Full-Stack experience
-  GitHub:
-  https://github.com/RomanFrontEndDeveloper/
-  LinkedIn:
-  https://www.linkedin.com/in/roman-okhremov-9b0764369/
-  Portfolio:
-  https://portfolio-react-roman-okhremov.netlify.app/
+  🚀 Project Status
+  Production Baseline v1.0 completed.
+  The application is currently ready for the next stage:
+  Roman Real Estate 2
+  ↓
+  Production Baseline v1.0
+  ↓
+  Production Deployment
+  ↓
+  Further Production & Middle-level Engineering
+
+👨‍💻 Author
+Roman Okhremov
+Frontend Developer (React / Next.js / TypeScript)
+with Full-Stack experience
+GitHub:
+https://github.com/RomanFrontEndDeveloper/
+LinkedIn:
+https://www.linkedin.com/in/roman-okhremov-9b0764369/
+Portfolio:
+https://portfolio-react-roman-okhremov.netlify.app/

@@ -53,7 +53,19 @@ export const verifyAccessToken = (token: string): AccessTokenPayload => {
 };
 
 export const verifyRefreshToken = (token: string): RefreshTokenPayload => {
-  return jwt.verify(token, JWT_REFRESH_SECRET) as RefreshTokenPayload;
+  const decoded = jwt.verify(token, JWT_REFRESH_SECRET);
+
+  if (
+    typeof decoded !== "object" ||
+    decoded === null ||
+    typeof decoded.sub !== "string"
+  ) {
+    throw new Error("Invalid refresh token");
+  }
+
+  return {
+    sub: decoded.sub,
+  };
 };
 
 const isAuthRole = (role: unknown): role is AuthRole => {
