@@ -41,22 +41,11 @@ export default function DeletePropertyButton({
         return;
       }
 
-      router.replace("/allproperty");
+      router.replace("/property");
     } catch {
       setMessage("Unable to connect to the server. Please try again.");
     } finally {
       setIsDeleting(false);
-      setIsModalOpen(false);
-    }
-  };
-
-  const handleOpenModal = (): void => {
-    setMessage("");
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = (): void => {
-    if (!isDeleting) {
       setIsModalOpen(false);
     }
   };
@@ -66,7 +55,10 @@ export default function DeletePropertyButton({
       <Button
         variant="outline"
         type="button"
-        onClick={handleOpenModal}
+        onClick={() => {
+          setMessage("");
+          setIsModalOpen(true);
+        }}
         disabled={isDeleting}
         className="w-full sm:w-auto"
       >
@@ -79,7 +71,11 @@ export default function DeletePropertyButton({
         isOpen={isModalOpen}
         title="Delete Property"
         description="Are you sure you want to delete this property? This action cannot be undone."
-        onClose={handleCloseModal}
+        onClose={() => {
+          if (!isDeleting) {
+            setIsModalOpen(false);
+          }
+        }}
         onConfirm={handleDelete}
         isLoading={isDeleting}
         confirmText="Delete"
