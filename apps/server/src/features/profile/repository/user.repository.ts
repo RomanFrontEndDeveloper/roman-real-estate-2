@@ -103,6 +103,7 @@ export const findAgentById = async (agentId: string) => {
   const agent = await User.findOne({
     _id: agentId,
     role: "agent",
+    isVerified: true,
   })
     .select("_id name email phone bio avatar")
     .lean();
@@ -110,6 +111,9 @@ export const findAgentById = async (agentId: string) => {
   if (!agent) {
     return null;
   }
+
+  return agent;
+};
 
   const properties = await Property.find({
     owner: agent._id,
