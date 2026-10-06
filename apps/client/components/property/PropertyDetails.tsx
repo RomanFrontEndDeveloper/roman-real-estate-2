@@ -237,7 +237,7 @@ export default function PropertyDetails({
                   {property.owner.phone && (
                     <a
                       href={`tel:${property.owner.phone}`}
-                      className="mt-2 inline-block text-4xl text-secondary transition-opacity hover:opacity-70"
+                      className="mt-2 inline-block text-2xl text-secondary transition-opacity hover:opacity-70"
                     >
                       {property.owner.phone}
                     </a>
