@@ -1,21 +1,22 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: Number(process.env.SMTP_PORT) === 465,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASSWORD,
-  },
-});
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
+if (!RESEND_API_KEY) {
+  throw new Error("RESEND_API_KEY is not defined");
+}
+
+const resend = new Resend(RESEND_API_KEY);
+
+const MAIL_FROM =
+  process.env.MAIL_FROM || "Roman Real Estate <onboarding@resend.dev>";
 
 export const sendVerificationEmail = async (
   email: string,
   verificationUrl: string,
-) => {
-  await transporter.sendMail({
-    from: process.env.MAIL_FROM,
+): Promise<void> => {
+  const { error } = await resend.emails.send({
+    from: MAIL_FROM,
     to: email,
     subject: "Verify your account",
     html: `
@@ -42,14 +43,19 @@ export const sendVerificationEmail = async (
       <p>This link will expire in 1 hour.</p>
     `,
   });
+
+  if (error) {
+    console.error("Verification email error:", error);
+    throw new Error("Failed to send verification email");
+  }
 };
 
 export const sendResetPasswordEmail = async (
   email: string,
   resetPasswordUrl: string,
-) => {
-  await transporter.sendMail({
-    from: process.env.MAIL_FROM,
+): Promise<void> => {
+  const { error } = await resend.emails.send({
+    from: MAIL_FROM,
     to: email,
     subject: "Reset your password",
     html: `
@@ -86,4 +92,9 @@ export const sendResetPasswordEmail = async (
       </p>
     `,
   });
+
+  if (error) {
+    console.error("Reset password email error:", error);
+    throw new Error("Failed to send reset password email");
+  }
 };
