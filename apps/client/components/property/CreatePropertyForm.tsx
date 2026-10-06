@@ -7,9 +7,11 @@ import Image from "next/image";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
 import BackButton from "../ui/BackButton";
-import { API_URL } from "@/lib/apiUrl";
+
 import AddressAutocomplete from "./AddressAutocomplete";
 import PropertyLocationPreview from "./PropertyLocationPreview";
+
+import { createProperty } from "@/lib/createPropertyApi";
 
 type PropertyForm = {
   title: string;
@@ -149,13 +151,7 @@ export default function CreatePropertyForm() {
         data.append("images", image);
       });
 
-      const response = await fetch(`${API_URL}/api/properties`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: data,
-      });
+      const response = await createProperty(data);
 
       const result = await response.json();
 

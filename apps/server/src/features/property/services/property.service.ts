@@ -4,6 +4,8 @@ import * as propertyRepository from "../repository/property.repository.js";
 import { CreatePropertyDTO } from "../dto/create-property.dto.js";
 import { geocodeLocation } from "../utils/geocode-location.js";
 
+import type { UpdatePropertyDTO } from "../dto/update-property.dto.js";
+
 export const createProperty = async (
   data: CreatePropertyDTO & { owner: Types.ObjectId },
 ) => {
@@ -42,11 +44,10 @@ export const getPropertyById = async (id: string) => {
 
   return property;
 };
-
 export const updateProperty = async (
   id: string,
   owner: string,
-  data: Record<string, unknown>,
+  data: UpdatePropertyDTO,
 ) => {
   const location =
     typeof data.location === "string" ? data.location.trim() : "";

@@ -1,6 +1,8 @@
 import type { CreatePropertyDTO } from "../dto/create-property.dto.js";
 import type { Types } from "mongoose";
 
+import type { UpdatePropertyDTO } from "../dto/update-property.dto.js";
+
 import Property from "../models/Property.js";
 
 export const createProperty = async (
@@ -43,7 +45,11 @@ export const findPropertyByIdWithoutOwner = async (id: string) => {
   return Property.findById(id);
 };
 
-export const updateProperty = async (id: string, owner: string, data: any) => {
+export const updateProperty = async (
+  id: string,
+  owner: string,
+  data: UpdatePropertyDTO,
+) => {
   return Property.findOneAndUpdate(
     {
       _id: id,
