@@ -26,6 +26,12 @@ app.use(express.json()); //Це дозволяє працювати з JSON у �
 
 app.use(cookieParser()); //Це дозволяє працювати з cookies у запитах.
 
+app.get("/health", (_req, res) => {
+  res.status(200).json({
+    status: "ok",
+  });
+});
+
 app.use("/api/auth", authRoutes); //Це дозволяє працювати з роутами для авторизації.
 
 app.use("/api/profile", profileRoutes); //Це дозволяє працювати з роутами для профілю.
