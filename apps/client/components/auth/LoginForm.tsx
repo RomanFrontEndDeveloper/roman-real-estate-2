@@ -117,12 +117,15 @@ export default function LoginForm() {
       </div>
 
       {/* Response Message */}
-      {message && <p className="text-sm text-secondary">{message}</p>}
+      <div className="flex flex-col items-center gap-3">
+        {message && (
+          <p className="text-center text-sm text-secondary">{message}</p>
+        )}
 
-      {/* Submit */}
-      <Button type="submit" disabled={isLoading}>
-        {isLoading ? "Logging In..." : "Login"}
-      </Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? "Logging In..." : "Login"}
+        </Button>
+      </div>
     </form>
   );
 }

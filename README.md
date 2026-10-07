@@ -1,7 +1,6 @@
 # 🏠 Roman Real Estate 2
 
 Full-Stack real estate marketplace built from scratch as a learning, portfolio, and production-oriented project.
-
 Roman Real Estate 2 simulates a modern real estate platform where users can register, manage profiles, create and manage property listings, search and filter properties, work with agents and agencies, save properties to favorites, and access role-based administrative functionality.
 
 ---
@@ -16,7 +15,7 @@ Roman Real Estate 2 simulates a modern real estate platform where users can regi
 - Refresh Tokens
 - HttpOnly refresh-token cookies
 - Automatic access-token refresh
-- Email verification
+- Direct account activation on registration
 - Forgot / Reset password
 - Protected API routes
 - Authentication middleware
@@ -113,7 +112,6 @@ Roman Real Estate 2 simulates a modern real estate platform where users can regi
 ## 🧩 Reusable Components
 
 The project follows a reusable component approach to reduce duplication and keep the codebase maintainable.
-
 Examples:
 
 - `PropertyCard`
@@ -125,111 +123,98 @@ Examples:
 - `AgentCard`
 - `BackButton`
 - `ConfirmModal`
-
-For example, `PropertyDetails` supports multiple page contexts:
-
-<PropertyDetails property={property} />
-
-Public property page:
-
+  For example, `PropertyDetails` supports multiple page contexts:
+  <PropertyDetails property={property} />
+  Public property page:
 - Property information
 - Gallery
 - Owner information
 - Back button
-  Personal property page:
-  <PropertyDetails
-    property={property}
-    showActions
-  />
-
-Personal actions:
-
+    Personal property page:
+    <PropertyDetails
+      property={property}
+      showActions
+    />
+  Personal actions:
 - Add / Remove Favorite
 - Edit
 - Delete
 - All Properties
 - Back
-  This approach keeps the codebase maintainable and avoids unnecessary duplicated components such as PropertyDetailsAll or PropertyCardAll.
-  🧱 Architecture
-  The project uses a PNPM Monorepo + Feature-First Architecture.
-  roman-real-estate-2/
-  ├── apps/
-  │ ├── client/ # Next.js frontend
-  │ └── server/ # Node.js / Express backend
-  ├── packages/ # Shared packages
-  ├── package.json
-  ├── pnpm-workspace.yaml
-  └── README.md
-
-Backend Architecture
-Backend functionality is organized by business domain:
-features/
-├── admin/
-├── agency/
-├── auth/
-├── favorite/
-├── profile/
-└── property/
-
-Each feature contains the layers required for that domain:
-feature/
-├── controllers/
-├── dto/
-├── middleware/
-├── models/
-├── repository/
-├── routes/
-├── services/
-└── utils/
-
-Typical request flow:
-Client
-↓
-Route
-↓
-Middleware
-↓
-Controller
-↓
-Service
-↓
-Repository
-↓
-MongoDB
-
-This separation keeps HTTP handling, business logic, database access, validation, authentication, and authorization organized by responsibility.
-🖥️ Frontend Architecture
-The frontend uses Next.js App Router and a domain-oriented component structure.
-components/
-├── agency/
-├── agent/
-├── auth/
-├── favorites/
-├── layout/
-├── map/
-├── profile/
-├── property/
-├── sections/
-└── ui/
-
-Application routes are organized by domain:
-app/
-├── about/
-├── admin/
-├── agency/
-├── agents/
-├── allproperty/
-├── favorites/
-├── forgot-password/
-├── login/
-├── profile/
-├── property/
-├── register/
-├── reset-password/
-└── verify-email/
-
-Shared frontend infrastructure includes:
-
+    This approach keeps the codebase maintainable and avoids unnecessary duplicated components such as PropertyDetailsAll or PropertyCardAll.
+    🧱 Architecture
+    The project uses a PNPM Monorepo + Feature-First Architecture.
+    roman-real-estate-2/
+    ├── apps/
+    │ ├── client/ # Next.js frontend
+    │ └── server/ # Node.js / Express backend
+    ├── packages/ # Shared packages
+    ├── package.json
+    ├── pnpm-workspace.yaml
+    └── README.md
+  Backend Architecture
+  Backend functionality is organized by business domain:
+  features/
+  ├── admin/
+  ├── agency/
+  ├── auth/
+  ├── favorite/
+  ├── profile/
+  └── property/
+  Each feature contains the layers required for that domain:
+  feature/
+  ├── controllers/
+  ├── dto/
+  ├── middleware/
+  ├── models/
+  ├── repository/
+  ├── routes/
+  ├── services/
+  └── utils/
+  Typical request flow:
+  Client
+  ↓
+  Route
+  ↓
+  Middleware
+  ↓
+  Controller
+  ↓
+  Service
+  ↓
+  Repository
+  ↓
+  MongoDB
+  This separation keeps HTTP handling, business logic, database access, validation, authentication, and authorization organized by responsibility.
+  🖥️ Frontend Architecture
+  The frontend uses Next.js App Router and a domain-oriented component structure.
+  components/
+  ├── agency/
+  ├── agent/
+  ├── auth/
+  ├── favorites/
+  ├── layout/
+  ├── map/
+  ├── profile/
+  ├── property/
+  ├── sections/
+  └── ui/
+  Application routes are organized by domain:
+  app/
+  ├── about/
+  ├── admin/
+  ├── agency/
+  ├── agents/
+  ├── allproperty/
+  ├── favorites/
+  ├── forgot-password/
+  ├── login/
+  ├── profile/
+  ├── property/
+  ├── register/
+  ├── reset-password/
+  └── verify-email/
+  Shared frontend infrastructure includes:
 - API layer
 - apiFetch
 - Authentication handling
@@ -238,8 +223,8 @@ Shared frontend infrastructure includes:
 - Form validation
 - Shared types
 - TanStack Query integration
-  🛠️ Tech Stack
-  Frontend
+    🛠️ Tech Stack
+    Frontend
 - Next.js
 - React
 - TypeScript
@@ -248,7 +233,7 @@ Shared frontend infrastructure includes:
 - Zod
 - TanStack Query
 - Next/Image
-  Backend
+    Backend
 - Node.js
 - Express.js
 - TypeScript
@@ -258,7 +243,7 @@ Shared frontend infrastructure includes:
 - bcrypt
 - Multer
 - REST API
-  Cloud & Tools
+    Cloud & Tools
 - Cloudinary
 - PNPM Workspace
 - Git / GitHub
@@ -266,52 +251,48 @@ Shared frontend infrastructure includes:
 - Swagger / API documentation
 - ESLint
 - Prettier
-  🔐 Security & Authorization
-  The application uses multiple layers of authentication and authorization.
-  Authentication Flow
-  Login
+    🔐 Security & Authorization
+    The application uses multiple layers of authentication and authorization.
+    Authentication Flow
+    Login
+    ↓
+    Access Token + Refresh Token
+    ↓
+    HttpOnly Refresh Cookie
+    ↓
+    Protected API Requests
+    ↓
+    Automatic Access Token Refresh
+  Access tokens are short-lived, while refresh tokens are stored in secure HttpOnly cookies.
+  Ownership Authorization
+  Property modification is protected by ownership checks:
+  Authenticated User
   ↓
-  Access Token + Refresh Token
+  Request Property
   ↓
-  HttpOnly Refresh Cookie
+  Find Property
   ↓
-  Protected API Requests
+  Check Owner
   ↓
-  Automatic Access Token Refresh
-
-Access tokens are short-lived, while refresh tokens are stored in secure HttpOnly cookies.
-Ownership Authorization
-Property modification is protected by ownership checks:
-Authenticated User
-↓
-Request Property
-↓
-Find Property
-↓
-Check Owner
-↓
-Authorized → Allow
-Not Owner → Reject
-
-Role-Based Authorization
-Administrative operations are protected on the backend:
-Request
-↓
-Authentication Middleware
-↓
-Admin Middleware
-↓
-Admin Route
-↓
-Controller
-↓
-Service
-
-Frontend controls are used for UI visibility and UX only.
-Actual authorization is enforced by the backend.
-🛡️ Production Hardening
-Before reaching the production baseline, the project went through a final hardening pass covering:
-
+  Authorized → Allow
+  Not Owner → Reject
+  Role-Based Authorization
+  Administrative operations are protected on the backend:
+  Request
+  ↓
+  Authentication Middleware
+  ↓
+  Admin Middleware
+  ↓
+  Admin Route
+  ↓
+  Controller
+  ↓
+  Service
+  Frontend controls are used for UI visibility and UX only.
+  Actual authorization is enforced by the backend.
+  🛡️ Production Hardening
+  Before reaching the production baseline, the project went through a final hardening pass covering:
 - Final architecture audit
 - Frontend ↔ Backend data-flow audit
 - API contract audit
@@ -322,8 +303,8 @@ Before reaching the production baseline, the project went through a final harden
 - Frontend performance audit
 - Technical debt refactoring
 - Production build verification
-  Production Baseline v1.0
-  The application currently has:
+    Production Baseline v1.0
+    The application currently has:
 - Centralized API request handling
 - Automatic access-token refresh
 - Strongly typed property update flow
@@ -336,37 +317,35 @@ Before reaching the production baseline, the project went through a final harden
 - MongoDB query and index baseline
 - Pagination and API result limits
 - Production client and server build verification
-  🔄 Development Approach
-  Features are developed as complete vertical slices:
-  UI
-  ↓
-  API
-  ↓
-  Database
-  ↓
-  Integration
-  ↓
-  Validation
-  ↓
-  Authentication / Authorization
-  ↓
-  Testing
-  ↓
-  Refactoring
-  ↓
-  Commit
-
-The project focuses on understanding the complete lifecycle of a Full-Stack feature rather than only implementing isolated UI functionality.
-📈 Current Progress
-✅ Implemented
-
+    🔄 Development Approach
+    Features are developed as complete vertical slices:
+    UI
+    ↓
+    API
+    ↓
+    Database
+    ↓
+    Integration
+    ↓
+    Validation
+    ↓
+    Authentication / Authorization
+    ↓
+    Testing
+    ↓
+    Refactoring
+    ↓
+    Commit
+  The project focuses on understanding the complete lifecycle of a Full-Stack feature rather than only implementing isolated UI functionality.
+  📈 Current Progress
+  ✅ Implemented
 - Product foundation
 - Public website
 - Responsive UI
 - Authentication
 - JWT access / refresh tokens
 - Automatic token refresh
-- Email verification
+- Direct account activation on registration
 - Password recovery
 - User profiles
 - Avatar uploads
@@ -397,8 +376,8 @@ The project focuses on understanding the complete lifecycle of a Full-Stack feat
 - Loading / disabled action states
 - Final production hardening
 - Production Baseline v1.0
-  🚧 Next Development Stage
-  The next stage focuses on expanding the project toward stronger production and Middle-level engineering practices:
+    🚧 Next Development Stage
+    The next stage focuses on expanding the project toward stronger production and Middle-level engineering practices:
 - Automated testing
 - Expanded API documentation
 - Production deployment
@@ -406,22 +385,20 @@ The project focuses on understanding the complete lifecycle of a Full-Stack feat
 - Additional security improvements
 - Real-time messaging
 - Notifications
-- Production monitoring
-  🎯 Project Goal
-  Roman Real Estate 2 is both a practical Full-Stack application and a structured learning path focused on progressing through:
-  Junior
-  ↓
-  Junior+
-  ↓
-  Strong Junior
-  ↓
-  Strong Junior+
-  ↓
-  Middle-ready
-
-The main goal is not simply to make the application work.
-The project focuses on understanding:
-
+- Further production observability
+    🎯 Project Goal
+    Roman Real Estate 2 is both a practical Full-Stack application and a structured learning path focused on progressing through:
+    Junior
+    ↓
+    Junior+
+    ↓
+    Strong Junior
+    ↓
+    Strong Junior+
+    ↓
+    Middle-ready
+  The main goal is not simply to make the application work.
+  The project focuses on understanding:
 - Application architecture
 - API design
 - Client ↔ Server communication
@@ -437,50 +414,47 @@ The project focuses on understanding:
 - Data flow
 - Maintainability
 - Production readiness
-  🧪 Engineering Mindset
-  The project follows the principle:
-  Learn
-  ↓
-  Implement
-  ↓
-  Test
-  ↓
-  Break
-  ↓
-  Fix
-  ↓
-  Optimize
-  ↓
-  Deploy
-  ↓
-  Explain
-
-The objective is to understand not only what works, but also:
-
+    🧪 Engineering Mindset
+    The project follows the principle:
+    Learn
+    ↓
+    Implement
+    ↓
+    Test
+    ↓
+    Break
+    ↓
+    Fix
+    ↓
+    Optimize
+    ↓
+    Deploy
+    ↓
+    Explain
+  The objective is to understand not only what works, but also:
 - Why it works
 - Why the architecture was chosen
 - What can fail
 - How failures are handled
 - How the system behaves under real-world conditions
 - How the application can evolve without becoming difficult to maintain
-  🚀 Project Status
-  Production Baseline v1.0 completed.
-  The application is currently ready for the next stage:
-  Roman Real Estate 2
-  ↓
-  Production Baseline v1.0
-  ↓
-  Production Deployment
-  ↓
-  Further Production & Middle-level Engineering
-
-👨‍💻 Author
-Roman Okhremov
-Frontend Developer (React / Next.js / TypeScript)
-with Full-Stack experience
-GitHub:
-https://github.com/RomanFrontEndDeveloper/
-LinkedIn:
-https://www.linkedin.com/in/roman-okhremov-9b0764369/
-Portfolio:
-https://portfolio-react-roman-okhremov.netlify.app/
+    🚀 Project Status
+    Production Baseline v1.0 completed.
+    The application is currently ready for the next stage:
+    Roman Real Estate 2
+    ↓
+    Production Baseline v1.0
+    ↓
+    Production Deployment
+    ↓
+    Further Production & Middle-level Engineering
+  👨‍💻 Author
+  Roman Okhremov
+  Frontend Developer (React / Next.js / TypeScript)
+  with Full-Stack experience
+  GitHub:
+  https://github.com/RomanFrontEndDeveloper/
+  LinkedIn:
+  https://www.linkedin.com/in/roman-okhremov-9b0764369/
+  Portfolio:
+  https://portfolio-react-roman-okhremov.netlify.app/

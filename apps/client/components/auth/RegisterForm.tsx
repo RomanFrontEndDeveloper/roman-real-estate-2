@@ -186,15 +186,17 @@ export default function RegisterForm() {
         )}
       </div>
 
-      {message && (
-        <p role="alert" className="text-sm text-secondary">
-          {message}
-        </p>
-      )}
+      <div className="flex flex-col items-center gap-3">
+        {message && (
+          <p role="alert" className="text-center text-sm text-secondary">
+            {message}
+          </p>
+        )}
 
-      <Button type="submit" disabled={isLoading || passwordMismatch}>
-        {isLoading ? "Creating Account..." : "Create Account"}
-      </Button>
+        <Button type="submit" disabled={isLoading || passwordMismatch}>
+          {isLoading ? "Creating Account..." : "Create Account"}
+        </Button>
+      </div>
     </form>
   );
 }
