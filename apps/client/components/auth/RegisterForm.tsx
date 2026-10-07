@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { API_URL } from "@/lib/apiUrl";
 
@@ -32,10 +33,11 @@ const isUserRole = (value: string): value is UserRole => {
 };
 
 export default function RegisterForm() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isRegistered, setIsRegistered] = useState(false);
+  const router = useRouter();
 
+  const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -57,8 +59,7 @@ export default function RegisterForm() {
       return;
     }
 
-    const form = event.currentTarget;//"Візьми HTML-форму, на якій спрацював onSubmit, і поклади її в змінну form."
-    
+    const form = event.currentTarget;
     const formData = new FormData(form);
 
     const name = String(formData.get("name") ?? "");
@@ -103,11 +104,7 @@ export default function RegisterForm() {
       setPassword("");
       setConfirmPassword("");
 
-      setMessage(
-        "Registration successful! Please check your email and verify your account.",
-      );
-
-      setIsRegistered(true);
+      router.replace("/login");
     } catch {
       setMessage("Unable to connect to the server. Please try again.");
     } finally {
@@ -115,19 +112,8 @@ export default function RegisterForm() {
     }
   };
 
-  if (isRegistered) {
-    return (
-      <div className="text-center">
-        <h2 className="mb-4 text-2xl font-semibold">Check your email</h2>
-
-        <p className="text-secondary">{message}</p>
-      </div>
-    );
-  }
-
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Account Type */}
       <div>
         <label htmlFor="role" className="mb-2 block text-sm font-medium">
           Account Type
@@ -148,7 +134,6 @@ export default function RegisterForm() {
         </select>
       </div>
 
-      {/* Full Name */}
       <Input
         name="name"
         type="text"
@@ -158,7 +143,6 @@ export default function RegisterForm() {
         disabled={isLoading}
       />
 
-      {/* Email */}
       <Input
         name="email"
         type="email"
@@ -168,7 +152,6 @@ export default function RegisterForm() {
         disabled={isLoading}
       />
 
-      {/* Password */}
       <Input
         name="password"
         type="password"
@@ -182,7 +165,6 @@ export default function RegisterForm() {
         }}
       />
 
-      {/* Confirm Password */}
       <div>
         <Input
           name="confirmPassword"
@@ -204,14 +186,12 @@ export default function RegisterForm() {
         )}
       </div>
 
-      {/* Server Response */}
       {message && (
         <p role="alert" className="text-sm text-secondary">
           {message}
         </p>
       )}
 
-      {/* Submit */}
       <Button type="submit" disabled={isLoading || passwordMismatch}>
         {isLoading ? "Creating Account..." : "Create Account"}
       </Button>

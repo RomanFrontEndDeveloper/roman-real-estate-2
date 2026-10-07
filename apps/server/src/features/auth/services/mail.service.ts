@@ -9,46 +9,8 @@ if (!RESEND_API_KEY) {
 const resend = new Resend(RESEND_API_KEY);
 
 const MAIL_FROM =
-  process.env.MAIL_FROM || "Roman Real Estate <onboarding@resend.dev>";
-
-export const sendVerificationEmail = async (
-  email: string,
-  verificationUrl: string,
-): Promise<void> => {
-  const { error } = await resend.emails.send({
-    from: MAIL_FROM,
-    to: email,
-    subject: "Verify your account",
-    html: `
-      <h2>Welcome to Roman Real Estate!</h2>
-
-      <p>Please verify your email address by clicking the button below:</p>
-
-      <p>
-        <a
-          href="${verificationUrl}"
-          style="
-            display: inline-block;
-            padding: 12px 20px;
-            background: #000;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 6px;
-          "
-        >
-          Verify your account
-        </a>
-      </p>
-
-      <p>This link will expire in 1 hour.</p>
-    `,
-  });
-
-  if (error) {
-    console.error("Verification email error:", error);
-    throw new Error("Failed to send verification email");
-  }
-};
+  process.env.MAIL_FROM ||
+  "Roman Real Estate <onboarding@resend.dev>";
 
 export const sendResetPasswordEmail = async (
   email: string,
@@ -58,6 +20,7 @@ export const sendResetPasswordEmail = async (
     from: MAIL_FROM,
     to: email,
     subject: "Reset your password",
+
     html: `
       <h2>Reset your Roman Real Estate password</h2>
 
@@ -88,13 +51,17 @@ export const sendResetPasswordEmail = async (
       <p>This link will expire in 1 hour.</p>
 
       <p>
-        If you did not request a password reset, you can safely ignore this email.
+        If you did not request a password reset,
+        you can safely ignore this email.
       </p>
     `,
   });
 
   if (error) {
     console.error("Reset password email error:", error);
-    throw new Error("Failed to send reset password email");
+
+    throw new Error(
+      "Failed to send reset password email",
+    );
   }
 };

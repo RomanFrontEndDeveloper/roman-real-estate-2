@@ -7,16 +7,16 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: UserRole;
+
   phone?: string;
   bio?: string;
+
   avatar?: {
     url: string;
     publicId: string;
   };
 
   isVerified: boolean;
-  verificationTokenHash?: string;
-  verificationTokenExpires?: Date;
 
   resetPasswordTokenHash?: string;
   resetPasswordTokenExpires?: Date;
@@ -73,15 +73,7 @@ const userSchema = new Schema<IUser>(
 
     isVerified: {
       type: Boolean,
-      default: false,
-    },
-
-    verificationTokenHash: {
-      type: String,
-    },
-
-    verificationTokenExpires: {
-      type: Date,
+      default: true,
     },
 
     resetPasswordTokenHash: {

@@ -6,7 +6,6 @@ import {
   logout,
   refresh,
   register,
-  verifyEmailController,
 } from "../controllers/registerController.js";
 
 import { authenticate } from "../middleware/auth.middleware.js";
@@ -18,7 +17,7 @@ import {
 const router = Router();
 
 router.post("/register", register);
-router.get("/verify-email", verifyEmailController);
+
 router.post("/login", login);
 router.post("/forgot-password", forgotPasswordController);
 router.post("/reset-password", resetPasswordController);

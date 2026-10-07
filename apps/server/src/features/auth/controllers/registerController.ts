@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+
 import { loginSchema } from "../dto/login.schema.js";
 import { registerSchema } from "../dto/register.schema.js";
 import { forgotPasswordSchema } from "../dto/forgot-password.schema.js";
@@ -10,7 +11,6 @@ import {
   refreshAccessToken,
   registerUser,
   resetPassword,
-  verifyEmail,
 } from "../services/auth.service.js";
 
 import { findUserById } from "../repository/user.repository.js";
@@ -31,7 +31,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     const user = await registerUser(result.data);
 
-    res.status(200).json({
+    res.status(201).json({
+      message: "Registration successful",
       user: {
         id: user._id,
         name: user.name,
@@ -137,8 +138,10 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
       message: "Access token refreshed",
       accessToken,
     });
-  } catch (error) {
-    res.status(401).json({ message: "Invalid or expired refresh token" });
+  } catch {
+    res.status(401).json({
+      message: "Invalid or expired refresh token",
+    });
   }
 };
 
@@ -200,46 +203,6 @@ export const logout = (_req: Request, res: Response): void => {
   });
 };
 
-export const verifyEmailController = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
-    const { token } = req.query;
-
-    if (typeof token !== "string" || !token) {
-      res.status(400).json({
-        message: "Verification token is required",
-      });
-      return;
-    }
-
-    await verifyEmail(token);
-
-    res.status(200).json({
-      message: "Email verified successfully",
-    });
-  } catch (error) {
-    const statusCode =
-      error instanceof Error &&
-      "statusCode" in error &&
-      typeof error.statusCode === "number"
-        ? error.statusCode
-        : 500;
-
-    console.error("Verify email error:", error);
-
-    res.status(statusCode).json({
-      message:
-        statusCode === 500
-          ? "Internal server error"
-          : error instanceof Error
-            ? error.message
-            : "Email verification failed",
-    });
-  }
-};
-
 export const forgotPasswordController = async (
   req: Request,
   res: Response,
@@ -252,6 +215,7 @@ export const forgotPasswordController = async (
         message: "Validation failed",
         errors: formatValidationErrors(result.error),
       });
+
       return;
     }
 
@@ -282,6 +246,7 @@ export const resetPasswordController = async (
         message: "Validation failed",
         errors: formatValidationErrors(result.error),
       });
+
       return;
     }
 
