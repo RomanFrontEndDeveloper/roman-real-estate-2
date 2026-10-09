@@ -8,12 +8,21 @@ import favoriteRoutes from "./features/favorite/routes/favorite.routes.js";
 import agencyRoutes from "./features/agency/routes/agency.routes.js";
 import adminRoutes from "./features/admin/routes/admin.routes.js";
 
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger.js";
+
 import {
   notFoundHandler,
   errorHandler,
 } from "./middleware/error.middleware.js";
 
 const app = express();
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec),
+);
 
 app.use(
   cors({
