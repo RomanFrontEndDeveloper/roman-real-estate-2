@@ -24,9 +24,21 @@ const app = express();
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
 // 2. CORS configuration
+const allowedOrigins = (process.env.CLIENT_URL ?? "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin(origin, callback) {
+      // Allow requests without an Origin header, such as server-to-server requests.
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`Not allowed by CORS: ${origin}`));
+    },
     credentials: true,
   }),
 );
