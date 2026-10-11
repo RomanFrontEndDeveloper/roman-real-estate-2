@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { validateImageUploads } from "../../../middleware/validate-image-upload.middleware.js";
 
 import {
   updateAvatar,
@@ -85,9 +86,10 @@ router.get("/agents/:id", getPublicAgent);
  */
 router.post(
   "/avatar",
-  authenticate,
-  uploadAvatarMiddleware.single("avatar"),
-  updateAvatar,
+  authenticate, //перевіряє користувача.
+  uploadAvatarMiddleware.single("avatar"), // uploadAvatarMiddleware.single("avatar") — приймає файл.
+  validateImageUploads, // — перевіряє фактичний формат.
+  updateAvatar, // — виконує наявну логіку оновлення профілю.
 );
 
 /**
@@ -104,7 +106,7 @@ router.post(
  *       400:
  *         description: Invalid email data
  *       401:
- *         description: Authentication required
+ *         description: Authentication import { validateImageUploads } from "../../../middleware/validate-image-upload.middleware.js";required
  */
 router.put("/email", authenticate, changeEmail);
 

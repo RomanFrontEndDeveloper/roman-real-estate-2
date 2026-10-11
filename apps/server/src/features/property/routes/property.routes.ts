@@ -1,5 +1,7 @@
 import { Router } from "express";
 
+import { validateImageUploads } from "../../../middleware/validate-image-upload.middleware.js";
+
 import {
   createProperty,
   getProperties,
@@ -93,6 +95,7 @@ router.post(
   "/",
   authenticate,
   uploadPropertyImages,
+  validateImageUploads,
   validateCreateProperty,
   validatePropertyLocation,
   createProperty,
@@ -127,11 +130,11 @@ router.put(
   "/:id",
   authenticate,
   uploadPropertyImages,
+  validateImageUploads,
   validateUpdateProperty,
   validatePropertyLocation,
   updateProperty,
 );
-
 /**
  * @swagger
  * /api/properties/{id}:
