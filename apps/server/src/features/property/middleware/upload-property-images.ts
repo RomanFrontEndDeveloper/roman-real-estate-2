@@ -5,9 +5,10 @@ const storage = multer.memoryStorage();
 const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
   if (file.mimetype.startsWith("image/")) {
     cb(null, true);
-  } else {
-    cb(new Error("Only image files are allowed."));
+    return;
   }
+
+  cb(new Error("Only image files are allowed."));
 };
 
 export const uploadPropertyImages = multer({
@@ -16,6 +17,8 @@ export const uploadPropertyImages = multer({
   limits: {
     fileSize: 5 * 1024 * 1024,
     files: 11,
+    fields: 30,
+    parts: 41,
   },
 }).fields([
   {

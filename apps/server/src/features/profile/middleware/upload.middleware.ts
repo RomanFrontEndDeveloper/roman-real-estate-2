@@ -1,20 +1,21 @@
-import multer from "multer"; // Імпортуємо бібліотеку multer, яка використовується для обробки завантаження файлів у Node.js. Multer дозволяє легко обробляти файли, що надсилаються через HTTP-запити, і надає різні опції для зберігання та фільтрації файлів.
+import multer from "multer";
 
-const storage = multer.memoryStorage(); // Використовуємо пам'ять для зберігання файлів, що дозволяє обробляти їх безпосередньо в пам'яті сервера, без необхідності зберігати на диск.
+const storage = multer.memoryStorage();
 
-const fileFilter: multer.Options["fileFilter"] = (_req, file, callback) => {
+const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
   if (file.mimetype.startsWith("image/")) {
-    callback(null, true);
+    cb(null, true);
     return;
   }
 
-  callback(new Error("Only image files are allowed")); // Перевіряємо тип файлу, що завантажується. Якщо MIME-тип файлу починається з "image/", дозволяємо завантаження, викликаючи callback з null (немає помилки) та true (файл дозволено). Якщо файл не є зображенням, викликаємо callback з новою помилкою, повідомляючи, що дозволені лише зображення.
+  cb(new Error("Only image files are allowed."));
 };
 
 export const uploadAvatar = multer({
-  storage, // Використовуємо налаштування storage, яке визначає, як і де зберігати завантажені файли. У цьому випадку ми використовуємо пам'ять для зберігання файлів.
+  storage,
+  fileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024,
+    files: 1,
   },
-  fileFilter, // Використовуємо налаштування fileFilter, яке визначає, які файли дозволено завантажувати. У цьому випадку ми дозволяємо лише зображення.
-}); // Експортуємо middleware uploadAvatar, який використовує налаштування storage, обмеження розміру файлу (до 5 МБ) та fileFilter для обробки завантаження аватарів. Цей middleware можна використовувати в маршрутах для обробки завантаження файлів з клієнтської сторони.
+});
