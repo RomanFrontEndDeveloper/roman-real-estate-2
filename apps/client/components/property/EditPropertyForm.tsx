@@ -114,9 +114,7 @@ export default function EditPropertyForm({
   useEffect(() => {
     const fetchProperty = async () => {
       try {
-        const response = await fetch(
-          `${API_URL}/api/properties/${propertyId}`,
-        );
+        const response = await fetch(`${API_URL}/api/properties/${propertyId}`);
 
         const data = await response.json();
 
@@ -193,6 +191,16 @@ export default function EditPropertyForm({
   const handleImagesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
 
+    const availableSlots = 10 - images.length;
+
+    if (files.length > availableSlots) {
+      setMessage(
+        `You can add only ${availableSlots} more photo(s). Maximum: 10 additional photos.`,
+      );
+      event.target.value = "";
+      return;
+    }
+
     newImagePreviews.forEach((preview) => {
       URL.revokeObjectURL(preview);
     });
@@ -201,6 +209,7 @@ export default function EditPropertyForm({
 
     setNewImages(files);
     setNewImagePreviews(previews);
+    setMessage("");
   };
 
   const handleRemoveImage = (index: number) => {
@@ -229,6 +238,12 @@ export default function EditPropertyForm({
     event.preventDefault();
 
     setMessage("");
+
+    if (images.length + newImages.length > 10) {
+      setMessage("You can have a maximum of 10 additional photos.");
+      return;
+    }
+
     setIsSaving(true);
 
     try {
@@ -267,16 +282,13 @@ export default function EditPropertyForm({
         data.append("images", image);
       });
 
-      const response = await fetch(
-       `${API_URL}/api/properties/${propertyId}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: data,
+      const response = await fetch(`${API_URL}/api/properties/${propertyId}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+        body: data,
+      });
 
       const result = await response.json();
 
@@ -578,11 +590,21 @@ export default function EditPropertyForm({
           Choose Photo
         </label>
 
+        {!mainImage && !newMainImage && (
+          <p className="mt-2 text-xs text-red-600">
+            Main photo is missing. Please select a photo.
+          </p>
+        )}
+
+        <p className="mt-2 text-xs text-secondary">
+          JPEG, PNG or WebP; maximum 5 MB.
+        </p>
+
         <input
           id="mainImage"
           name="mainImage"
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp"
           onChange={handleMainImageChange}
           className="hidden"
         />
@@ -660,6 +682,17 @@ export default function EditPropertyForm({
           Choose Photos
         </label>
 
+        <p className="mt-2 text-xs text-secondary">
+          Up to 10 additional photos total, including existing photos. JPEG, PNG
+          or WebP; maximum 5 MB per photo.
+        </p>
+
+        {images.length + newImages.length > 10 && (
+          <p className="mt-2 text-xs text-red-600" role="alert">
+            Maximum 10 additional photos. Remove some photos to continue.
+          </p>
+        )}
+
         <input
           id="images"
           name="images"
@@ -678,7 +711,11 @@ export default function EditPropertyForm({
         )}
       </div>
 
-      {message && <p className="text-sm text-secondary">{message}</p>}
+      {message && (
+        <p className="text-sm text-red-600" role="alert">
+          {message}
+        </p>
+      )}
 
       <div className="flex flex-wrap justify-end gap-3">
         <BackButton />

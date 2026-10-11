@@ -104,6 +104,12 @@ export default function CreatePropertyForm() {
   const handleImagesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
 
+    if (files.length > 10) {
+      setMessage("You can select a maximum of 10 additional photos.");
+      event.target.value = "";
+      return;
+    }
+
     imagePreviews.forEach((preview) => {
       URL.revokeObjectURL(preview);
     });
@@ -112,12 +118,23 @@ export default function CreatePropertyForm() {
 
     setImages(files);
     setImagePreviews(previews);
+    setMessage("");
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     setMessage("");
+
+    if (!mainImage) {
+      setMessage("Please select a main photo for the property.");
+      return;
+    }
+
+    if (images.length > 10) {
+      setMessage("You can select a maximum of 10 additional photos.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -411,12 +428,17 @@ export default function CreatePropertyForm() {
           Choose Photo
         </label>
 
+        {!mainImage && (
+          <p className="mt-2 text-xs text-red-600">
+            Please select a main photo. JPEG, PNG or WebP; maximum 5 MB.
+          </p>
+        )}
+
         <input
           id="mainImage"
           name="mainImage"
           type="file"
-          accept="image/*"
-          required
+          accept="image/jpeg,image/png,image/webp"
           onChange={handleMainImageChange}
           className="hidden"
         />
@@ -451,6 +473,10 @@ export default function CreatePropertyForm() {
         >
           Choose Photos
         </label>
+
+        <p className="mt-2 text-xs text-secondary">
+          Up to 10 additional photos. JPEG, PNG or WebP; maximum 5 MB per photo.
+        </p>
 
         <input
           id="images"
@@ -490,7 +516,11 @@ export default function CreatePropertyForm() {
 
       {/* Message */}
 
-      {message && <p className="text-sm text-secondary">{message}</p>}
+      {message && (
+        <p className="text-sm text-secondary" role="alert">
+          {message}
+        </p>
+      )}
 
       {/* Buttons */}
 
