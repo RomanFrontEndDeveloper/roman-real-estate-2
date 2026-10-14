@@ -1,3 +1,4 @@
+
 import { Types } from "mongoose";
 
 import * as propertyRepository from "../repository/property.repository.js";

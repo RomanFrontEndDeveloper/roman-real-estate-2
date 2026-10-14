@@ -208,9 +208,7 @@ export const getPublicAgentById = async (agentId: string) => {
 
   if (!result) {
     const error = new Error("Agent not found");
-
     (error as Error & { statusCode?: number }).statusCode = 404;
-
     throw error;
   }
 

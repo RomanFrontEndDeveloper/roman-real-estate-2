@@ -67,6 +67,10 @@ export const loginUser = async (data: LoginDto) => {
     throw new ApiError("Invalid email or password", 401);
   }
 
+  if (user.isBlocked === true) {
+    throw new ApiError("Your account has been blocked", 403);
+  }
+
   const accessToken = createAccessToken({
     sub: user._id.toString(),
     role: user.role,

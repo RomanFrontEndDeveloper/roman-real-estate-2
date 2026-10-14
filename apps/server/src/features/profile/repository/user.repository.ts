@@ -75,9 +75,11 @@ export const removeUserAvatar = async (userId: string) => {
   ).select("-password");
 };
 
+
 export const findAgents = async () => {
   const agents = await User.find({
     role: "agent",
+    isBlocked: { $ne: true },
   })
     .select("_id name email phone bio avatar")
     .lean();
@@ -102,6 +104,7 @@ export const findAgentById = async (agentId: string) => {
   const agent = await User.findOne({
     _id: agentId,
     role: "agent",
+    isBlocked: { $ne: true },
   })
     .select("_id name email phone bio avatar")
     .lean();

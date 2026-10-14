@@ -8,6 +8,8 @@ export interface IUser extends Document {
   password: string;
   role: UserRole;
 
+  isBlocked: boolean;
+
   phone?: string;
   bio?: string;
 
@@ -47,6 +49,12 @@ const userSchema = new Schema<IUser>(
       type: String,
       enum: ["admin", "agency", "agent", "owner-client"],
       default: "owner-client",
+      required: true,
+    },
+
+    isBlocked: {
+      type: Boolean,
+      default: false,
       required: true,
     },
 

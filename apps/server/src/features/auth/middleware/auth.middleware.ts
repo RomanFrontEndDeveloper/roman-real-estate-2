@@ -1,19 +1,19 @@
 import type { NextFunction, Request, Response } from "express";
 
+import User from "../models/User.js";
 import { verifyAccessToken } from "../utils/token.js";
 
-export const authenticate = (
+export const authenticate = async (
   req: Request,
   res: Response,
   next: NextFunction,
-): void => {
+): Promise<void> => {
   const authorization = req.headers.authorization;
 
   if (!authorization) {
     res.status(401).json({
       message: "Authentication required",
     });
-
     return;
   }
 
@@ -23,30 +23,36 @@ export const authenticate = (
     res.status(401).json({
       message: "Invalid authorization header",
     });
-
     return;
   }
 
   try {
-    const payload = verifyAccessToken(token); // це дані, які були записані всередину JWT, коли backend його створював.
+    const payload = verifyAccessToken(token);
+
+    const user = await User.findById(payload.sub).select("_id role isBlocked");
+
+    if (!user) {
+      res.status(401).json({
+        message: "User not found",
+      });
+      return;
+    }
+
+    if (user.isBlocked === true) {
+      res.status(403).json({
+        message: "Your account has been blocked",
+      });
+      return;
+    }
 
     req.user = {
-      userId: payload.sub, // це userId, який був записаний всередину JWT, коли backend його створював.
-      role: payload.role, // це роль користувача, яка була записана всередину JWT, коли backend його створював.
+      userId: user._id.toString(),
+      role: user.role,
     };
 
     next();
-  } catch {
-    res.status(401).json({
-      message: "Invalid or expired access token",
-    });
+  } catch (error) {
+    // Не перетворюємо помилки бази даних на помилку токена.
+    next(error);
   }
 };
-
-//наприклад:
-// {
-//   sub: "123456",
-//   role: "agent",
-//   iat: 1756900000,
-//   exp: 1756903600
-// }
