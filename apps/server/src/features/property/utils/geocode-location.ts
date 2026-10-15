@@ -1,4 +1,5 @@
 const GEOCODING_API_URL = "https://api.geoapify.com/v1/geocode/search";
+// Це адреса сервісу Geoapify, якому backend надсилає запит на геокодування.
 
 type GeoapifyGeocodingResponse = {
   results: {
@@ -43,3 +44,6 @@ export const geocodeLocation = async (location: string) => {
     longitude: result.lon,
   };
 };
+
+// Ця функція geocodeLocation перетворює текстову адресу нерухомості
+// на географічні координати — широту та довготу — за допомогою Geoapify API.

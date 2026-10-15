@@ -21,7 +21,7 @@ export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
     });
 
     return;
-  }
+  } // ApiError — помилка, яку ти контролюєш
 
   if (error instanceof ZodError) {
     res.status(400).json({
@@ -31,7 +31,7 @@ export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
     });
 
     return;
-  }
+  } // ZodError — помилка валідації
 
   if (error instanceof MulterError) {
     res.status(400).json({
@@ -40,7 +40,7 @@ export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
     });
 
     return;
-  }
+  } // MulterError — помилка завантаження файлів
 
   res.status(500).json({
     success: false,

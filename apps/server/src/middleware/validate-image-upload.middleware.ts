@@ -33,3 +33,15 @@ export const validateImageUploads: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+
+// middleware validateImageUploads у твоєму Roman Real Estate 2. Воно перевіряє справжній
+// формат завантажених файлів і дозволяє лише JPEG, PNG та WebP перед тим, як запит піде
+// далі до контролера.
+
+// 1) Усі зображення правильного формату → next() передає запит наступному
+// middleware або
+// контролеру.
+
+// 2) Формат неправильний → res.status(400).json(...) повертає клієнту
+//  HTTP-відповідь
+// із помилкою

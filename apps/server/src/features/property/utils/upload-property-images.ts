@@ -30,5 +30,11 @@ export const uploadPropertyImage = (
     );
 
     Readable.from(buffer).pipe(uploadStream);
-  });
+  }); // Readable.from(buffer) створює потік читання з даних фотографії..pipe(uploadStream)
+  //  передає дані цього потоку до потоку завантаження Cloudinary.
 };
+
+// Ця функція завантажує фотографію нерухомості з Express backend у Cloudinary
+// та повертає посилання на зображення й унікальний ідентифікатор файлу.
+// У Roman Real Estate 2 вона може використовуватися, коли користувач створює
+// оголошення й додає фотографії квартири або будинку.

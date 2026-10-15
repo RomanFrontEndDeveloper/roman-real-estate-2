@@ -18,6 +18,8 @@ const getUserId = (req: Request, res: Response) => {
   return req.user.userId;
 };
 
+//getProperties — це контролер, який отримує фільтри з URL, формує запит до MongoDB,
+//  сортує оголошення та повертає їх сторінками.
 export const getProperties = async (
   req: Request,
   res: Response,
@@ -42,8 +44,8 @@ export const getProperties = async (
 
     if (typeof location === "string" && location) {
       filters.location = {
-        $regex: location,
-        $options: "i",
+        $regex: location, //— шукає текст, який відповідає значенню location.
+        $options: "i", //ігнорує різницю між великими та малими літерами.
       };
     }
 
@@ -60,7 +62,8 @@ export const getProperties = async (
 
       if (minPrice) {
         priceFilter.$gte = Number(minPrice);
-      }
+      } //перетворює значення на число, оскільки req.query зазвичай містить рядки.
+      //встановлює умову greater than or equal («більше або дорівнює»).
 
       if (maxPrice) {
         priceFilter.$lte = Number(maxPrice);
