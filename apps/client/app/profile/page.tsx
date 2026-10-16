@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import ProfileCard from "@/components/profile/ProfileCard";
 import AgencyJoinRequests from "@/components/agent/AgencyJoinRequests";
 import AgencyMyProfile from "@/components/agency/AgencyMyProfile";
+import AdminPanel from "@/components/admin/AdminPanel";
 
 import { apiFetch } from "@/lib/apiFetch";
 
@@ -43,20 +44,23 @@ export default function ProfilePage() {
     <section className="w-full py-6 sm:py-10">
       {/* Profile header + personal profile */}
       <div className="mx-auto w-full max-w-3xl px-4 sm:px-6">
-        <div className="mb-10 text-center">
+        {/* Profile header */}
+        <div className="mb-6 text-center">
           <p className="text-sm uppercase tracking-[0.25em] text-secondary">
             My Profile
           </p>
 
-          <h1 className="mt-4 font-serif text-4xl">Profile</h1>
+          <h1 className="mt-2 font-serif text-4xl">Profile</h1>
 
-          <p className="mt-4 text-secondary">
+          <p className="mt-2 text-secondary">
             Manage your personal information and account details.
           </p>
         </div>
 
         <ProfileCard />
       </div>
+
+      {role === "admin" && <AdminPanel />}
 
       {/* Agent-specific section */}
       {role === "agent" && (

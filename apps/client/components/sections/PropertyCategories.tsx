@@ -161,7 +161,14 @@ export default async function PropertyCategories({
 
                     {showAdminActions && (
                       <div className="mt-3">
-                        <DeletePropertyButton propertyId={property._id} />
+                        <DeletePropertyButton
+                          propertyId={property._id}
+                          returnPath={createPageUrl(
+                            properties.length === 1 && pagination.page > 1
+                              ? pagination.page - 1
+                              : pagination.page,
+                          )}
+                        />
                       </div>
                     )}
                   </div>

@@ -352,7 +352,8 @@ export const getPublicAgency = async (
 
     if (typeof id !== "string") {
       res.status(400).json({
-        message: "Invalid agency id",
+        success: false,
+        message: "Invalid agency ID",
       });
       return;
     }

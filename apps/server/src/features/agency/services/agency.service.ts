@@ -10,6 +10,8 @@ import {
   findAgencyById,
 } from "../repository/agency.repository.js";
 
+import { ApiError } from "../../auth/utils/api-error.js";
+
 export const createAgency = async (userId: string, name: string) => {
   const user = await findUserById(userId);
 
@@ -141,15 +143,7 @@ export const getPublicAgencyById = async (agencyId: string) => {
   const agency = await findAgencyById(agencyId);
 
   if (!agency) {
-    const error = new Error("Agency not found");
-
-    (
-      error as Error & {
-        statusCode?: number;
-      }
-    ).statusCode = 404;
-
-    throw error;
+    throw new ApiError("Agency not found", 404);
   }
 
   return agency;

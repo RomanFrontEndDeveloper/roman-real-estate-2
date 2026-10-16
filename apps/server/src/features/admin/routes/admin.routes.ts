@@ -1,10 +1,13 @@
-
 import { Router } from "express";
 
 import { authenticate } from "../../auth/middleware/auth.middleware.js";
 import { requireAdmin } from "../../auth/middleware/admin.middleware.js";
 
-import { deletePropertyByAdmin } from "../controllers/admin.controller.js";
+import {
+  deletePropertyByAdmin,
+  getUsersForAdmin,
+  updateUserBlockStatus,
+} from "../controllers/admin.controller.js";
 
 const router = Router();
 
@@ -18,27 +21,60 @@ const router = Router();
 // All routes below require authentication and administrator privileges.
 router.use(authenticate, requireAdmin);
 
-/**
- * @swagger
- * /api/admin/check:
- *   get:
- *     summary: Check administrator access
- *     tags: [Admin]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Administrator access granted
- *       401:
- *         description: Authentication required
- *       403:
- *         description: Administrator privileges required
- */
 router.get("/check", (_req, res) => {
   res.status(200).json({
     message: "Admin access granted",
   });
 });
+
+/**
+ * @swagger
+ * /api/admin/users:
+ *   get:
+ *     summary: Get all users for administration
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Users retrieved successfully
+ */
+router.get("/users", getUsersForAdmin);
+
+/**
+ * @swagger
+ * /api/admin/users/{id}/block:
+ *   patch:
+ *     summary: Block or unblock a user
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - isBlocked
+ *             properties:
+ *               isBlocked:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: User block status updated
+ *       400:
+ *         description: Invalid request body
+ *       404:
+ *         description: User not found
+ */
+router.patch("/users/:id/block", updateUserBlockStatus);
 
 /**
  * @swagger
@@ -54,14 +90,9 @@ router.get("/check", (_req, res) => {
  *         required: true
  *         schema:
  *           type: string
- *         description: ID of the property to delete
  *     responses:
  *       200:
  *         description: Property deleted successfully
- *       401:
- *         description: Authentication required
- *       403:
- *         description: Administrator privileges required
  *       404:
  *         description: Property not found
  */

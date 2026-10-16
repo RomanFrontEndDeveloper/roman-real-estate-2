@@ -52,11 +52,19 @@ export const findAgencyMembers = async (agencyId: string) => {
     agency: agencyId,
     status: "active",
   })
-    .populate("agent", "_id name email phone bio avatar role")
+    .populate({
+      path: "agent",
+      select: "_id name email phone bio avatar role",
+      match: { isBlocked: { $ne: true } },
+    })
     .lean();
 
+  // populate з match залишає null для заблокованих агентів.
+  // Прибираємо їх до підрахунку нерухомості.
+  const activeMembers = members.filter((member) => member.agent !== null);
+
   const membersWithProperties = await Promise.all(
-    members.map(async (member) => {
+    activeMembers.map(async (member) => {
       const agent = member.agent as {
         _id: {
           toString(): string;

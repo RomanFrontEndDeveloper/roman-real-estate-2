@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { apiFetch } from "@/lib/apiFetch";
 
@@ -10,6 +10,7 @@ import ConfirmModal from "../ui/ConfirmModal";
 
 type DeletePropertyButtonProps = {
   propertyId: string;
+  returnPath?: string;
 };
 
 type DeletePropertyResponse = {
@@ -18,8 +19,10 @@ type DeletePropertyResponse = {
 
 export default function DeletePropertyButton({
   propertyId,
+  returnPath = "/property",
 }: DeletePropertyButtonProps) {
   const router = useRouter();
+  const pathname = usePathname();
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [message, setMessage] = useState("");
@@ -30,7 +33,13 @@ export default function DeletePropertyButton({
     setIsDeleting(true);
 
     try {
-      const response = await apiFetch(`/api/properties/${propertyId}`, {
+      const isAdminPage = pathname.startsWith("/admin");
+
+      const endpoint = isAdminPage
+        ? `/api/admin/properties/${propertyId}`
+        : `/api/properties/${propertyId}`;
+
+      const response = await apiFetch(endpoint, {
         method: "DELETE",
       });
 
@@ -41,12 +50,14 @@ export default function DeletePropertyButton({
         return;
       }
 
-      router.replace("/property");
+      setIsModalOpen(false);
+
+      router.replace(returnPath);
+      router.refresh();
     } catch {
       setMessage("Unable to connect to the server. Please try again.");
     } finally {
       setIsDeleting(false);
-      setIsModalOpen(false);
     }
   };
 

@@ -1,5 +1,6 @@
 import Agency from "../models/AgencyModel.js";
 import AgencyMember from "../models/AgencyMemberModel.js";
+import User from "../../auth/models/User.js";
 
 export const createAgency = async (data: { name: string; owner: string }) => {
   return Agency.create(data);
@@ -43,15 +44,36 @@ export const removeMyAgencyMembership = async (agentId: string) => {
 };
 
 export const findAllAgencies = async () => {
-  const agencies = await Agency.find()
+  const blockedUsers = await User.find({
+    isBlocked: true,
+  })
+    .select("_id")
+    .lean();
+
+  const blockedOwnerIds = blockedUsers.map((user) => user._id);
+
+  const agencies = await Agency.find({
+    owner: { $nin: blockedOwnerIds },
+  })
     .populate("owner", "name email phone bio avatar")
     .sort({ createdAt: -1 })
     .lean();
 
   const agenciesWithAgentCount = await Promise.all(
     agencies.map(async (agency) => {
-      const agentsCount = await AgencyMember.countDocuments({
+      const activeMembers = await AgencyMember.find({
         agency: agency._id,
+        status: "active",
+      })
+        .select("agent")
+        .lean();
+
+      const agentIds = activeMembers.map((member) => member.agent);
+
+      const agentsCount = await User.countDocuments({
+        _id: { $in: agentIds },
+        role: "agent",
+        isBlocked: { $ne: true },
       });
 
       return {
@@ -66,21 +88,37 @@ export const findAllAgencies = async () => {
 
 export const findAgencyById = async (agencyId: string) => {
   const agency = await Agency.findById(agencyId)
-    .populate("owner", "name email phone bio avatar")
+    .populate({
+      path: "owner",
+      select: "name email phone bio avatar",
+      match: { isBlocked: { $ne: true } },
+    })
     .lean();
 
-  if (!agency) {
+  console.log("Agency ID:", agencyId);
+  console.log("Agency found:", Boolean(agency));
+  console.log("Owner after populate:", agency?.owner);
+
+  // Не показуємо публічно агенцію, якщо її власник заблокований.
+  if (!agency || !agency.owner) {
     return null;
   }
 
   const members = await AgencyMember.find({
     agency: agency._id,
+    status: "active",
   })
-    .populate("agent", "_id name email phone bio avatar")
+    .populate({
+      path: "agent",
+      select: "_id name email phone bio avatar",
+      match: { isBlocked: { $ne: true } },
+    })
     .lean();
+
+  const activeMembers = members.filter((member) => member.agent !== null);
 
   return {
     ...agency,
-    members,
+    members: activeMembers,
   };
 };
