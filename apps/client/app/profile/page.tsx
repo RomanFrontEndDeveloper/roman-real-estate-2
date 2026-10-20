@@ -13,6 +13,7 @@ type UserRole = "admin" | "agency" | "agent" | "owner-client";
 
 type MeResponse = {
   user: {
+    _id: string;
     role: UserRole;
   };
 };

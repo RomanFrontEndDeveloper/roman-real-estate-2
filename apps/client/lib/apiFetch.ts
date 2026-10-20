@@ -44,15 +44,18 @@ export async function apiFetch(
 ): Promise<Response> {
   const { skipRefresh = false, ...fetchOptions } = options;
 
-  const accessToken = sessionStorage.getItem("accessToken");
+  const url = /^https?:\/\//i.test(path)
+    ? path
+    : `${API_URL}${path.startsWith("/") ? path : `/${path}`}`;
 
+  const accessToken = sessionStorage.getItem("accessToken");
   const headers = new Headers(fetchOptions.headers);
 
   if (accessToken) {
     headers.set("Authorization", `Bearer ${accessToken}`);
   }
 
-  let response = await fetch(`${API_URL}${path}`, {
+  let response = await fetch(url, {
     ...fetchOptions,
     headers,
     credentials: "include",
@@ -76,7 +79,7 @@ export async function apiFetch(
 
   headers.set("Authorization", `Bearer ${newAccessToken}`);
 
-  response = await fetch(`${API_URL}${path}`, {
+  response = await fetch(url, {
     ...fetchOptions,
     headers,
     credentials: "include",

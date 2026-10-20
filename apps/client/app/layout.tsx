@@ -3,6 +3,7 @@ import { DM_Serif_Display, Manrope } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { AuthProvider } from "@/components/auth/AuthContext";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -29,7 +30,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <Header />
 
-        <main className="flex-1">{children}</main>
+        <main className="flex-1">
+          <AuthProvider>{children}</AuthProvider>
+        </main>
 
         <Footer />
       </body>

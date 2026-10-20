@@ -273,6 +273,9 @@ export default function ProfileCard() {
 
           {/* Actions */}
           <div className="mt-7 flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:justify-end">
+            <Link href="/messages" className="w-full sm:w-auto">
+              <Button className="w-full sm:w-auto">All Messages</Button>
+            </Link>
             <Link href="/property" className="w-full sm:w-auto">
               <Button variant="outline" className="w-full sm:w-auto">
                 My Properties

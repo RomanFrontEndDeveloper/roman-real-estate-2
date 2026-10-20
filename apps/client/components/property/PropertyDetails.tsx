@@ -229,19 +229,28 @@ export default function PropertyDetails({
                   <div className="h-20 w-20 rounded-full bg-gray-200" />
                 )}
 
-                <div>
-                  <p className="text-2xl font-semibold">
+                <div className="min-w-0">
+                  <p className="text-xl font-semibold leading-tight sm:text-2xl">
                     {property.owner.name}
                   </p>
 
-                  {property.owner.phone && (
-                    <a
-                      href={`tel:${property.owner.phone}`}
-                      className="mt-2 inline-block text-2xl text-secondary transition-opacity hover:opacity-70"
+                  <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-3">
+                    {property.owner.phone && (
+                      <a
+                        href={`tel:${property.owner.phone}`}
+                        className="text-lg text-secondary transition-opacity hover:opacity-70 sm:text-xl"
+                      >
+                        {property.owner.phone}
+                      </a>
+                    )}
+
+                    <Link
+                      href={`/messages?userId=${property.owner._id}`}
+                      className="inline-flex shrink-0 items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:opacity-85"
                     >
-                      {property.owner.phone}
-                    </a>
-                  )}
+                      Написати автору
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>

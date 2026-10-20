@@ -101,6 +101,63 @@ Roman Real Estate 2 simulates a modern real estate platform where users can regi
 
 ---
 
+## 🔌 Real-Time Communication — Socket.IO
+
+The project uses Socket.IO to implement real-time communication between the frontend and backend without requiring the client to repeatedly poll the server for updates.
+
+Socket.IO enables the application to exchange events over a persistent connection, making it suitable for messaging and other real-time features.
+
+### Key capabilities
+
+- Real-time communication between clients and the server
+- Event-based message exchange
+- Authenticated socket connections
+- User identification and role information
+- Sending and receiving messages without reloading the page
+- Integration with the existing authentication system
+
+### Typical communication flow
+
+```text
+Client
+  ↓
+Socket Connection
+  ↓
+Authentication
+  ↓
+User Identification
+  ↓
+Join Conversation
+  ↓
+Send / Receive Events
+  ↓
+Update the UI in Real Time
+```
+
+### Architecture
+
+Socket.IO complements the existing REST API rather than replacing it.
+
+- **REST API:** handles standard HTTP requests, such as loading conversations and retrieving application data.
+- **Socket.IO:** handles real-time events, such as sending and receiving messages.
+- **Authentication:** ensures that socket connections are associated with authenticated users.
+- **Frontend:** listens for socket events and updates the interface when new data arrives.
+
+This separation allows the application to use HTTP requests for regular data operations and persistent socket connections for real-time updates.
+
+### Development goals
+
+The Socket.IO implementation is part of the project's full-stack learning path, focusing on:
+
+- Understanding persistent client-server connections
+- Working with socket events
+- Authenticating socket connections
+- Managing user-specific communication
+- Handling connection and disconnection events
+- Integrating real-time functionality with the existing application architecture
+
+The implementation should also handle connection failures, unauthorized connections, duplicate event listeners, and resource cleanup appropriately.
+
 ## 🧩 Reusable Components
 
 The project uses reusable components to reduce duplication and keep the codebase maintainable.

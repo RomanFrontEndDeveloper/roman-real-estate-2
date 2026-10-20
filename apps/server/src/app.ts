@@ -13,6 +13,8 @@ import favoriteRoutes from "./features/favorite/routes/favorite.routes.js";
 import agencyRoutes from "./features/agency/routes/agency.routes.js";
 import adminRoutes from "./features/admin/routes/admin.routes.js";
 
+import messageRoutes from "./features/messages/routes/message.routes.js";
+
 import {
   notFoundHandler,
   errorHandler,
@@ -64,6 +66,8 @@ app.use("/api/properties", propertyRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/agency", agencyRoutes);
 app.use("/api/admin", adminRoutes);
+
+app.use("/api/messages", messageRoutes);
 
 // 7. Root endpoint
 app.get("/", (_req, res) => {

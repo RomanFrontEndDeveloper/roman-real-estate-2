@@ -138,6 +138,7 @@ export default function AllAgencies({
             name={agency.name}
             agentsCount={agency.agentsCount}
             ownerName={agency.owner.name}
+            ownerId={agency.owner._id}
             ownerAvatar={agency.owner.avatar?.url}
           />
         ))}
