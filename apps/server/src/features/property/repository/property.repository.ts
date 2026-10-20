@@ -92,7 +92,7 @@ export const findPropertyByIdWithoutOwner = async (id: string) => {
 export const updateProperty = async (
   id: string,
   owner: string,
-  data: UpdatePropertyDTO,
+  data: Partial<UpdatePropertyDTO>,
 ) => {
   return Property.findOneAndUpdate(
     {

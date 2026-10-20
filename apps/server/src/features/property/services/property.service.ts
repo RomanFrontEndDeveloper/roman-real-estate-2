@@ -1,4 +1,3 @@
-
 import { Types } from "mongoose";
 
 import * as propertyRepository from "../repository/property.repository.js";
@@ -30,9 +29,7 @@ export const getProperties = async (
   return propertyRepository.findProperties(filters, sort, skip, limit);
 };
 
-export const countProperties = async (
-  filters: Record<string, unknown>,
-) => {
+export const countProperties = async (filters: Record<string, unknown>) => {
   return propertyRepository.countProperties(filters);
 };
 
@@ -53,7 +50,7 @@ export const getPropertyById = async (id: string) => {
 export const updateProperty = async (
   id: string,
   owner: string,
-  data: UpdatePropertyDTO,
+  data: Partial<UpdatePropertyDTO>,
 ) => {
   const location =
     typeof data.location === "string" ? data.location.trim() : "";
@@ -76,8 +73,7 @@ export const deleteProperty = async (id: string, owner: string) => {
 };
 
 export const getPropertyByIdWithoutOwner = async (id: string) => {
-  const property =
-    await propertyRepository.findPropertyByIdWithoutOwner(id);
+  const property = await propertyRepository.findPropertyByIdWithoutOwner(id);
 
   if (!property) {
     throw new ApiError("Property not found", 404);
