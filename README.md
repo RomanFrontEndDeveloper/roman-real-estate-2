@@ -107,6 +107,60 @@ The project uses Socket.IO to implement real-time communication between the fron
 
 Socket.IO enables the application to exchange events over a persistent connection, making it suitable for messaging and other real-time features.
 
+### Redis Caching
+
+Redis is used to cache property search results and reduce unnecessary database queries to MongoDB.
+
+**Implementation:**
+
+- **Docker:** Redis runs locally in a Docker container using the `redis:alpine` image.
+- **Redis Client:** A dedicated Redis client manages the connection using the `REDIS_URL` environment variable.
+- **Cache Utility:** The reusable `getOrSetCache` utility checks whether data exists in Redis before fetching fresh data.
+- **Property Search:** Search results are cached based on filters, sorting, pagination, and page size.
+- **TTL (Time To Live):** Cached results expire after 60 seconds.
+- **Cache MISS:** If the data is not cached, it is fetched from MongoDB and stored in Redis.
+- **Cache HIT:** If cached data exists, it is returned without repeating the database queries.
+- **Error Logging:** Redis client errors are logged for easier debugging.
+- **Testing:** Redis caching is mocked in unit tests to keep controller tests independent of a running Redis instance.
+
+**Key files:**
+
+- `apps/server/src/shared/redis/redis.client.ts` — Redis client configuration.
+- `apps/server/src/shared/redis/redis-cache.ts` — reusable caching utility.
+- `apps/server/src/features/property/controllers/property.controller.ts` — property search caching integration.
+
+**Local development:**
+
+Start Redis using Docker:
+
+```bash
+docker run -d --name roman-redis -p 6379:6379 redis:alpine
+```
+
+Configure the server environment:
+
+```env
+REDIS_URL=redis://127.0.0.1:6379
+```
+
+Verify the Redis connection:
+
+```bash
+docker exec -it roman-redis redis-cli ping
+```
+
+Expected response:
+
+```text
+PONG
+```
+
+**Verification:**
+
+- Verified cache misses and cache hits through repeated property search requests.
+- All 59 server tests pass.
+- TypeScript server build completes successfully.
+
 ### Key capabilities
 
 - Real-time communication between clients and the server

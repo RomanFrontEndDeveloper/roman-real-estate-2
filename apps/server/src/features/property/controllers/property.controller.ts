@@ -6,6 +6,8 @@ import { uploadPropertyImage } from "../utils/upload-property-images.js";
 
 import type { UpdatePropertyDTO } from "../dto/update-property.dto.js";
 
+import { getOrSetCache } from "../../../shared/redis/redis-cache.js";
+
 const getUserId = (req: Request, res: Response) => {
   if (!req.user) {
     res.status(401).json({
@@ -132,10 +134,25 @@ export const getProperties = async (
 
     const skip = (page - 1) * limit;
 
-    const [properties, total] = await Promise.all([
-      propertyService.getProperties(filters, sort, skip, limit),
-      propertyService.countProperties(filters),
-    ]);
+    const cacheKey = `properties:search:${JSON.stringify({
+      filters,
+      sort,
+      page,
+      limit,
+    })}`;
+
+    const { properties, total } = await getOrSetCache(
+      cacheKey,
+      60,
+      async () => {
+        const [properties, total] = await Promise.all([
+          propertyService.getProperties(filters, sort, skip, limit),
+          propertyService.countProperties(filters),
+        ]);
+
+        return { properties, total };
+      },
+    );
 
     res.status(200).json({
       success: true,

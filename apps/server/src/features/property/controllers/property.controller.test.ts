@@ -1,23 +1,36 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { propertyService, uploadPropertyImage } = vi.hoisted(() => ({
-  propertyService: {
-    getProperties: vi.fn(),
-    countProperties: vi.fn(),
-    getMyProperties: vi.fn(),
-    getPropertyById: vi.fn(),
-    getPropertyByIdWithoutOwner: vi.fn(),
-    createProperty: vi.fn(),
-    updateProperty: vi.fn(),
-    deleteProperty: vi.fn(),
-  },
-  uploadPropertyImage: vi.fn(),
-}));
+const { propertyService, uploadPropertyImage, getOrSetCache } = vi.hoisted(
+  () => ({
+    propertyService: {
+      getProperties: vi.fn(),
+      countProperties: vi.fn(),
+      getMyProperties: vi.fn(),
+      getPropertyById: vi.fn(),
+      getPropertyByIdWithoutOwner: vi.fn(),
+      createProperty: vi.fn(),
+      updateProperty: vi.fn(),
+      deleteProperty: vi.fn(),
+    },
+    uploadPropertyImage: vi.fn(),
+    getOrSetCache: vi.fn(
+      async (
+        _key: string,
+        _ttlSeconds: number,
+        fetchData: () => Promise<unknown>,
+      ) => fetchData(),
+    ),
+  }),
+);
 
 vi.mock("../services/property.service.js", () => propertyService);
 
 vi.mock("../utils/upload-property-images.js", () => ({
   uploadPropertyImage,
+}));
+
+vi.mock("../../../shared/redis/redis-cache.js", () => ({
+  getOrSetCache,
 }));
 
 import {
