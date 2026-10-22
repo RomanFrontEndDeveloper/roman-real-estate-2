@@ -541,6 +541,18 @@ Before reaching the production baseline, the project went through a hardening pa
 - Technical-debt refactoring
 - Production build verification
 
+### Lazy Loading & Image Optimization
+
+Implemented lazy loading for property images using Next.js `Image` component.
+
+- **Property cards:** Images use lazy loading by default to defer loading when they are outside the viewport.
+- **Property gallery:** Thumbnail images use lazy loading by default.
+- **Main property image:** Uses `priority` for prioritized loading when displayed above the fold.
+- **Responsive images:** The `sizes` attribute helps the browser select an appropriate image size for the viewport.
+- **Image optimization:** Next.js optimizes images and serves them in efficient formats such as WebP when supported.
+
+**Goal:** Reduce unnecessary image loading, improve initial page loading, and optimize bandwidth usage.
+
 ### Production Baseline v1.0
 
 The current baseline includes:
