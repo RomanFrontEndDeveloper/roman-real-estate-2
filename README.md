@@ -1,8 +1,34 @@
 # 🏠 Roman Real Estate 2
 
-A full-stack real estate marketplace built from scratch as a learning, portfolio, and production-oriented project.
+A full-stack real estate marketplace built from scratch with **Next.js, Express, TypeScript and MongoDB**, designed around production-oriented practices: layered backend architecture, JWT authentication with refresh tokens, role-based access control, Redis caching, automated tests and API documentation.
 
-Roman Real Estate 2 simulates a modern real estate platform where users can register, manage profiles, create and manage property listings, search and filter properties, work with agents and agencies, save properties to favorites, and access role-based administrative functionality.
+Users can register, manage profiles, publish and manage property listings, search and filter on a map, save favorites, browse agents and agencies, and use admin tools protected by RBAC.
+
+> **Status:** Production Baseline v1.0 completed. Next: production deployment, expanded test coverage, real-time messaging.
+
+---
+
+## ✨ Highlights
+
+- **Secure auth:** short-lived JWT access tokens, refresh tokens in HttpOnly cookies, automatic silent refresh on the client.
+- **Authorization at two levels:** ownership checks (only the owner can edit or delete a listing) and Role-Based Access Control for admin operations, always enforced on the backend.
+- **Clean backend architecture:** feature-first structure with Route → Middleware → Controller → Service → Repository → MongoDB.
+- **Performance:** Redis cache for property search (cache hit/miss verified, 60 s TTL), MongoDB indexes, pagination with API result limits, lazy-loaded and optimized images via `next/image`.
+- **Quality:** 59 passing server unit tests (Redis mocked, so tests run without infrastructure), strict TypeScript, ESLint and Prettier, centralized error handling.
+- **Developer experience:** PNPM monorepo, Swagger/OpenAPI docs, Morgan request logging, Dockerized Redis for local development.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer                  | Technologies                                                                                |
+| ---------------------- | ------------------------------------------------------------------------------------------- |
+| **Frontend**           | Next.js (App Router), React, TypeScript, Tailwind CSS, React Hook Form, Zod, TanStack Query |
+| **Backend**            | Node.js, Express.js, TypeScript, MongoDB, Mongoose, JWT, bcrypt, Multer                     |
+| **Caching**            | Redis (Docker `redis:alpine`)                                                               |
+| **Real-time**          | Socket.IO (foundation for messaging, in progress)                                           |
+| **API docs & logging** | Swagger UI / OpenAPI, Morgan                                                                |
+| **Cloud & tooling**    | Cloudinary, Docker, PNPM workspaces, Git/GitHub, Postman, ESLint, Prettier                  |
 
 ---
 
@@ -10,266 +36,66 @@ Roman Real Estate 2 simulates a modern real estate platform where users can regi
 
 ### 🔐 Authentication & Security
 
-- User registration and login
-- JWT authentication
-- Short-lived access tokens
-- Refresh tokens
-- HttpOnly refresh-token cookies
-- Automatic access-token refresh
-- Direct account activation on registration
+- Registration and login with direct account activation
+- JWT access tokens + refresh tokens in HttpOnly cookies, automatic token refresh
 - Forgot-password and reset-password flows
-- Protected API routes
-- Authentication middleware
-- Authorization for protected resources
-- Ownership-based authorization
-- Role-Based Access Control (RBAC)
-- Admin-only protected routes
+- Authentication middleware, protected routes
+- Ownership-based authorization and Role-Based Access Control (RBAC)
 
 ### 👤 User Profile
 
-- View and edit user profile
-- Change email
-- Change password
-- Avatar upload
-- Cloudinary integration
+- View and edit profile, change email and password
+- Avatar upload via Cloudinary
 
 ### 🏠 Properties
 
-- Create, edit, and delete property listings
-- Property details pages
-- Property image gallery and uploads
-- Property ownership and ownership-based authorization
-- Public property pages
-- Personal property pages
-- Reusable property cards
-- Property features
-- Pagination and sorting
-- Map-based property display
-- Location geocoding
+- Create, edit and delete listings with image gallery and uploads
+- Public and personal property pages
+- Map-based display with location geocoding
+- Property features, pagination and sorting
 
 ### 🔎 Search & Filters
 
-- Location search
-- Property type
-- Sale or rent
-- Price range
-- Total area range
-- Kitchen area
-- Number of bedrooms
-- Sorting
-- Pagination
-- Combined search and filtering
+- Location, property type, sale or rent
+- Price range, total area range, kitchen area, bedrooms
+- Combined filtering with sorting and pagination
 
 ### ❤️ Favorites
 
-- Add properties to favorites
-- Remove properties from favorites
-- Dedicated favorites page
-- Favorite-state synchronization
-- Authenticated favorite controls
-- Unique user/property favorite relationship
+- Add and remove favorites, dedicated favorites page
+- Favorite state synchronized across the UI
+- Unique user/property relationship enforced in the database
 
-### 👨‍💼 Agents
+### 👨‍💼 Agents & 🏢 Agencies
 
-- Agents list
-- Agent profiles and details
-- Agent property listings
-- Reusable agent cards
-- Agent-related property views
-
-### 🏢 Agencies
-
-- Agencies list
-- Agency profiles and details
-- Agency members
-- Agency property listings
-- Reusable agency cards
+- Agents and agencies lists, profile and detail pages
+- Property listings per agent and per agency
 - Agency member management
 
 ### 🛡️ Administration
 
-- Admin role architecture
-- Admin authentication and authorization
-- Admin authorization middleware
-- Admin-only routes
+- Admin role architecture with admin-only routes and middleware
 - Admin property management
-- User and property permission checks
-- Protected administrative operations
-- Delete confirmation modal
-- Success and error notifications
-- Loading and disabled action states
-
----
-
-## 🔌 Real-Time Communication — Socket.IO
-
-The project uses Socket.IO to implement real-time communication between the frontend and backend without requiring the client to repeatedly poll the server for updates.
-
-Socket.IO enables the application to exchange events over a persistent connection, making it suitable for messaging and other real-time features.
-
-### Redis Caching
-
-Redis is used to cache property search results and reduce unnecessary database queries to MongoDB.
-
-**Implementation:**
-
-- **Docker:** Redis runs locally in a Docker container using the `redis:alpine` image.
-- **Redis Client:** A dedicated Redis client manages the connection using the `REDIS_URL` environment variable.
-- **Cache Utility:** The reusable `getOrSetCache` utility checks whether data exists in Redis before fetching fresh data.
-- **Property Search:** Search results are cached based on filters, sorting, pagination, and page size.
-- **TTL (Time To Live):** Cached results expire after 60 seconds.
-- **Cache MISS:** If the data is not cached, it is fetched from MongoDB and stored in Redis.
-- **Cache HIT:** If cached data exists, it is returned without repeating the database queries.
-- **Error Logging:** Redis client errors are logged for easier debugging.
-- **Testing:** Redis caching is mocked in unit tests to keep controller tests independent of a running Redis instance.
-
-**Key files:**
-
-- `apps/server/src/shared/redis/redis.client.ts` — Redis client configuration.
-- `apps/server/src/shared/redis/redis-cache.ts` — reusable caching utility.
-- `apps/server/src/features/property/controllers/property.controller.ts` — property search caching integration.
-
-**Local development:**
-
-Start Redis using Docker:
-
-```bash
-docker run -d --name roman-redis -p 6379:6379 redis:alpine
-```
-
-Configure the server environment:
-
-```env
-REDIS_URL=redis://127.0.0.1:6379
-```
-
-Verify the Redis connection:
-
-```bash
-docker exec -it roman-redis redis-cli ping
-```
-
-Expected response:
-
-```text
-PONG
-```
-
-**Verification:**
-
-- Verified cache misses and cache hits through repeated property search requests.
-- All 59 server tests pass.
-- TypeScript server build completes successfully.
-
-### Key capabilities
-
-- Real-time communication between clients and the server
-- Event-based message exchange
-- Authenticated socket connections
-- User identification and role information
-- Sending and receiving messages without reloading the page
-- Integration with the existing authentication system
-
-### Typical communication flow
-
-```text
-Client
-  ↓
-Socket Connection
-  ↓
-Authentication
-  ↓
-User Identification
-  ↓
-Join Conversation
-  ↓
-Send / Receive Events
-  ↓
-Update the UI in Real Time
-```
-
-### Architecture
-
-Socket.IO complements the existing REST API rather than replacing it.
-
-- **REST API:** handles standard HTTP requests, such as loading conversations and retrieving application data.
-- **Socket.IO:** handles real-time events, such as sending and receiving messages.
-- **Authentication:** ensures that socket connections are associated with authenticated users.
-- **Frontend:** listens for socket events and updates the interface when new data arrives.
-
-This separation allows the application to use HTTP requests for regular data operations and persistent socket connections for real-time updates.
-
-### Development goals
-
-The Socket.IO implementation is part of the project's full-stack learning path, focusing on:
-
-- Understanding persistent client-server connections
-- Working with socket events
-- Authenticating socket connections
-- Managing user-specific communication
-- Handling connection and disconnection events
-- Integrating real-time functionality with the existing application architecture
-
-The implementation should also handle connection failures, unauthorized connections, duplicate event listeners, and resource cleanup appropriately.
-
-## 🧩 Reusable Components
-
-The project uses reusable components to reduce duplication and keep the codebase maintainable.
-
-Examples include:
-
-- `PropertyCard`
-- `PropertyDetails`
-- `PropertyGallery`
-- `PropertyFeatures`
-- `DeletePropertyButton`
-- `AgencyCard`
-- `AgentCard`
-- `BackButton`
-- `ConfirmModal`
-
-For example, `PropertyDetails` can support different page contexts without creating duplicate components such as `PropertyDetailsAll` or `PropertyCardAll`.
-
-**Public property page:**
-
-```tsx
-<PropertyDetails property={property} />
-```
-
-This context can display property information, the gallery, owner information, and a back button.
-
-**Personal property page:**
-
-```tsx
-<PropertyDetails property={property} showActions />
-```
-
-Depending on the page context, personal actions can include adding or removing a favorite, editing or deleting the listing, returning to all properties, and navigating back.
-
-This approach keeps presentation reusable while allowing page-specific actions to be controlled through props.
+- Delete confirmation modal, success and error notifications, loading and disabled states
 
 ---
 
 ## 🧱 Architecture
 
-The project uses a **PNPM monorepo** with a **feature-first backend architecture** and a domain-oriented frontend structure.
-
-### Monorepo structure
+PNPM monorepo with a **feature-first backend** and a **domain-oriented frontend**.
 
 ```text
 roman-real-estate-2/
 ├── apps/
-│   ├── client/                 # Next.js frontend
-│   └── server/                 # Node.js / Express backend
-├── packages/                   # Shared packages
+│   ├── client/        # Next.js frontend
+│   └── server/        # Node.js / Express backend
+├── packages/          # Shared packages
 ├── package.json
 ├── pnpm-workspace.yaml
 └── README.md
 ```
 
-### Backend architecture
-
-Backend functionality is organized by business domain:
+### Backend
 
 ```text
 features/
@@ -281,477 +107,146 @@ features/
 └── property/
 ```
 
-A typical feature can contain the layers required for that domain:
+Each feature contains only the layers it needs (`controllers`, `dto`, `middleware`, `models`, `repository`, `routes`, `services`, `utils`).
 
 ```text
-feature/
-├── controllers/
-├── dto/
-├── middleware/
-├── models/
-├── repository/
-├── routes/
-├── services/
-└── utils/
+Client → Route → Middleware → Controller → Service → Repository → MongoDB
 ```
 
-Not every feature necessarily needs every folder. The goal is to separate responsibilities where that separation improves clarity and maintainability.
-
-### Typical request flow
-
-```text
-Client
-  ↓
-Route
-  ↓
-Middleware
-  ↓
-Controller
-  ↓
-Service
-  ↓
-Repository
-  ↓
-MongoDB
-```
-
-This separation helps keep HTTP handling, business logic, database access, validation, authentication, and authorization organized by responsibility.
-
-### Frontend architecture
-
-The frontend uses the **Next.js App Router** and a domain-oriented component structure.
-
-```text
-components/
-├── agency/
-├── agent/
-├── auth/
-├── favorites/
-├── layout/
-├── map/
-├── profile/
-├── property/
-├── sections/
-└── ui/
-```
-
-Application routes are organized by domain:
-
-```text
-app/
-├── about/
-├── admin/
-├── agency/
-├── agents/
-├── allproperty/
-├── favorites/
-├── forgot-password/
-├── login/
-├── profile/
-├── property/
-├── register/
-├── reset-password/
-└── verify-email/
-```
-
-Shared frontend infrastructure includes:
-
-- API layer
-- `apiFetch`
-- Authentication handling
-- Automatic token refresh
-- Reusable UI components
-- Form validation
-- Shared types
-- TanStack Query integration
-
----
-
-## 🛠️ Tech Stack
+This keeps HTTP handling, business logic, data access, validation and authorization separated by responsibility.
 
 ### Frontend
 
-- Next.js
-- React
-- TypeScript
-- Tailwind CSS
-- React Hook Form
-- Zod
-- TanStack Query
-- Next.js Image
-
-### Backend
-
-- Node.js
-- Express.js
-- TypeScript
-- MongoDB
-- Mongoose
-- JSON Web Tokens (JWT)
-- bcrypt
-- Multer
-- REST API
-- Swagger / OpenAPI
-- Morgan
-
-### Cloud & Development Tools
-
-- Cloudinary
-- PNPM Workspace
-- Git and GitHub
-- Postman
-- Swagger UI
-- ESLint
-- Prettier
-
----
-
-## 📘 API Documentation — Swagger
-
-The backend uses **Swagger UI with the OpenAPI specification** to document and explore the REST API.
-
-Swagger provides an interactive API reference that can describe available endpoints, HTTP methods, parameters, request bodies, response formats, and authentication requirements. It helps developers understand the API contract and test supported endpoints without manually constructing every request in a separate tool.
-
-Typical benefits include:
-
-- Centralized REST API documentation
-- Clear descriptions of endpoints and request/response schemas
-- An interactive interface for trying documented API operations
-- Easier frontend/backend integration
-- A convenient reference for development and debugging
-
-When the backend server is running locally, open the Swagger UI route configured by the server. For example, if Swagger is mounted at `/api-docs` and the backend runs on port `5000`, the URL is:
-
 ```text
-http://localhost:5000/api-docs
+components/  agency · agent · auth · favorites · layout · map · profile · property · sections · ui
+app/         about · admin · agency · agents · allproperty · favorites · forgot-password · login · profile · property · register · reset-password
 ```
 
-The exact path depends on the Express configuration. The `/api-docs` URL should only be used if that is the route configured in the project.
+Shared infrastructure: central `apiFetch` API layer with automatic token refresh, TanStack Query, form validation (React Hook Form + Zod), shared types and reusable UI components.
 
-Swagger UI is a development and documentation tool; it does **not** replace runtime validation, authentication middleware, authorization checks, or automated tests. An endpoint must still enforce its own security and validation rules on the server.
+### Reusable components
 
----
+`PropertyCard`, `PropertyDetails`, `PropertyGallery`, `PropertyFeatures`, `AgencyCard`, `AgentCard`, `ConfirmModal`, `DeletePropertyButton`, `BackButton`.
 
-## 📝 HTTP Request Logging — Morgan
+Page-specific behavior is controlled through props instead of duplicating components:
 
-The backend uses **Morgan**, an HTTP request logger middleware for Express, to log incoming HTTP requests and their responses.
-
-Morgan helps make backend activity visible during development. It can show information such as the HTTP method, request URL, response status code, response size, and response time, depending on the logging format selected.
-
-Typical benefits include:
-
-- Seeing which API endpoints are being requested
-- Checking HTTP response status codes
-- Diagnosing failed or unexpected requests
-- Observing request duration during development
-- Making API debugging easier
-
-Morgan is usually registered as Express middleware, before the routes whose requests should be logged. For example:
-
-```ts
-import express from "express";
-import morgan from "morgan";
-
-const app = express();
-
-app.use(morgan("dev"));
-
-// Register other middleware and routes after the logger.
+```tsx
+<PropertyDetails property={property} />              {/* public page */}
+<PropertyDetails property={property} showActions />  {/* owner page: edit, delete, favorite */}
 ```
-
-The `dev` format provides concise, colorized request logs in supported terminals. The actual format and middleware order should match the project's server setup.
-
-Morgan is an **HTTP request logger**, not a complete application monitoring or error-tracking platform. Avoid logging passwords, access tokens, refresh tokens, cookies, or other sensitive data. In production, select an appropriate logging format and consider the application's privacy and operational requirements.
 
 ---
 
 ## 🔐 Security & Authorization
 
-The application uses multiple layers of authentication and authorization.
-
-### Authentication flow
-
 ```text
-Login
-  ↓
-Access Token + Refresh Token
-  ↓
-Refresh Token stored in an HttpOnly cookie
-  ↓
-Protected API requests use the Access Token
-  ↓
-Access Token expires
-  ↓
-Refresh flow requests a new Access Token
+Login → Access Token + Refresh Token (HttpOnly cookie)
+      → Protected requests use the Access Token
+      → Token expires → refresh flow issues a new Access Token
 ```
 
-Access tokens are short-lived, while refresh tokens are stored in HttpOnly cookies. The client-side API layer handles access-token refresh when required.
+**Ownership-based authorization:** find property → check owner → allow or reject.
 
-### Ownership-based authorization
+**Role-based authorization:** Request → Authentication middleware → Admin authorization middleware → Controller → Service.
 
-Property modification is protected by ownership checks:
+Frontend controls only affect visibility and UX; **all authorization is enforced on the backend.**
 
-```text
-Authenticated User
-  ↓
-Request Property
-  ↓
-Find Property
-  ↓
-Check Owner
-  ↓
-Owner → Allow operation
-Not owner → Reject operation
+---
+
+## ⚡ Redis Caching
+
+Property search results are cached to reduce MongoDB load.
+
+- **Cache key:** built from filters, sorting, pagination and page size
+- **TTL:** 60 seconds
+- **Flow:** cache hit returns instantly; cache miss queries MongoDB and stores the result
+- **Reusable utility:** `getOrSetCache` wraps the check-then-fetch logic
+- **Resilience:** Redis client errors are logged
+- **Testing:** Redis is mocked in unit tests
+
+**Key files**
+
+- `apps/server/src/shared/redis/redis.client.ts`: client configuration
+- `apps/server/src/shared/redis/redis-cache.ts`: caching utility
+- `apps/server/src/features/property/controllers/property.controller.ts`: search caching integration
+
+**Run locally**
+
+```bash
+docker run -d --name roman-redis -p 6379:6379 redis:alpine
+docker exec -it roman-redis redis-cli ping   # expected: PONG
 ```
 
-### Role-based authorization
-
-Administrative operations are protected on the backend:
-
-```text
-Request
-  ↓
-Authentication Middleware
-  ↓
-Admin Authorization Middleware
-  ↓
-Admin Route
-  ↓
-Controller
-  ↓
-Service
+```env
+REDIS_URL=redis://127.0.0.1:6379
 ```
 
-Frontend controls are used for visibility and user experience only. Actual authorization must be enforced by the backend.
+---
+
+## 🔌 Real-Time Communication (Socket.IO)
+
+Socket.IO is being integrated to add real-time messaging alongside the REST API.
+
+- **REST API** handles regular data operations such as loading conversations
+- **Socket.IO** handles live events such as sending and receiving messages
+- Socket connections are authenticated and tied to the existing auth system
+- Planned handling for connection failures, unauthorized connections, duplicate listeners and cleanup on disconnect
+
+---
+
+## 📘 API Documentation & Logging
+
+- **Swagger UI (OpenAPI):** interactive documentation of endpoints, schemas and auth requirements. With the server running locally and Swagger mounted at `/api-docs`, open `http://localhost:5000/api-docs` (adjust to your configured path and port).
+- **Morgan:** HTTP request logging (method, URL, status, response time) registered as Express middleware. Sensitive data such as passwords, tokens and cookies is never logged.
 
 ---
 
 ## 🛡️ Production Hardening
 
-Before reaching the production baseline, the project went through a hardening pass covering:
+A dedicated hardening pass covered: architecture audit, frontend ↔ backend data-flow audit, API contract audit, error-handling audit, environment and configuration review, security review, MongoDB query and index review, frontend performance review, technical-debt refactoring and production build verification.
 
-- Final architecture audit
-- Frontend ↔ backend data-flow audit
-- API contract audit
-- Error-handling audit
-- Environment and configuration review
-- Authentication and security review
-- MongoDB query and index review
-- Frontend performance review
-- Technical-debt refactoring
-- Production build verification
+**Production Baseline v1.0 includes**
 
-### Lazy Loading & Image Optimization
-
-Implemented lazy loading for property images using Next.js `Image` component.
-
-- **Property cards:** Images use lazy loading by default to defer loading when they are outside the viewport.
-- **Property gallery:** Thumbnail images use lazy loading by default.
-- **Main property image:** Uses `priority` for prioritized loading when displayed above the fold.
-- **Responsive images:** The `sizes` attribute helps the browser select an appropriate image size for the viewport.
-- **Image optimization:** Next.js optimizes images and serves them in efficient formats such as WebP when supported.
-
-**Goal:** Reduce unnecessary image loading, improve initial page loading, and optimize bandwidth usage.
-
-### Production Baseline v1.0
-
-The current baseline includes:
-
-- Centralized API request handling
-- Automatic access-token refresh
-- Strongly typed property update flow
-- Backend request validation
-- Ownership-based authorization
-- Role-based authorization
-- Centralized error handling
-- Environment-based configuration
+- Centralized API request handling and automatic token refresh
+- Strongly typed property update flow and backend request validation
+- Ownership-based and role-based authorization
+- Centralized error handling and environment-based configuration
 - Protected refresh-token cookies
-- MongoDB query and index baseline
-- Pagination and API result limits
-- Production client and server build verification
+- MongoDB query and index baseline, pagination and result limits
+- Lazy loading and responsive image optimization (`next/image`, `priority` for above-the-fold images, `sizes`, WebP)
+- Verified production builds for client and server
 
-This baseline represents the current project milestone; it should not be interpreted as a claim that every production concern has been fully solved. Deployment configuration, automated tests, monitoring, and ongoing security reviews remain important parts of production readiness.
+Deployment configuration, expanded automated tests, monitoring and ongoing security reviews are the next steps toward full production readiness.
 
 ---
 
 ## 🔄 Development Approach
 
-Features are developed as complete vertical slices:
+Every feature is built as a complete vertical slice:
 
 ```text
-UI
-  ↓
-API
-  ↓
-Database
-  ↓
-Integration
-  ↓
-Validation
-  ↓
-Authentication / Authorization
-  ↓
-Testing
-  ↓
-Refactoring
-  ↓
-Commit
+UI → API → Database → Integration → Validation → Auth → Testing → Refactoring → Commit
 ```
 
-The project focuses on understanding the complete lifecycle of a full-stack feature rather than implementing isolated UI functionality only.
+The aim is to understand why an architecture works, what can fail, and how failures are handled, not only to make features work.
 
 ---
 
-## 📈 Current Progress
+## 🗺️ Roadmap
 
-### ✅ Implemented
-
-- Product foundation
-- Public website
-- Responsive UI
-- Authentication
-- JWT access and refresh tokens
-- Automatic token refresh
-- Direct account activation on registration
-- Password recovery
-- User profiles
-- Avatar uploads
-- Cloudinary integration
-- Property CRUD
-- Property ownership authorization
-- Property details
-- Property gallery
-- Property image uploads
-- Search and filtering
-- Sorting
-- Pagination
-- Map-based property display
-- Location geocoding
-- Favorites
-- Agents
-- Agencies
-- Agency members
-- Reusable property components
-- Public and personal property views
-- Admin role architecture
-- Admin authorization middleware
-- Admin-only routes
-- Admin property management
-- RBAC foundations
-- Delete confirmation modal
-- Success and error notifications
-- Loading and disabled action states
-- Final production-hardening pass
-- Production Baseline v1.0
-- Swagger / API documentation
-- Morgan HTTP request logging
-
-### 🚧 Next Development Stage
-
-The next stage focuses on expanding the project toward stronger production and Middle-level engineering practices:
-
-- Automated testing
-- Expanded API documentation
-- Production deployment
-- Advanced performance optimization
-- Additional security improvements
-- Real-time messaging
-- Notifications
-- Further production observability
-
----
-
-## 🎯 Project Goal
-
-Roman Real Estate 2 is both a practical full-stack application and a structured learning path focused on progressing through:
-
-```text
-Junior
-  ↓
-Junior+
-  ↓
-Strong Junior
-  ↓
-Strong Junior+
-  ↓
-Middle-ready
-```
-
-The goal is not simply to make the application work. The project is designed to develop a deeper understanding of:
-
-- Application architecture
-- API design
-- Client ↔ server communication
-- Databases
-- Authentication
-- Authorization
-- Role-Based Access Control (RBAC)
-- Security
-- Validation
-- Error handling
-- Performance
-- Reusable components
-- Data flow
-- Maintainability
-- Production readiness
-
----
-
-## 🧪 Engineering Mindset
-
-The project follows this cycle:
-
-```text
-Learn
-  ↓
-Implement
-  ↓
-Test
-  ↓
-Break
-  ↓
-Fix
-  ↓
-Optimize
-  ↓
-Deploy
-  ↓
-Explain
-```
-
-The objective is to understand not only what works, but also:
-
-- Why it works
-- Why the architecture was chosen
-- What can fail
-- How failures are handled
-- How the system behaves under real-world conditions
-- How the application can evolve without becoming difficult to maintain
-
----
-
-## 🚀 Project Status
-
-**Current milestone: Production Baseline v1.0 completed.**
-
-The next planned stage is:
-
-```text
-Roman Real Estate 2
-  ↓
-Production Baseline v1.0
-  ↓
-Production Deployment
-  ↓
-Further Production & Middle-level Engineering
-```
+- [x] Authentication, profiles, property CRUD, search, favorites, agents, agencies
+- [x] Admin RBAC, Swagger documentation, Morgan logging
+- [x] Redis caching, server unit tests, Production Baseline v1.0
+- [ ] Production deployment
+- [ ] Expanded automated testing (integration and end-to-end)
+- [ ] Real-time messaging and notifications (Socket.IO)
+- [ ] Monitoring and observability, further performance and security improvements
 
 ---
 
 ## 👨‍💻 Author
 
-**Roman Okhremov**  
-Frontend Developer (React / Next.js / TypeScript) with Full-Stack experience
+**Roman Okhremov**: Frontend Developer (React / Next.js / TypeScript) with full-stack experience
 
 - **GitHub:** https://github.com/RomanFrontEndDeveloper/
 - **LinkedIn:** https://www.linkedin.com/in/roman-okhremov-9b0764369/

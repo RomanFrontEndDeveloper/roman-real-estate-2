@@ -1,0 +1,29 @@
+
+FROM node:22-alpine
+
+RUN corepack enable
+
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/server/package.json ./apps/server/package.json
+
+RUN pnpm install --filter server... --frozen-lockfile --prod=false
+
+
+RUN echo "=== SERVER NODE_MODULES ===" \
+    && ls -la /app/apps/server/node_modules \
+    && echo "=== TYPESCRIPT PACKAGE ===" \
+    && pnpm --filter server why typescript \
+    && echo "=== TYPESCRIPT EXECUTABLE ===" \
+    && pnpm --filter server exec tsc --version
+
+
+
+COPY apps/server ./apps/server
+
+RUN pnpm --filter server build
+
+WORKDIR /app/apps/server
+
+CMD ["pnpm", "start"]
